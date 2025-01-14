@@ -59,13 +59,16 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
                         title: 'Successfully Logged in',
                         content: 'Continue your browsing events',
                         onOk: () => {
-                            if (window.history.length > 1) {
+                            if (window.location.pathname === '/' && window.history.length > 1) {
+                                window.location.href = '/';
+                            } else if (window.history.length > 1) {
                                 window.history.back();
                             } else {
-                                window.location.href = '/'; 
+                                window.location.href = '/';
                             }
                         },
                     });
+
                     setError(null);
                 } else {
                     setError('Invalid OTP');
