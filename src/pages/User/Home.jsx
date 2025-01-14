@@ -11,6 +11,7 @@ import PlaceModal from '../../components/modals/PlaceModal';
 import url from '../../constants/url';
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
+import image1 from "../../assets/home-explore.png"
 
 const Home = () => {
   const [isModalPriceOpen, setIsModalPriceOpen] = useState(false);
@@ -110,9 +111,9 @@ const Home = () => {
   return (
     <div className="flex flex-col items-center justify-center text-center mt-28 bg-primary">
       <h1 className="text-7xl font-medium text-white tracking-tighter">
-        Find <img src="https://static.vecteezy.com/system/resources/thumbnails/028/653/192/small/casino-poker-game-card-icon-png.png" alt="event icon" className="w-36 h-36 inline-block" /> events
+        Find <img src={image1} alt="event icon" className="w-32 h-32 inline-block" /> events
       </h1>
-      <h1 className="text-7xl font-medium text-white mb-4 mx-[-4px] tracking-tighter">
+      <h1 className="text-7xl font-medium text-white mb-4 tracking-tighter">
         in <span className='text-[#938c8c] underline'>your</span> area
       </h1>
       <p className="text-lg text-[#b4b4b4] max-w-xl mt-4">
