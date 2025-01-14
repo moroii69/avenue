@@ -62,7 +62,7 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
                             if (window.history.length > 1) {
                                 window.history.back();
                             } else {
-                                window.location.href = '/home'; // Fallback to a specific page.
+                                window.location.href = '/'; 
                             }
                         },
                     });
