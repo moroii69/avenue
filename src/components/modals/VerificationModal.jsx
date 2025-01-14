@@ -55,14 +55,18 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
                         localStorage.setItem('organizerId', organizer._id);
                         localStorage.setItem('accountId', organizer.stripeAccountId);
                     }
-                    onOk: () => {
-                        if (window.history.length > 1) {
-                            window.history.back();
-                        } else {
-                            window.location.href = '/';
-                        }
-                    },
-                        setError(null);
+                    Modal.success({
+                        title: 'Successfully Logged in',
+                        content: 'Continue your browsing events',
+                        onOk: () => {
+                            if (window.history.length > 1) {
+                                window.history.back();
+                            } else {
+                                window.location.href = '/home'; // Fallback to a specific page.
+                            }
+                        },
+                    });
+                    setError(null);
                 } else {
                     setError('Invalid OTP');
                 }
