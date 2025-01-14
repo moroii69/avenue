@@ -55,14 +55,14 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
                         localStorage.setItem('organizerId', organizer._id);
                         localStorage.setItem('accountId', organizer.stripeAccountId);
                     }
-                    Modal.success({
-                        title: 'Successfully Logged in',
-                        content: 'Continue your browsing events',
-                        onOk: () => {
+                    onOk: () => {
+                        if (window.history.length > 1) {
                             window.history.back();
-                        },
-                    });
-                    setError(null);
+                        } else {
+                            window.location.href = '/';
+                        }
+                    },
+                        setError(null);
                 } else {
                     setError('Invalid OTP');
                 }
