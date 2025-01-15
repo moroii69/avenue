@@ -82,7 +82,7 @@ const QrTicket = ({ isOpen, onClose, card }) => {
                         </div>
                         <div className="flex justify-start mb-4 mt-5">
                             <img
-                                src="https://img.freepik.com/free-photo/people-celebrating-party_53876-14410.jpg"
+                                src={card.party_id.flyer}
                                 alt="Event Profile"
                                 className="w-14 h-14 rounded-xl object-cover"
                             />
