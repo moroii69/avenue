@@ -6,3 +6,16 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
+
+.striped-background {
+    background: repeating-linear-gradient(
+        -45deg,
+        #0063946e,
+        #004b71 2px,
+        #003a57bb 2px,
+        #003a57 15px
+    );
+    background-color: #02567731;
+    background-blend-mode: overlay;
+    opacity: 0.9;
+}

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import LoginModal from '../modals/LoginModal';
 import { useLocation, useParams } from 'react-router-dom';
 import { FaRegCalendarAlt } from 'react-icons/fa';
+import { FaTicketAlt, FaUser, FaSignOutAlt } from "react-icons/fa";
 
 const Header = () => {
   const { name, id } = useParams();
@@ -10,6 +11,7 @@ const Header = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [eventName, setEventName] = useState("");
   const [organizerName, setOrganizerName] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
 
   const userId = localStorage.getItem('userID') || "";
 
@@ -46,6 +48,10 @@ const Header = () => {
               <span className="text-white font-bold text-xs">{organizerName.replace(/-/g, ' ')}</span>
             </span>
           </div>
+        </>
+      ) : location.pathname.startsWith('/tickets') ? (
+        <>
+          <div></div>
         </>
       ) : (
         <div className="flex space-x-3 bg-[#4e4e4e] bg-opacity-50 rounded-full py-1 px-1">
@@ -88,18 +94,50 @@ const Header = () => {
             </button>
             <LoginModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
           </div>
+        ) : location.pathname === '/tickets' ? (
+          <>
+            <div className="flex space-x-3 bg-opacity-50 rounded-full py-1 px-1">
+              <span className="flex items-center space-x-4">
+                <span className="text-[#898989] text-xs">Home</span>
+                <span className="text-[#898989] text-xs">/</span>
+                <span className="text-white font-bold text-xs"> Tickets</span>
+              </span>
+            </div>
+          </>
         ) : (
           <>
             {
               userId ? (
                 <div className="flex space-x-4">
-                  <button
-                    onClick={() => { }}
-                    className="bg-white text-xs text-black px-5 py-2 rounded-full font-bold hover:bg-gray-200 transition"
+                  <div
+                    className="relative inline-block text-left"
+                    onMouseEnter={() => setIsOpen(true)}
+                    onMouseLeave={() => setIsOpen(false)}
                   >
-                    Profile
-                  </button>
-                  <LoginModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+                    <button
+                      className="bg-white text-xs text-black px-5 py-2 rounded-full font-bold hover:bg-gray-200 transition"
+                    >
+                      Profile
+                    </button>
+                    {isOpen && (
+                      <div className="absolute right-0 w-48 bg-[#222222] rounded-md shadow-lg border border-[#222222] z-50">
+                        <ul className="py-2">
+                          <a href='/tickets' className="flex items-center px-4 py-2 hover:bg-[#444444] hover:rounded-lg mx-2 cursor-pointer">
+                            <FaTicketAlt className="text-gray-300 mr-2" />
+                            <span className="text-white text-xs">My Tickets</span>
+                          </a>
+                          <li className="flex items-center px-4 py-2 hover:bg-[#444444] hover:rounded-lg mx-2 cursor-pointer">
+                            <FaUser className="text-gray-300 mr-2" />
+                            <span className="text-white text-xs">My Profile</span>
+                          </li>
+                          <li className="flex items-center px-4 py-2 hover:bg-[#444444] hover:rounded-lg mx-2 cursor-pointer">
+                            <FaSignOutAlt className="text-gray-300 mr-2" />
+                            <span className="text-white text-xs">Logout</span>
+                          </li>
+                        </ul>
+                      </div>
+                    )}
+                  </div>
                 </div>
               ) : (
                 <div className="flex space-x-4">

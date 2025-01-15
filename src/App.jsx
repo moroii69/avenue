@@ -9,13 +9,14 @@ import { stripePromise } from "./constants/stripePromise"
 import Element from "antd/es/skeleton/Element";
 import { Elements } from "@stripe/react-stripe-js";
 import QrTicket from "./pages/User/QrTicket";
+import Tickets from "./pages/User/Tickets";
 
 function App() {
   const location = useLocation();
   const navigate = useNavigate();
 
   const hideHeader = ["/login", "/qr-ticket"];
-  const hideFooter = ["/login", "/info", "/creater", "/checkout", "/qr-ticket"];
+  const hideFooter = ["/login", "/info", "/creater", "/checkout", "/qr-ticket", "/tickets"];
 
   const shouldHideNavbarAndFooter = hideHeader.some((path) =>
     location.pathname.startsWith(path)
@@ -51,6 +52,7 @@ function App() {
               </Elements>
             } />
           <Route path="/qr-ticket/:id" element={<QrTicket />} />
+          <Route path="/tickets" element={<Tickets />} />
         </Routes>
         {!shouldHideFooter && <Footer />}
       </div>
