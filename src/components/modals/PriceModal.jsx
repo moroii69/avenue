@@ -3,9 +3,8 @@ import { X, Globe } from 'lucide-react';
 import VerificationModal from './VerificationModal';
 import { Slider, Switch } from 'antd';
 
-const PriceModal = ({ isOpen, onClose }) => {
+const PriceModal = ({ isOpen, onClose, sliderValue, setSliderValue, filteredEvents }) => {
     const [showFreeOnly, setShowFreeOnly] = useState(false);
-    const [sliderValue, setSliderValue] = useState([0, 100]);
 
     if (!isOpen) return null;
 
@@ -50,6 +49,7 @@ const PriceModal = ({ isOpen, onClose }) => {
                             tooltip={{
                                 formatter: (val) => (val === 0 ? "Free" : val === 100 ? "All" : `$ ${val}`),
                             }}
+                            disabled={showFreeOnly}
                         />
                     </div>
 
@@ -60,6 +60,7 @@ const PriceModal = ({ isOpen, onClose }) => {
                             readOnly
                             className="w-[48%] p-2 text-xs rounded-xl bg-[#151515] border border-[#222222] text-white focus:outline-none"
                             placeholder="$0"
+                            disabled={showFreeOnly}
                         />
                         <input
                             type="text"
@@ -67,6 +68,7 @@ const PriceModal = ({ isOpen, onClose }) => {
                             readOnly
                             className="w-[48%] p-2 text-xs rounded-xl bg-[#151515] border border-[#222222] text-white focus:outline-none"
                             placeholder="$1,000"
+                            disabled={showFreeOnly}
                         />
                     </div>
                     <label className="flex items-center gap-3 mb-6 cursor-pointer">
@@ -82,10 +84,11 @@ const PriceModal = ({ isOpen, onClose }) => {
                         </div>
                         <span className="text-sm text-white">Show free events only</span>
                     </label>
+
                     <button
                         className={`w-full rounded-full px-4 py-3 transition duration-200 bg-white text-black hover:bg-[#f2f2f2] text-xs`}
                     >
-                        See 197 matching events
+                        See {filteredEvents} matching events
                     </button>
                 </div>
             </div>

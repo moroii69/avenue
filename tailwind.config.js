@@ -6,10 +6,11 @@ export default {
   ],
   theme: {
     extend: {
-      // fontFamily: {
-      //   sans: ['Inter', 'sans-serif'],
-      //   customFont: ['Inter', 'sans-serif']
-      // },
+      fontFamily: {
+        manrope: ['Manrope', 'sans-serif'],
+        geist: ['Geist', 'sans-serif'],
+        inter: ['Inter', 'sans-serif']
+      },
       colors: {
         primary: {
           DEFAULT: "#0A0A0A",

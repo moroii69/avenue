@@ -167,8 +167,13 @@ const Tickets = () => {
                                             >
                                                 <FaQrcode className="mr-2" /> Show QR
                                             </button>
-                                            <button className="flex text-sm items-center justify-center px-4 py-3 border border-[#131313] text-gray-400 rounded-full w-full">
-                                                <FaCalendarAlt className="mr-2" /> Add to Calendar
+                                        </div>
+                                        <div className="flex flex-row items-center gap-2">
+                                            <button className="flex text-xs items-center justify-center px-4 py-3 border border-[#131313] text-gray-400 rounded-full w-full">
+                                                {/* <FaCalendarAlt className="mr-2" /> Add to Calendar */} Add to Calendar
+                                            </button>
+                                            <button className="flex text-xs items-center justify-center px-4 py-3 border border-[#131313] text-gray-400 rounded-full w-full">
+                                                {/* <FaCalendarAlt className="mr-2" /> Add to Apple Wallet */} Add to Apple Wallet
                                             </button>
                                         </div>
                                     </button>

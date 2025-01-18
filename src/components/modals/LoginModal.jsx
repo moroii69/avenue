@@ -64,13 +64,13 @@ const LoginModal = ({ isOpen, onClose }) => {
             <h2 className="text-2xl font-semibold text-white">Enter phone number</h2>
             <p className="text-gray-400 text-sm mt-1">Let's check if you have an account</p>
           </div>
-          <div className="flex mb-4 bg-[#222222] rounded-lg border border-[#2c2c2c]">
-            <div className="flex items-center px-3 py-2 border-r border-[#2c2c2c]">
+          <div className="flex mb-4 bg-[#151515] rounded-xl border border-[#202020]">
+            <div className="flex items-center px-3 py-2 border-r border-[#202020]">
               <img
                 src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQwwxhCMpFSg4qToHq_HKLhhU6bo5f1JJPh8w&s"
                 className="w-5 h-5 mr-2 rounded-full"
               />
-              <span className="text-white">+1</span>
+              <span className="text-white text-sm">+1</span>
             </div>
             <input
               type="text"
@@ -84,7 +84,7 @@ const LoginModal = ({ isOpen, onClose }) => {
             onClick={handleSendOtp}
             disabled={isButtonDisabled || loading}
             className={`w-full rounded-full px-4 py-3 transition duration-200 ${isButtonDisabled || loading
-              ? 'bg-[#222222] text-gray-600 cursor-not-allowed'
+              ? 'bg-[#222222] text-[#101010] cursor-not-allowed'
               : 'bg-white text-black hover:bg-[#f2f2f2]'
               }`}
           >
