@@ -32,16 +32,17 @@ const Header = () => {
       </a>
 
       {location.pathname.startsWith('/info') ? (
-        <div className="flex space-x-3 bg-opacity-50 rounded-full py-1 px-1">
-          <span className="flex items-center space-x-4">
-            <span className="text-[#898989] text-xs font-inter">Home</span>
-            <span className="text-[#898989] text-xs font-inter">/</span>
-            <span className="text-white font-bold text-xs font-inter"> {eventName.replace(/-/g, ' ')}</span>
-          </span>
-        </div>
+        // <div className="flex space-x-3 bg-opacity-50 rounded-full py-1 px-1">
+        //   <span className="flex items-center space-x-4">
+        //     <span className="text-[#898989] text-xs font-inter">Home</span>
+        //     <span className="text-[#898989] text-xs font-inter">/</span>
+        //     <span className="text-white font-bold text-xs font-inter"> {eventName.replace(/-/g, ' ')}</span>
+        //   </span>
+        // </div>
+        ""
       ) : location.pathname.startsWith('/creater') ? (
         <>
-          <div className="flex space-x-3 bg-opacity-50 rounded-full py-1 px-1">
+          {/* <div className="flex space-x-3 bg-opacity-50 rounded-full py-1 px-1">
             <span className="flex items-center space-x-4">
               <span className="text-[#898989] text-xs">Home</span>
               <span className="text-[#898989] text-xs">/</span>
@@ -49,7 +50,7 @@ const Header = () => {
               <span className="text-[#898989] text-xs">/</span>
               <span className="text-white font-bold text-xs">{organizerName.replace(/-/g, ' ')}</span>
             </span>
-          </div>
+          </div> */}
         </>
       ) : location.pathname.startsWith('/tickets') ? (
         <>
@@ -127,7 +128,7 @@ const Header = () => {
                 <div className="flex space-x-4">
                   <div className="relative inline-block text-left">
                     <button
-                      className="bg-white hidden sm:block font-inter text-xs sm:text-sm text-black px-4 py-1 sm:px-5 sm:py-2 rounded-full font-medium hover:bg-gray-200 transition"
+                      className="bg-white sm:block font-inter text-xs sm:text-sm text-black px-4 py-1 sm:px-5 sm:py-2 rounded-full font-medium hover:bg-gray-200 transition"
                       onClick={() => setIsOpen((prev) => !prev)}
                     >
                       Profile

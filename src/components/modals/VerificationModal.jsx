@@ -96,7 +96,7 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
                 className="absolute inset-0 bg-black/60 backdrop-blur-sm"
                 onClick={onClose}
             />
-            <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md">
+            <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-xs">
                 <div className="bg-[#151515] rounded-xl p-8 shadow-xl relative flex flex-col items-center">
                     <button
                         onClick={onClose}
@@ -105,8 +105,8 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
                         <X size={20} />
                     </button>
                     <Globe className="w-8 h-8 text-cyan-400 mb-4" />
-                    <h2 className="text-2xl font-semibold text-white mb-2">Enter confirmation code</h2>
-                    <p className="text-gray-400 text-sm text-center mb-6">
+                    <h2 className="text-xl font-semibold text-white mb-2 font-inter">Enter confirmation code</h2>
+                    <p className="text-gray-400 text-sm text-center mb-6 font-inter">
                         Please enter verification code we've<br />
                         sent on {phoneNumber}
                     </p>
@@ -120,16 +120,16 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
                                 value={digit}
                                 onChange={(e) => handleChange(index, e.target.value)}
                                 onKeyDown={(e) => handleKeyDown(index, e)}
-                                className="w-12 h-9 bg-[#151515] rounded-full text-center text-white text-2xl focus:outline-none border border-[#252525]"
+                                className="w-10 h-9 bg-[#151515] font-inter rounded-full text-center text-white text-2xl focus:outline-none border border-[#252525]"
                             />
                         ))}
                     </div>
                     {error && (
-                        <div className="text-red-300 text-xs bg-red-800 px-28 py-3 bg-opacity-30 border border-red-950 rounded-xl">
+                        <div className="text-red-300 font-inter text-xs bg-red-800 px-28 py-3 bg-opacity-30 border border-red-950 rounded-xl">
                             {error}
                         </div>
                     )}
-                    <button className="text-gray-200 text-sm underline mt-5">
+                    <button className="text-gray-200 text-sm underline mt-5 font-inter">
                         Resend code
                     </button>
                 </div>

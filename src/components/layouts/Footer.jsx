@@ -22,11 +22,11 @@ const Footer = () => {
                                     Nostrud amet eu ullamco nisi aute in ad minim nostrud
                                     adipisicing velit quis. Duis tempor incididunt dolore.
                                 </p>
-                                <div className="mt-10 flex max-w-xs gap-x-4">
+                                <div className="mt-10 flex flex-col sm:flex-row max-w-xs sm:max-w-md gap-x-4">
                                     <label htmlFor="email-address" className="sr-only">
                                         Email address
                                     </label>
-                                    <div className="relative">
+                                    <div className="relative w-full sm:w-auto">
                                         <input
                                             id="email-address"
                                             name="email"
@@ -42,7 +42,7 @@ const Footer = () => {
                                     </div>
                                     <button
                                         type="submit"
-                                        className="flex-none font-inter rounded-full bg-white px-3.5 py-1 text-sm font-medium text-primary shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+                                        className="flex-none mt-4 sm:mt-0 font-inter rounded-full bg-white px-3.5 py-1 text-sm font-medium text-primary shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
                                     >
                                         Sign up
                                     </button>
@@ -53,7 +53,7 @@ const Footer = () => {
                                     src={newsLetter}
                                     alt="Newsletter Graphic"
                                     className="w-[75%] h-auto object-cover mt-0 lg:mt-8 ml-36"
-                                />  
+                                />
                             </div>
                         </div>
                     </div>

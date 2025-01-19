@@ -201,7 +201,7 @@ const Home = () => {
           <button
             onClick={card.onClick}
             key={card.id}
-            className="bg-primary px-8 py-4 rounded-3xl shadow-lg text-center flex flex-col items-center transition-transform duration-300 transform hover:scale-90"
+            className="bg-primary px-5 md:px-6 sm:px-8 py-4 rounded-3xl shadow-lg text-center flex flex-col items-center transition-transform duration-300 transform hover:scale-90"
           >
             <div className="mb-2 text-white flex justify-center">{card.icon}</div>
             <div className="flex items-center justify-between">
@@ -233,7 +233,7 @@ const Home = () => {
       />
 
       <PlaceModal isOpen={isModalPlaceOpen} onClose={() => setIsModalPlaceOpen(false)} />
-      
+
       <DateModal
         onDateChange={handleDateChange}
         isOpen={isModalDate}
