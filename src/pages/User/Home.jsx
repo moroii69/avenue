@@ -22,14 +22,32 @@ const Home = () => {
   const [events, setEvents] = useState([]);
   const navigate = useNavigate();
   const [sliderValue, setSliderValue] = useState([0, 100]);
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date());
+  const [startDate, setStartDate] = useState();
+  const [endDate, setEndDate] = useState();
 
   const cards = [
     // { id: 1, icon: <MdWindow size={20} color='#898989' />, text: 'Type' },
-    { id: 2, icon: <FaLocationDot size={20} color='#898989' />, text: 'Place', onClick: () => { setIsModalPlaceOpen(true); } },
-    { id: 3, icon: <AiFillDollarCircle size={20} color='#898989' />, text: 'Price', onClick: () => { setIsModalPriceOpen(true); } },
-    { id: 4, icon: <MdOutlineDateRange size={20} color='#898989' />, text: 'Date', onClick: () => { setIsModalDate(true); } },
+    {
+      id: 2,
+      icon: <FaLocationDot size={20} color='#898989' />,
+      text: 'Place',
+      onClick: () => { setIsModalPlaceOpen(true); },
+      isActive: ""
+    },
+    {
+      id: 3,
+      icon: <AiFillDollarCircle size={20} color='#898989' />,
+      text: 'Price',
+      onClick: () => { setIsModalPriceOpen(true); },
+      isActive: sliderValue[0] !== 0 || sliderValue[1] !== 100,
+    },
+    {
+      id: 4,
+      icon: <MdOutlineDateRange size={20} color='#898989' />,
+      text: 'Date',
+      onClick: () => { setIsModalDate(true); },
+      isActive: !!startDate || !!endDate,
+    },
   ];
 
   const clients = [
@@ -149,9 +167,16 @@ const Home = () => {
     );
   });
 
+  const handleReset = () => {
+    setSliderValue([0, 100]);
+    setStartDate(null);
+    setEndDate(null);
+  };
+
 
   return (
-    <div className="font-manrope flex flex-col items-center justify-center text-center mt-28 bg-primary">
+    <div className="font-manrope flex flex-col items-center justify-center text-center mt-28 bg-primary px-4">
+      {/* Heading Section */}
       <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold text-white tracking-tighter">
         Find
         <img
@@ -164,127 +189,133 @@ const Home = () => {
       <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-medium text-white mb-4 tracking-tighter -mt-4 sm:-mt-6 lg:-mt-8">
         in <span className="text-[#8a8686] underline decoration-[#2e2e2e] decoration-4">your</span> area
       </h1>
-      <p className="text-xs sm:text-sm md:text-base font-geist text-[#b4b4b4] text-opacity-60 max-w-lg mx-auto md:mx-0 mt-4">
+      <p className="text-xs sm:text-sm md:text-base font-geist text-[#b4b4b4] text-opacity-60 max-w-lg mx-auto mt-4">
         Avenue streamlines event discovery,
       </p>
-      <p className="text-xs sm:text-sm md:text-base text-[#b4b4b4] text-opacity-60 max-w-lg mx-auto md:mx-0">
+      <p className="text-xs sm:text-sm md:text-base text-[#b4b4b4] text-opacity-60 max-w-lg mx-auto">
         creation, ticketing, and management.
       </p>
 
-      <div className="flex justify-center mt-16 gap-1 bg-black px-1 py-1 rounded-3xl border border-[#1c1c1c] border-opacity-70">
-        {cards.map(card => (
-          <>
-            <button onClick={card.onClick} key={card.id} className="bg-primary px-6 py-4 rounded-3xl shadow-lg text-center flex flex-col items-center transition-transform duration-300 transform hover:scale-90">
-              <div className="mb-2 text-white flex justify-center">{card.icon}</div>
-              <div className="flex items-center justify-between">
-                <p className="text-lg text-white font-medium font-inter">{card.text}</p>
+      <div className="flex flex-wrap justify-center mt-16 gap-1 bg-black px-1 py-1 rounded-3xl border border-[#1c1c1c] border-opacity-70">
+        {cards.map((card) => (
+          <button
+            onClick={card.onClick}
+            key={card.id}
+            className="bg-primary px-8 py-4 rounded-3xl shadow-lg text-center flex flex-col items-center transition-transform duration-300 transform hover:scale-90"
+          >
+            <div className="mb-2 text-white flex justify-center">{card.icon}</div>
+            <div className="flex items-center justify-between">
+              <p className="text-lg text-white font-medium font-inter">{card.text}</p>
+              {card.isActive && (
                 <div className="flex items-center justify-center bg-[#34b2da] bg-opacity-15 text-[#34b2da] rounded-md w-6 h-6 ml-2">
                   <FiCheck className="h-4 w-4" />
                 </div>
-              </div>
-            </button>
-          </>
+              )}
+            </div>
+          </button>
         ))}
-        {/* <button
-          onClick={() => { }}
-          className="bg-primary px-6 py-4 rounded-3xl shadow-lg text-center flex items-center justify-center border-2 border-dashed border-[#2a2a2a] transition-transform duration-300 hover:scale-90"
-        >
-          <span className="text-lg text-white font-medium font-inter">Clear all</span>
-        </button> */}
+        {sliderValue[0] !== 0 || sliderValue[1] !== 100 || startDate || endDate ? (
+          <button
+            onClick={handleReset}
+            className="bg-primary px-6 py-4 rounded-3xl shadow-lg text-center flex items-center justify-center border-2 border-dashed border-[#2a2a2a] transition-transform duration-300 hover:scale-90"
+          >
+            <span className="text-lg text-white font-medium font-inter">Clear all</span>
+          </button>
+        ) : null}
       </div>
 
-      <PriceModal filteredEvents={filteredEvents.length} sliderValue={sliderValue} setSliderValue={setSliderValue} isOpen={isModalPriceOpen} onClose={() => setIsModalPriceOpen(false)} />
-      <PlaceModal isOpen={isModalPlaceOpen} onClose={() => setIsModalPlaceOpen(false)} />
-      <DateModal onDateChange={handleDateChange} isOpen={isModalDate} onClose={() => setIsModalDate(false)} />
+      <PriceModal
+        filteredEvents={filteredEvents.length}
+        sliderValue={sliderValue}
+        setSliderValue={setSliderValue}
+        isOpen={isModalPriceOpen}
+        onClose={() => setIsModalPriceOpen(false)}
+      />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-16 sm:mt-24 px-4 sm:px-8 md:px-16 lg:px-32 bg-primary mb-10">
+      <PlaceModal isOpen={isModalPlaceOpen} onClose={() => setIsModalPlaceOpen(false)} />
+      
+      <DateModal
+        onDateChange={handleDateChange}
+        isOpen={isModalDate}
+        onClose={() => setIsModalDate(false)}
+      />
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-16 sm:mt-24 px-4 sm:px-8 md:px-16 lg:px-10 bg-primary mb-10">
         {filteredEvents.map((card) => (
           <button
             onClick={() => handleDetail(card._id, card.event_name.replace(/\s+/g, "-"))}
             key={card.id}
-            className="bg-[#3e3e3e] bg-opacity-15 px-4 py-3 rounded-2xl shadow-lg text-center flex flex-col transition-transform duration-300 transform hover:scale-105"
+            className="bg-neutral-800 bg-opacity-15 px-4 py-3 rounded-2xl shadow-lg text-left flex flex-col transition-transform duration-300 transform hover:scale-105"
           >
-            <div className="flex justify-between items-center mb-2">
-              <div className="flex items-center">
-                <div className="w-8 h-8 rounded-full flex justify-center items-center">
+            <div className="flex items-center justify-between w-full mb-2 gap-2">
+              <div className="flex items-center min-w-0">
+                <div className="w-8 h-8 rounded-full flex justify-center items-center flex-shrink-0">
                   <FaArtstation className="text-purple-800" size={15} />
                 </div>
-                <h2 className="text-[#ffffff] text-xs uppercase font-inter text-opacity-50 ml-2">{card.category}</h2>
+                <h2 className="text-white/50 text-xs uppercase font-inter ml-2 truncate">
+                  {card.category}
+                </h2>
               </div>
-              <p className="text-white text-xs font-inter text-opacity-50">{formatDate(card.start_date)}</p>
+              <p className="text-white/50 text-xs font-inter flex-shrink-0">
+                {formatDate(card.start_date)}
+              </p>
             </div>
-
             <div className="relative mb-4">
               <img
                 src={card.flyer}
                 alt="event"
-                className="w-full h-48 sm:h-60 md:h-72 object-cover rounded-xl"
+                className="w-full h-64 sm:h-72 md:h-80 lg:h-96 object-cover rounded-xl"
               />
-              <div className="absolute top-2 right-2 bg-gray-500 bg-opacity-50 p-2 rounded-full text-white">
+              <div className="absolute top-2 right-2 bg-gray-500/50 p-2 rounded-full text-white">
                 <FaBookmark />
               </div>
             </div>
-            <div className="flex justify-between items-center">
-              <div>
-                <h2 className="text-white text-sm text-start font-semibold font-inter mb-2">{card.event_name}</h2>
+            <div className="flex items-center justify-between w-full mb-2 gap-2">
+              <div className="min-w-0 flex-1">
+                <h2 className="text-white text-sm font-semibold font-inter mb-2 truncate">
+                  {card.event_name}
+                </h2>
                 <div className="flex items-center mt-1">
-                  <FaLocationDot className="text-[#a2a2a2] mr-1" size={12} />
-                  <span className="text-[#ffffff] text-sm font-inter text-opacity-50">{card.venue_name}</span>
+                  <FaLocationDot className="text-neutral-400 mr-1 flex-shrink-0" size={12} />
+                  <span className="text-white/50 text-sm font-inter truncate">
+                    {card.venue_name}
+                  </span>
                 </div>
               </div>
-              <p className="text-white font-medium text-xl">
-                <span className="text-gray-500 text-2xl font-inter">$</span><span className="text-2xl font-semibold font-inter">{card.ticket_start_price}+</span>
-              </p>
+              <div className="flex-shrink-0">
+                <p className="text-white font-medium whitespace-nowrap">
+                  <span className="text-gray-500 text-2xl font-inter">$</span>
+                  <span className="text-2xl font-semibold font-inter">
+                    {card.ticket_start_price}+
+                  </span>
+                </p>
+              </div>
             </div>
           </button>
         ))}
       </div>
 
-      <div className='mt-5'>
-        <div className="bg-primary py-20 sm:py-18">
-          <div className="mx-auto max-w-7xl px-20 lg:px-20">
-            <div className="mx-auto mt-0 grid max-w-lg grid-cols-4 items-center gap-x-16 gap-y-16 sm:max-w-xl sm:grid-cols-6 sm:gap-x-20 lg:mx-0 lg:max-w-none lg:grid-cols-5">
-              <img
-                alt="Transistor"
-                src="https://tailwindui.com/plus/img/logos/158x48/transistor-logo-white.svg"
-                width={158}
-                height={48}
-                className="col-span-2 max-h-12 w-full object-contain lg:col-span-1"
-              />
-              <img
-                alt="Reform"
-                src="https://tailwindui.com/plus/img/logos/158x48/reform-logo-white.svg"
-                width={158}
-                height={48}
-                className="col-span-2 max-h-12 w-full object-contain lg:col-span-1"
-              />
-              <img
-                alt="Tuple"
-                src="https://tailwindui.com/plus/img/logos/158x48/tuple-logo-white.svg"
-                width={158}
-                height={48}
-                className="col-span-2 max-h-12 w-full object-contain lg:col-span-1"
-              />
-              <img
-                alt="SavvyCal"
-                src="https://tailwindui.com/plus/img/logos/158x48/savvycal-logo-white.svg"
-                width={158}
-                height={48}
-                className="col-span-2 max-h-12 w-full object-contain sm:col-start-2 lg:col-span-1"
-              />
-              <img
-                alt="Statamic"
-                src="https://tailwindui.com/plus/img/logos/158x48/statamic-logo-white.svg"
-                width={158}
-                height={48}
-                className="col-span-2 col-start-2 max-h-12 w-full object-contain sm:col-start-auto lg:col-span-1"
-              />
+      <div className="mt-5">
+        <div className="bg-primary py-20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-8 lg:px-20">
+            <div className="overflow-x-auto overflow-y-hidden">
+              <div className="flex gap-6 items-center">
+                {["transistor", "reform", "tuple", "savvycal", "statamic"].map((logo, index) => (
+                  <img
+                    key={index}
+                    alt={logo}
+                    src={`https://tailwindui.com/plus/img/logos/158x48/${logo}-logo-white.svg`}
+                    className="max-h-12 w-auto object-contain flex-shrink-0"
+                  />
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </div>
 
     </div>
+
   );
 };
 

@@ -78,7 +78,7 @@ const QrTicket = ({ isOpen, onClose, card }) => {
                     <div className="p-4">
                         <div className="flex items-center gap-2 mb-3">
                             <BsFillTicketFill color='#cccccc' />
-                            <span className="text-xs text-gray-400 uppercase tracking-wide">Ticket Pass</span>
+                            <span className="text-xs text-gray-400 uppercase tracking-wide font-inter font-semibold">Ticket Pass</span>
                         </div>
                         <div className="flex justify-start mb-4 mt-5">
                             <img
@@ -88,11 +88,11 @@ const QrTicket = ({ isOpen, onClose, card }) => {
                             />
                         </div>
 
-                        <div className="text-xl text-white mb-2">{formatDate(card.party_id.start_date)}</div>
+                        <div className="text-lg text-white mb-2 font-inter">{formatDate(card.party_id.start_date)}</div>
                         <div className='flex flex-row space-x-3'>
-                            <div className="text-xs text-gray-400">{card.party_id.event_name}</div>
+                            <div className="text-xs text-gray-400 font-inter">{card.party_id.event_name}</div>
                             <div className="text-xs text-gray-400">•</div>
-                            <div className="text-xs text-gray-400">{card.party_id.venue_name}</div>
+                            <div className="text-xs text-gray-400 font-inter">{card.party_id.venue_name}</div>
                         </div>
                     </div>
                     <div className='px-2 rounded-lg'>
@@ -113,10 +113,10 @@ const QrTicket = ({ isOpen, onClose, card }) => {
                         <div className="flex justify-between items-center bg-[#0b6694] bg-opacity-50 p-1 rounded-b-2xl px-4">
                             <div className="flex items-center">
                                 <div className="rounded-full py-1.5">
-                                    <span className="text-xs text-white font-medium">{card.tickets.ticket_name}</span>
+                                    <span className="text-xs text-white font-medium font-inter">{card.tickets.ticket_name}</span>
                                 </div>
                             </div>
-                            <div className="text-white text-lg font-bold">${card.amount / 100}</div>
+                            <div className="text-white text-md font-bold font-inter">${card.amount / 100}</div>
                         </div>
                     </div>
                 </div>

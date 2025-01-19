@@ -4,6 +4,7 @@ import { useLocation, useParams } from 'react-router-dom';
 import { FaRegCalendarAlt } from 'react-icons/fa';
 import { FaTicketAlt, FaUser, FaSignOutAlt } from "react-icons/fa";
 import LogoutModal from '../modals/LogoutModal';
+import logo from "../../assets/logo.png"
 
 const Header = () => {
   const { name, id } = useParams();
@@ -26,9 +27,8 @@ const Header = () => {
 
   return (
     <nav className={`${location.pathname === '/' ? "bg-primary" : "bg-[#000000]"} text-white flex items-center justify-between px-6 py-3`}>
-      <a href='/' className="flex items-center space-x-2 text-lg font-bold">
-        <span className="text-blue-500 text-2xl">🌐</span>
-        <span className='text-sm font-inter'>Avenue</span>
+      <a href="/" className="flex items-center space-x-2 text-lg font-bold">
+        <img src={logo} alt="logo" className="w-14 sm:w-20" />
       </a>
 
       {location.pathname.startsWith('/info') ? (
@@ -63,7 +63,7 @@ const Header = () => {
         <div className="flex space-x-3 bg-[#4e4e4e] bg-opacity-50 rounded-full py-1 px-1">
           <button
             onClick={() => setActiveButton('Explore')}
-            className={`px-4 py-2 text-sm font-inter rounded-full font-bold transition ${activeButton === 'Explore'
+            className={`px-2 py-1 sm:py-2 sm:px-4 text-xs sm:text-sm font-inter rounded-full sm:font-bold font-semibold transition ${activeButton === 'Explore'
               ? 'bg-[#F0F0F0] bg-opacity-10 text-white'
               : 'text-[#b0b0b0] hover:bg-[#F0F0F0] hover:bg-opacity-10'
               }`}
@@ -72,7 +72,7 @@ const Header = () => {
           </button>
           <button
             onClick={() => setActiveButton('Create')}
-            className={`px-4 py-2 text-sm font-inter rounded-full font-bold transition ${activeButton === 'Create'
+            className={`px-2 py-1 sm:py-2 sm:px-4 text-xs sm:text-sm font-inter rounded-full font-bold transition ${activeButton === 'Create'
               ? 'bg-[#F0F0F0] bg-opacity-10 text-white'
               : 'text-[#b0b0b0] hover:bg-[#F0F0F0] hover:bg-opacity-10'
               }`}
@@ -127,7 +127,7 @@ const Header = () => {
                 <div className="flex space-x-4">
                   <div className="relative inline-block text-left">
                     <button
-                      className="bg-white font-inter text-sm text-black px-5 py-2 rounded-full font-medium hover:bg-gray-200 transition"
+                      className="bg-white hidden sm:block font-inter text-xs sm:text-sm text-black px-4 py-1 sm:px-5 sm:py-2 rounded-full font-medium hover:bg-gray-200 transition"
                       onClick={() => setIsOpen((prev) => !prev)}
                     >
                       Profile
