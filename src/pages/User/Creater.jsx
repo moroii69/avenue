@@ -64,6 +64,26 @@ const Creater = () => {
         }
     }, [org_id]);
 
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const day = date.getDate();
+        const month = date.toLocaleString('en-US', { month: 'short' });
+        const year = date.getFullYear().toString().slice(-2);
+
+        let hours = date.getHours();
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12;
+
+        return `${month} ${day}, ${hours}:${minutes} ${ampm}`;
+    };
+
+    const formattedDate = new Date(organizer.createdAt).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long'
+    });
+
     return (
         <div>
             <div className="min-h-screen bg-primary text-white mt-5">
@@ -72,7 +92,7 @@ const Creater = () => {
                     <div className="max-w-xs flex-1 border border-[#222222] px-4 py-4 rounded-2xl overflow-y-auto h-full">
                         <div className="flex mt-0 shadow-md rounded-2xl p-2 w-full">
                             <div className="flex items-center">
-                                <div className="w-20 h-20 rounded-full overflow-hidden mr-4">
+                                <div className={`w-20 h-20 rounded-full overflow-hidden mr-4 ${event?.organizer?.profile_image ? "bg-transparent" : "bg-[#121212] border border-[#cccccc]"} flex items-center justify-center`}>
                                     {organizer?.profile_image ? (
                                         <img
                                             src={organizer.profile_image}
@@ -80,7 +100,7 @@ const Creater = () => {
                                             className="w-full h-full object-cover"
                                         />
                                     ) : (
-                                        <span>
+                                        <span className="text-lg font-semibold">
                                             {organizer?.name?.slice(0, 2).toUpperCase() || ''}
                                         </span>
                                     )}
@@ -92,7 +112,7 @@ const Creater = () => {
                         </div>
                         <div className="flex items-center gap-1 mt-2">
                             <Calendar1Icon size={14} />
-                            <p className=" text-gray-400 text-sm">Organizer since December 2024</p>
+                            <p className=" text-gray-400 text-sm">Organizer since {formattedDate}</p>
                         </div>
 
                         <div className="border border-[#222222] rounded-2xl mt-6 p-3">
@@ -161,7 +181,7 @@ const Creater = () => {
                                                             </div>
                                                             <h2 className="text-white text-xs">{card.category}</h2>
                                                         </div>
-                                                        <p className="text-white text-xs">{card.start_date}</p>
+                                                        <p className="text-white text-xs">{formatDate(card.start_date)}</p>
                                                     </div>
 
                                                     <div className="relative mb-4">

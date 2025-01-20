@@ -167,7 +167,7 @@ const Profile = () => {
     const formattedDate = new Date(user.createdAt).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long'
-      });
+    });
 
     return (
         <div>

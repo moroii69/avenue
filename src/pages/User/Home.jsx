@@ -110,7 +110,7 @@ const Home = () => {
     hours = hours % 12;
     hours = hours ? hours : 12;
 
-    return `${day} ${month} ${year} ${hours}:${minutes} ${ampm}`;
+    return `${month} ${day}, ${hours}:${minutes} ${ampm}`;
   };
 
   const fetchEvents = async () => {
@@ -261,15 +261,18 @@ const Home = () => {
               </p>
             </div>
             <div className="relative mb-4">
-              <img
-                src={card.flyer}
-                alt="event"
-                className="w-full h-64 sm:h-72 md:h-80 lg:h-96 object-cover rounded-xl"
-              />
+              <div className="aspect-w-2 aspect-h-3 w-full">
+                <img
+                  src={card.flyer}
+                  alt="event"
+                  className="w-96 h-96 object-cover rounded-xl"
+                />
+              </div>
               <div className="absolute top-2 right-2 bg-gray-500/50 p-2 rounded-full text-white">
                 <FaBookmark />
               </div>
             </div>
+
             <div className="flex items-center justify-between w-full mb-2 gap-2">
               <div className="min-w-0 flex-1">
                 <h2 className="text-white text-sm font-semibold font-inter mb-2 truncate">

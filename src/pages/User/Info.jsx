@@ -6,6 +6,7 @@ import url from "../../constants/url"
 import { useNavigate, useParams } from 'react-router-dom';
 import { use } from 'react';
 import { Spin } from 'antd';
+import LoginModal from '../../components/modals/LoginModal';
 
 const Info = () => {
     const { name } = useParams()
@@ -19,8 +20,10 @@ const Info = () => {
     const [eventName, setEventName] = useState("");
     const [organizerName, setOrganizerName] = useState("");
     const [loading, setLoading] = useState(false)
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const id = localStorage.getItem('user_event_id') || {};
+    const userId = localStorage.getItem('userID') || "";
 
     useEffect(() => {
         const EventName = localStorage.getItem('user_event_name') || "";
@@ -65,26 +68,32 @@ const Info = () => {
         setTicketCounts((prevCounts) =>
             prevCounts.map((count, i) => {
                 if (i === index) {
-                    const updatedCount = count === null ? 1 : Math.min(count + 1, 10);
-
+                    const maxCount = event?.tickets[index]?.max_count;
+                    const updatedCount =
+                        count === null
+                            ? 1
+                            : maxCount
+                            ? Math.min(count + 1, maxCount)
+                            : count + 1;
+    
                     setSelectedTicket({
                         ...event?.tickets[index],
                         count: updatedCount,
                     });
-
+    
                     return updatedCount;
                 }
                 return null;
             })
         );
     };
-
+    
     const handleDecrement = (index) => {
         setTicketCounts((prevCounts) =>
             prevCounts.map((count, i) => {
                 if (i === index) {
                     const updatedCount = count === 1 ? null : count - 1;
-
+    
                     if (updatedCount === null) {
                         setSelectedTicket(null);
                     } else {
@@ -93,14 +102,14 @@ const Info = () => {
                             count: updatedCount,
                         });
                     }
-
+    
                     return updatedCount;
                 }
                 return count;
             })
         );
     };
-
+    
     useEffect(() => {
         console.log('Selected Ticket:', selectedTicket);
     }, [selectedTicket]);
@@ -116,17 +125,17 @@ const Info = () => {
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
+        const dayOfWeek = date.toLocaleString('en-US', { weekday: 'short' });
         const day = date.getDate();
         const month = date.toLocaleString('en-US', { month: 'short' });
-        const year = date.getFullYear().toString().slice(-2);
-
+        const year = "20" + date.getFullYear().toString().slice(-2);
         let hours = date.getHours();
         const minutes = date.getMinutes().toString().padStart(2, '0');
         const ampm = hours >= 12 ? 'PM' : 'AM';
         hours = hours % 12;
         hours = hours ? hours : 12;
 
-        return `${day} ${month} ${year} ${hours}:${minutes} ${ampm}`;
+        return `${dayOfWeek}, ${day} ${month} ${year} ${hours}:${minutes} ${ampm}`;
     };
 
     const fetchEvent = async () => {
@@ -239,7 +248,7 @@ const Info = () => {
                                     </div>
                                     <button onClick={() => handleDetail(event?.organizer_id?._id, event?.organizer_id?.url.replace(/\s+/g, "-"))} className="flex mt-5 items-center justify-between bg-[#141414] shadow-md rounded-2xl p-2 w-full max-w-xl">
                                         <div className="flex items-center">
-                                            <div className={`w-12 h-12 rounded-full overflow-hidden mr-4 ${event?.organizer?.profile_image ? "bg-transparent" : "bg-[#121212]"} flex items-center justify-center text-white font-semibold`}>
+                                            <div className={`w-12 h-12 rounded-full overflow-hidden mr-4 ${event?.organizer?.profile_image ? "bg-transparent" : "bg-[#121212] border border-[#cccccc]"} flex items-center justify-center text-white font-semibold`}>
                                                 {event?.organizer_id?.profile_image ? (
                                                     <img
                                                         src={event.organizer_id.profile_image}
@@ -330,16 +339,28 @@ const Info = () => {
                                                         }, 0).toFixed(2)}
                                                     </div>
                                                     <div className="flex-grow"></div>
-                                                    <div className="flex items-center justify-center">
-                                                        <button onClick={handleCheckout} className="bg-white font-inter text-black py-2 px-6 rounded-full hover:bg-gray-100">
-                                                            Go to checkout
-                                                        </button>
-                                                    </div>
+                                                    {
+                                                        userId ? (
+                                                            <div className="flex items-center justify-center">
+                                                                <button onClick={handleCheckout} className="bg-white font-inter text-black py-2 px-6 rounded-full hover:bg-gray-100">
+                                                                    Go to checkout
+                                                                </button>
+                                                            </div>
+                                                        ) : (
+                                                            <>
+                                                                <div className="flex items-center justify-center">
+                                                                    <button onClick={() => setIsModalOpen(true)} className="bg-white font-inter text-black py-2 px-6 rounded-full hover:bg-gray-100">
+                                                                        Login
+                                                                    </button>
+                                                                </div>
+                                                            </>
+                                                        )
+                                                    }
+                                                    <LoginModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
                                                 </div>
                                             </div>
                                         </div>
                                     )}
-
                                     {event?.tickets?.map((ticket, index) => (
                                         <div key={ticket.id || index} className="bg-[#141414] rounded-2xl p-4 mb-4">
                                             <div className="rounded-lg">

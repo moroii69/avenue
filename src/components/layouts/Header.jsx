@@ -60,6 +60,10 @@ const Header = () => {
         <>
           <div></div>
         </>
+      ) : location.pathname.startsWith('/checkout') ? (
+        <>
+          <div></div>
+        </>
       ) : (
         <div className="flex space-x-3 bg-[#4e4e4e] bg-opacity-50 rounded-full py-1 px-1">
           <button
