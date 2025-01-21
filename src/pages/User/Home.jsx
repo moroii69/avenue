@@ -24,6 +24,7 @@ const Home = () => {
   const [sliderValue, setSliderValue] = useState([0, 100]);
   const [startDate, setStartDate] = useState();
   const [endDate, setEndDate] = useState();
+  const [showFreeOnly, setShowFreeOnly] = useState(false);
 
   const cards = [
     // { id: 1, icon: <MdWindow size={20} color='#898989' />, text: 'Type' },
@@ -39,7 +40,7 @@ const Home = () => {
       icon: <AiFillDollarCircle size={20} color='#898989' />,
       text: 'Price',
       onClick: () => { setIsModalPriceOpen(true); },
-      isActive: sliderValue[0] !== 0 || sliderValue[1] !== 100,
+      isActive: sliderValue[0] !== 0 || sliderValue[1] !== 100 || showFreeOnly,
     },
     {
       id: 4,
@@ -141,38 +142,53 @@ const Home = () => {
     return date.toISOString().split("T")[0];
   };
 
-  const getDateOnly = (date) => {
+  function getDateOnly(date) {
     const d = new Date(date);
-    d.setHours(0, 0, 0, 0);
-    return d;
-  };
+    return d.toISOString().split('T')[0];
+  }
 
   const filteredEvents = events.filter((event) => {
     const eventDate = getDateOnly(event.start_date);
-    const minPrice = sliderValue[0];
-    const maxPrice = sliderValue[1];
+    const startDateOnly = startDate ? getDateOnly(startDate) : null;
+    const endDateOnly = endDate ? getDateOnly(endDate) : null;
+
+    const minPrice = sliderValue ? sliderValue[0] : null;
+    const maxPrice = sliderValue ? sliderValue[1] : null;
+
+    const currentDate = getDateOnly(new Date());
+
+    const isFutureEvent = eventDate >= currentDate;
 
     const isWithinPriceRange =
-      (event.ticket_start_price || 0) >= minPrice &&
-      (event.ticket_start_price || 0) <= maxPrice;
+      (minPrice === null || (event.ticket_start_price || 0) >= minPrice) &&
+      (maxPrice === null || (event.ticket_start_price || 0) <= maxPrice);
 
-    const isWithinDateRange =
-      (!startDate || eventDate >= getDateOnly(startDate)) &&
-      (!endDate || eventDate <= getDateOnly(endDate));
+    const isWithinDateRange = (() => {
+      if (startDateOnly && endDateOnly) {
+        return eventDate >= startDateOnly && eventDate <= endDateOnly;
+      } else if (startDateOnly && !endDateOnly) {
+        return eventDate === startDateOnly;
+      }
+      return true;
+    })();
+
+    const isFreeEvent = showFreeOnly ? event.event_type === "rsvp" : true;
 
     return (
       event.explore === "YES" &&
       isWithinPriceRange &&
-      isWithinDateRange
+      isWithinDateRange &&
+      isFreeEvent &&
+      isFutureEvent
     );
-  });
+  })
 
   const handleReset = () => {
     setSliderValue([0, 100]);
     setStartDate(null);
     setEndDate(null);
+    setShowFreeOnly(false)
   };
-
 
   return (
     <div className="font-manrope flex flex-col items-center justify-center text-center mt-28 bg-primary px-4">
@@ -214,7 +230,7 @@ const Home = () => {
             </div>
           </button>
         ))}
-        {sliderValue[0] !== 0 || sliderValue[1] !== 100 || startDate || endDate ? (
+        {sliderValue[0] !== 0 || sliderValue[1] !== 100 || startDate || endDate || showFreeOnly ? (
           <button
             onClick={handleReset}
             className="bg-primary px-6 py-4 rounded-3xl shadow-lg text-center flex items-center justify-center border-2 border-dashed border-[#2a2a2a] transition-transform duration-300 hover:scale-90"
@@ -228,6 +244,8 @@ const Home = () => {
         filteredEvents={filteredEvents.length}
         sliderValue={sliderValue}
         setSliderValue={setSliderValue}
+        setShowFreeOnly={setShowFreeOnly}
+        showFreeOnly={showFreeOnly}
         isOpen={isModalPriceOpen}
         onClose={() => setIsModalPriceOpen(false)}
       />
@@ -235,8 +253,13 @@ const Home = () => {
       <PlaceModal isOpen={isModalPlaceOpen} onClose={() => setIsModalPlaceOpen(false)} />
 
       <DateModal
+        filteredEvents={filteredEvents.length}
         onDateChange={handleDateChange}
         isOpen={isModalDate}
+        startDate={startDate} 
+        setStartDate={setStartDate}
+        endDate={endDate}
+        setEndDate={setEndDate}
         onClose={() => setIsModalDate(false)}
       />
 
@@ -286,12 +309,22 @@ const Home = () => {
                 </div>
               </div>
               <div className="flex-shrink-0">
-                <p className="text-white font-medium whitespace-nowrap">
-                  <span className="text-gray-500 text-2xl font-inter">$</span>
-                  <span className="text-2xl font-semibold font-inter">
-                    {card.ticket_start_price}+
-                  </span>
-                </p>
+                {
+                  card.event_type === 'ticket' ? (
+                    <p className="text-white font-medium whitespace-nowrap">
+                      <span className="text-gray-500 text-2xl font-inter">$</span>
+                      <span className="text-2xl font-semibold font-inter">
+                        {card.ticket_start_price}+
+                      </span>
+                    </p>
+                  ) : (
+                    <p className="text-white font-medium whitespace-nowrap">
+                      <span className="text-2xl font-semibold font-inter">
+                        Free
+                      </span>
+                    </p>
+                  )
+                }
               </div>
             </div>
           </button>

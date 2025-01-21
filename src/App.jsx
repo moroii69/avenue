@@ -11,6 +11,7 @@ import { Elements } from "@stripe/react-stripe-js";
 import QrTicket from "./pages/User/QrTicket";
 import Tickets from "./pages/User/Tickets";
 import Profile from "./pages/User/Profile";
+import Type from "./pages/Organizer/Type";
 
 function App() {
   const location = useLocation();
@@ -55,6 +56,7 @@ function App() {
           <Route path="/qr-ticket/:id" element={<QrTicket />} />
           <Route path="/tickets" element={<Tickets />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/type" element={<Type />} />
         </Routes>
         {!shouldHideFooter && <Footer />}
       </div>

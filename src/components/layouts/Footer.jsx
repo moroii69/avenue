@@ -5,6 +5,7 @@ import { HiHandRaised } from 'react-icons/hi2'
 import { LiaLinkedinIn } from 'react-icons/lia';
 import newsLetter from "../../assets/home-subscribe.png"
 import homeName from "../../assets/home-name.png"
+import logo from "../../assets/logo.png"
 
 const Footer = () => {
     return (
@@ -19,8 +20,7 @@ const Footer = () => {
                                     Subscribe to our newsletter
                                 </h2>
                                 <p className="mt-4 text-xs font-inter text-gray-300 w-80">
-                                    Nostrud amet eu ullamco nisi aute in ad minim nostrud
-                                    adipisicing velit quis. Duis tempor incididunt dolore.
+                                    Enter your Email Id Below
                                 </p>
                                 <div className="mt-10 flex flex-col sm:flex-row max-w-xs sm:max-w-md gap-x-4">
                                     <label htmlFor="email-address" className="sr-only">
@@ -62,11 +62,12 @@ const Footer = () => {
                         <div className="mx-auto grid max-w-2xl grid-cols-1 gap-x-64 gap-y-16 lg:max-w-none lg:grid-cols-2">
                             <div className="max-w-xl lg:max-w-lg">
                                 <div className="flex items-center space-x-2 text-lg font-bold">
-                                    <span className="text-blue-500 text-2xl">🌐</span>
-                                    <span className='text-white font-inter'>Avenue</span>
+                                    <a href="/" className="flex items-center space-x-2 text-lg font-bold">
+                                        <img src={logo} alt="logo" className="w-14 sm:w-20" />
+                                    </a>
                                 </div>
                                 <p className="mt-4 text-sm text-gray-300 font-inter">
-                                    © Copyright 2025 Avenue,Inc. All rights reserved.
+                                    © Copyright 2025 Avenue Ticketing, Inc. All rights reserved.
                                 </p>
 
                             </div>
@@ -75,17 +76,17 @@ const Footer = () => {
                                     <h2 className="text-lg font-semibold text-white font-inter">Useful links</h2>
                                     <ul className="mt-4 space-y-3 leading-7 text-gray-400">
                                         <li>
-                                            <a href="/careers" className="hover:text-white transition-colors duration-200 font-inter">
+                                            <a className="hover:text-white transition-colors duration-200 font-inter">
                                                 Careers
                                             </a>
                                         </li>
                                         <li>
-                                            <a href="/terms" className="hover:text-white transition-colors duration-200 font-inter">
+                                            <a className="hover:text-white transition-colors duration-200 font-inter">
                                                 Terms of Service
                                             </a>
                                         </li>
                                         <li>
-                                            <a href="/privacy" className="hover:text-white transition-colors duration-200 font-inter">
+                                            <a className="hover:text-white transition-colors duration-200 font-inter">
                                                 Privacy Policy
                                             </a>
                                         </li>
@@ -96,7 +97,7 @@ const Footer = () => {
                                     <ul className="mt-4 space-y-3 leading-7 text-gray-400">
                                         <li>
                                             <a
-                                                href="https://twitter.com"
+
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="flex items-center gap-2 hover:text-white transition-colors duration-200 font-inter"
@@ -106,7 +107,7 @@ const Footer = () => {
                                         </li>
                                         <li>
                                             <a
-                                                href="https://linkedin.com"
+
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="flex items-center gap-2 hover:text-white transition-colors duration-200 font-inter"
@@ -116,7 +117,7 @@ const Footer = () => {
                                         </li>
                                         <li>
                                             <a
-                                                href="https://youtube.com"
+
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="flex items-center gap-2 hover:text-white transition-colors duration-200 font-inter"

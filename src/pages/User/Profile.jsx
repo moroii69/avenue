@@ -5,6 +5,7 @@ import axios from "axios"
 import url from "../../constants/url"
 import { useParams } from 'react-router-dom';
 import { IoLockClosed, IoDocumentTextSharp } from "react-icons/io5";
+import { MdDone } from "react-icons/md";
 
 const Profile = () => {
     const { id } = useParams();
@@ -20,6 +21,10 @@ const Profile = () => {
     const [organizer, setOrganizer] = useState({});
     const [events, setEvents] = useState([]);
     const [book, setBook] = useState([]);
+    const [image, setImage] = useState(null);
+    const [showButtons, setShowButtons] = useState(false);
+    const [profilePhoto, setProfilePhoto] = useState(null);
+    const [profileImage, setProfileImage] = useState(null);
 
     const org_id = localStorage.getItem('user_organizer_id') || {};
 
@@ -50,7 +55,7 @@ const Profile = () => {
                     setFirstName(userData.firstName);
                     setEmail(userData.email);
                     setPhoneNumber(userData.phoneNumber);
-                    //setProfileImage(userData.profile_image)
+                    setProfileImage(userData.profile_image)
                     console.log("show in events", response.data)
                     if (userData.showInEvent === "YES") {
                         setIsChecked(true);
@@ -144,9 +149,9 @@ const Profile = () => {
         formData.append('firstName', firstName);
         formData.append('email', email);
         formData.append('phoneNumber', "+1" + phoneNumber);
-        // if (profilePhoto) {
-        //     formData.append('profile_image', profilePhoto);
-        // }
+        if (profilePhoto) {
+            formData.append('profile_image', profilePhoto);
+        }
 
         axios
             .put(`${url}/auth/update-user/${userId}`, formData, {
@@ -169,37 +174,74 @@ const Profile = () => {
         month: 'long'
     });
 
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        setProfilePhoto(file)
+        if (file) {
+            setImage(URL.createObjectURL(file));
+            setShowButtons(true);
+        }
+    };
+
     return (
-        <div>
-            <div className="min-h-screen bg-primary text-white mt-5">
-                <div className="justify-center mx-auto p-6 flex gap-8">
+        <div className="min-h-screen bg-primary text-white p-4 lg:p-6">
+            <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-6">
 
-                    <div className="max-w-xs flex-1 border border-[#222222] px-4 py-4 rounded-2xl overflow-y-auto h-full">
-                        <div className="flex mt-0 shadow-md rounded-2xl p-3 w-full items-center">
-                            <div className="flex items-center">
-                                <div className="w-20 h-20 rounded-full overflow-hidden mr-4 bg-[#10b981] flex items-center justify-center">
-                                    {organizer?.profile_image ? (
-                                        <img
-                                            src={organizer.profile_image}
-                                            alt="Profile"
-                                            className="w-full h-full object-cover"
-                                        />
-                                    ) : (
-                                        <span className="text-xl font-inter font-semibold text-black">
-                                            {firstName?.slice(0, 2).toUpperCase() || ''}
-                                        </span>
-                                    )}
-                                </div>
+                <div className="w-full lg:w-80 lg:flex-shrink-0">
+                    <div className="border border-[#222222] px-4 py-4 rounded-2xl">
+
+                        <div className="flex justify-center sm:justify-start">
+                            <div
+                                className="w-20 h-20 rounded-full overflow-hidden bg-[#10b981] flex items-center justify-center cursor-pointer"
+                                onClick={() => document.getElementById('imageInput').click()}
+                            >
+                                {image ? (
+                                    <img src={profileImage || image} alt="Profile" className="w-full h-full object-cover" />
+                                ) : profileImage ? (
+                                    <img
+                                        src={profileImage}
+                                        alt="Profile"
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <span className="text-xl font-inter font-semibold text-black">
+                                        {firstName?.slice(0, 2).toUpperCase() || ''}
+                                    </span>
+                                )}
                             </div>
+
+                            <input
+                                type="file"
+                                id="imageInput"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={handleImageChange}
+                            />
+
+                            {showButtons && (
+                                <div className="flex space-x-2 mt-2 ml-2">
+                                    <button
+                                        onClick={handleSubmit}
+                                        className="text-green-500 text-2xl"
+                                    >
+                                        <MdDone />
+                                    </button>
+                                    <button
+                                        onClick={() => window.location.reload()}
+                                        className="text-red-500 text-2xl"
+                                    >
+                                        X
+                                    </button>
+                                </div>
+                            )}
                         </div>
 
-                        <div className="mt-4 space-y-2">
-                            <h1 className="text-2xl font-md font-inter">{firstName}</h1>
-                        </div>
-
-                        <div className="flex items-center gap-1 mt-2">
-                            <Calendar1Icon size={14} />
-                            <p className=" text-gray-400 text-xs font-inter">Joined on {formattedDate}</p>
+                        <div className="mt-4 text-center lg:text-left">
+                            <h1 className="text-2xl font-md font-inter">{firstName || 'User'}</h1>
+                            <div className="flex items-center justify-center lg:justify-start gap-1 mt-2">
+                                <Calendar1Icon size={14} />
+                                <p className="text-gray-400 text-xs font-inter">Joined on {formattedDate}</p>
+                            </div>
                         </div>
 
                         <div className="flex bg-[#787878] p-1 rounded-full mt-5 bg-opacity-25">
@@ -224,14 +266,12 @@ const Profile = () => {
                         </div>
 
                         <div className="border border-[#222222] rounded-2xl mt-6 p-3">
-                            <div className="flex justify-center items-center space-x-6 flex-nowrap">
+                            <div className="flex justify-center items-center space-x-6">
                                 <div className="flex flex-col items-center">
                                     <span className="text-xs font-inter text-gray-500">Purchased Tickets</span>
                                     <span className="text-lg font-semibold text-white">{book.length}</span>
                                 </div>
-
                                 <div className="w-[2px] bg-[#222222] h-10"></div>
-
                                 <div className="flex flex-col items-center">
                                     <span className="text-xs font-inter text-gray-500">Saved Tickets</span>
                                     <span className="text-lg font-semibold text-white">0</span>
@@ -239,200 +279,173 @@ const Profile = () => {
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <div className="w-full max-w-2xl">
-                        <div className="mx-auto">
+                <div className="flex-1">
+                    {activeTab === "live" && (
+                        <div className="space-y-6">
 
-                            <div className="" style={{ height: "calc(100vh - 120px)" }}>
-                                {activeTab === "live" && (
+                            <div className="rounded-xl bg-primary border border-[#787878] border-opacity-10">
+                                <div className="p-4 border-b border-zinc-800 bg-[#111111] bg-opacity-65 flex items-center gap-2">
+                                    <CircleUser className="w-5 h-5 text-zinc-400" />
+                                    <span className="text-sm font-medium font-inter">Basic details</span>
+                                </div>
 
-                                    <div className="h-full overflow-y-auto bg-primary hide-scrollbar">
-
-                                        <div className="max-w-2xl mx-auto text-white">
-                                            <div className="rounded-xl bg-zinc-900 border border-[#787878] border-opacity-10 overflow-hidden">
-
-                                                <div className="p-4 border-b border-zinc-800 bg-[#111111] bg-opacity-65 flex items-center gap-2">
-                                                    <CircleUser className="w-5 h-5 text-zinc-400" />
-                                                    <span className="text-sm font-medium font-inter">Basic details</span>
-                                                </div>
-
-                                                <div className="p-6 space-y-6 bg-primary">
-
-                                                    <div className="flex items-start justify-between gap-4">
-                                                        <div className="flex flex-col gap-2">
-                                                            <span className="text-sm font-medium font-inter">Name</span>
-                                                            <span className="text-xs text-zinc-500 font-inter">This is how others will see you</span>
-                                                        </div>
-                                                        <div className="relative w-1/2">
-                                                            <input
-                                                                type="text"
-                                                                value={firstName}
-                                                                onChange={(e) => setFirstName(e.target.value)}
-                                                                className="bg-primary border text-sm font-inter border-zinc-800 rounded-full px-5 py-2.5 pr-20 focus:outline-none w-full"
-
-                                                            />
-                                                            <button onClick={handleSubmit} className="absolute right-1 top-1/2 transform bg-[#727272] bg-opacity-15 font-inter text-white py-2 px-3 rounded-full -translate-y-1/2 text-sm hover:text-white">
-                                                                Change
-                                                            </button>
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="flex items-start justify-between gap-4">
-                                                        <div className="flex flex-col gap-2">
-                                                            <span className="text-sm font-medium">Email</span>
-                                                            <span className="text-xs text-zinc-500">Your email for notifications and updates</span>
-                                                        </div>
-                                                        <div className="relative w-1/2">
-                                                            <input
-                                                                type="email"
-                                                                value={email}
-                                                                onChange={(e) => setEmail(e.target.value)}
-                                                                className="bg-primary border text-sm font-inter border-zinc-800 rounded-full px-5 py-2.5 pr-20 focus:outline-none w-full"
-
-                                                            />
-                                                            <button onClick={handleSubmit} className="absolute right-1 top-1/2 transform bg-[#727272] bg-opacity-15 font-inter text-white py-2 px-3 rounded-full -translate-y-1/2 text-sm hover:text-white">
-                                                                Change
-                                                            </button>
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="flex items-start justify-between gap-4">
-                                                        <div className="flex flex-col gap-2">
-                                                            <span className="text-sm font-medium">Phone number</span>
-                                                            <span className="text-xs text-zinc-500">Your verified phone number</span>
-                                                        </div>
-                                                        <div className="relative w-1/2">
-                                                            <div className="flex items-center bg-primary border font-inter border-zinc-800 rounded-full px-2 py-2.5 w-full">
-                                                                <div className="flex items-center gap-1 px-1">
-                                                                    <img
-                                                                        src="https://flagcdn.com/w40/us.png"
-                                                                        alt="US Flag"
-                                                                        className="w-4 h-4 rounded-full"
-                                                                    />
-                                                                    <span className="text-white text-sm font-inter">+1</span>
-                                                                </div>
-                                                                <input
-                                                                    type="text"
-                                                                    value={phoneNumber.startsWith('+1') ? phoneNumber.slice(2) : phoneNumber}
-                                                                    onChange={(e) => {
-                                                                        setPhoneNumber(e.target.value);
-                                                                    }}
-                                                                    className="bg-transparent text-sm flex-1 focus:outline-none px-2 text-white mx-3"
-                                                                />
-
-                                                                <button onClick={handleSubmit} className="absolute right-1 top-1/2 transform bg-[#727272] bg-opacity-15 font-inter text-white py-2 px-3 rounded-full -translate-y-1/2 text-sm hover:text-white">
-                                                                    Change
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                </div>
-                                            </div>
+                                <div className="p-4 lg:p-6 space-y-6">
+                                    <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
+                                        <div className="space-y-2">
+                                            <span className="text-sm font-medium font-inter">Name</span>
+                                            <span className="text-xs text-zinc-500 block">This is how others will see you</span>
                                         </div>
-
-                                        <div className="max-w-2xl mx-auto text-white mt-8">
-                                            <div className="rounded-xl bg-zinc-900 border border-[#787878] border-opacity-10 overflow-hidden">
-
-                                                <div className="p-4 border-b border-zinc-800 bg-[#111111] bg-opacity-65 flex items-center gap-2">
-                                                    <IoLockClosed className="w-5 h-5 text-zinc-400" />
-                                                    <span className="text-sm font-medium font-inter">Privacy</span>
-                                                </div>
-
-                                                <div className="p-6 space-y-6 bg-primary">
-
-                                                    <div className="flex items-start justify-between gap-4">
-                                                        <div className="flex flex-col gap-2">
-                                                            <span className="text-sm font-medium font-inter">Show me in event page</span>
-                                                            <span className="text-xs text-zinc-500 font-inter">Allow others to see you're attending events</span>
-                                                        </div>
-                                                        <label htmlFor="eventPageToggle" className="inline-flex items-center cursor-pointer">
-                                                            <div className="relative">
-                                                                <input
-                                                                    type="checkbox"
-                                                                    id="eventPageToggle"
-                                                                    className="sr-only"
-                                                                    checked={isChecked}
-                                                                    onChange={(e) => handlePrivacyChange(e.target.checked)}
-                                                                />
-                                                                <div
-                                                                    className={`toggle__line w-10 h-6 rounded-full transition-colors duration-300 ease-in-out ${isChecked ? 'bg-green-500' : 'bg-[#727272]'}`}
-                                                                ></div>
-                                                                <div
-                                                                    className={`toggle__dot absolute top-1/2 w-4 h-4 bg-white rounded-full shadow-md transform -translate-y-1/2 transition-transform duration-300 ease-in-out ${isChecked ? 'translate-x-6' : ''}`}
-                                                                ></div>
-                                                            </div>
-                                                        </label>
-                                                    </div>
-
-                                                </div>
-                                            </div>
+                                        <div className="relative w-full lg:w-1/2">
+                                            <input
+                                                type="text"
+                                                value={firstName}
+                                                onChange={(e) => setFirstName(e.target.value)}
+                                                className="bg-primary border text-sm font-inter border-zinc-800 rounded-full px-5 py-2.5 pr-20 focus:outline-none w-full"
+                                            />
+                                            <button onClick={handleSubmit} className="absolute right-1 top-1/2 transform bg-[#727272] bg-opacity-15 font-inter text-white py-2 px-3 rounded-full -translate-y-1/2 text-sm">
+                                                Change
+                                            </button>
                                         </div>
+                                    </div>
 
-                                        <div className="max-w-2xl mx-auto text-white mt-8">
-                                            <div className="rounded-xl bg-zinc-900 border border-[#787878] border-opacity-10 overflow-hidden">
+                                    <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
+                                        <div className="space-y-2">
+                                            <span className="text-sm font-medium font-inter">Email</span>
+                                            <span className="text-xs text-zinc-500 block">Your email for notifications and updates</span>
+                                        </div>
+                                        <div className="relative w-full lg:w-1/2">
+                                            <input
+                                                type="text"
+                                                value={email}
+                                                onChange={(e) => setEmail(e.target.value)}
+                                                className="bg-primary border text-sm font-inter border-zinc-800 rounded-full px-5 py-2.5 pr-20 focus:outline-none w-full"
+                                            />
+                                            <button onClick={handleSubmit} className="absolute right-1 top-1/2 transform bg-[#727272] bg-opacity-15 font-inter text-white py-2 px-3 rounded-full -translate-y-1/2 text-sm">
+                                                Change
+                                            </button>
+                                        </div>
+                                    </div>
 
-                                                <div className="p-4 border-b border-zinc-800 bg-[#111111] bg-opacity-65 flex items-center gap-2">
-                                                    <IoDocumentTextSharp className="w-5 h-5 text-zinc-400" />
-                                                    <span className="text-sm font-medium font-inter">Legal</span>
+                                    <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
+                                        <div className="flex flex-col gap-2">
+                                            <span className="text-sm font-medium">Phone number</span>
+                                            <span className="text-xs text-zinc-500">Your verified phone number</span>
+                                        </div>
+                                        <div className="relative w-full lg:w-1/2">
+                                            <div className="flex items-center bg-primary border font-inter border-zinc-800 rounded-full px-2 py-2.5 w-full">
+                                                <div className="flex items-center gap-1 px-1">
+                                                    <img
+                                                        src="https://flagcdn.com/w40/us.png"
+                                                        alt="US Flag"
+                                                        className="w-4 h-4 rounded-full"
+                                                    />
+                                                    <span className="text-white text-sm font-inter">+1</span>
                                                 </div>
+                                                <input
+                                                    type="text"
+                                                    value={phoneNumber.startsWith('+1') ? phoneNumber.slice(2) : phoneNumber}
+                                                    onChange={(e) => {
+                                                        setPhoneNumber(e.target.value);
+                                                    }}
+                                                    className="bg-transparent text-sm flex-1 focus:outline-none px-2 text-white mx-3"
+                                                />
 
-                                                <div className="p-6 space-y-6 bg-primary">
-
-                                                    <div className="flex items-start justify-between gap-4">
-                                                        <div className="flex flex-col gap-2">
-                                                            <span className="text-sm font-medium font-inter">Contact support</span>
-                                                            <span className="text-xs text-zinc-500 font-inter">Need help? We're here for you</span>
-                                                        </div>
-                                                        <input
-                                                            type="text"
-                                                            value="Chat with support"
-                                                            className="bg-primary border text-sm font-inter text-center border-zinc-800 rounded-full px-5 py-2.5 focus:outline-none w-52"
-                                                            readOnly
-                                                        />
-                                                    </div>
-
-                                                    <div className="flex items-start justify-between gap-4">
-                                                        <div className="flex flex-col gap-2">
-                                                            <span className="text-sm font-medium font-inter">Terms and Privacy</span>
-                                                            <span className="text-xs text-zinc-500">View legal documents</span>
-                                                        </div>
-                                                        <input
-                                                            type="text"
-                                                            value="Terms and Privacy"
-                                                            className="bg-primary border text-sm font-inter text-center border-zinc-800 rounded-full px-5 py-2.5 focus:outline-none w-52"
-                                                            readOnly
-                                                        />
-                                                    </div>
-
-                                                    <div className="flex items-start justify-between gap-4">
-                                                        <div className="flex flex-col gap-2">
-                                                            <span className="text-sm font-medium font-inter">Logout</span>
-                                                            <span className="text-xs text-zinc-500">You'ill be logged out from this device</span>
-                                                        </div>
-                                                        <input
-                                                            type="text"
-                                                            value="Logout"
-                                                            className="bg-primary border text-sm font-inter text-center text-[#f43f5e] border-zinc-800 rounded-full px-5 py-2.5 focus:outline-none w-52"
-                                                            readOnly
-                                                        />
-                                                    </div>
-
-                                                </div>
+                                                <button onClick={handleSubmit} className="absolute right-1 top-1/2 transform bg-[#727272] bg-opacity-15 font-inter text-white py-2 px-3 rounded-full -translate-y-1/2 text-sm hover:text-white">
+                                                    Change
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
-                                )}
-                                {activeTab === "past" && (
-                                    <div>
-                                        <h2 className="text-xl font-bold mb-1 text-center font-inter">Coming soon</h2>
-                                        <p className="text-center font-inter">We are perparing something special</p>
+
+                                </div>
+                            </div>
+
+                            <div className="rounded-xl bg-primary border border-[#787878] border-opacity-10">
+                                <div className="p-4 border-b border-zinc-800 bg-[#111111] bg-opacity-65 flex items-center gap-2">
+                                    <IoLockClosed className="w-5 h-5 text-zinc-400" />
+                                    <span className="text-sm font-medium font-inter">Privacy</span>
+                                </div>
+
+                                <div className="p-4 lg:p-6">
+                                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                                        <div className="space-y-2">
+                                            <span className="text-sm font-medium font-inter">Show me in event page</span>
+                                            <span className="text-xs text-zinc-500 block">Allow others to see you're attending events</span>
+                                        </div>
+                                        <label className="inline-flex items-center cursor-pointer">
+                                            <div className="relative">
+                                                <input
+                                                    type="checkbox"
+                                                    className="sr-only"
+                                                    checked={isChecked}
+                                                    onChange={(e) => handlePrivacyChange(e.target.checked)}
+                                                />
+                                                <div className={`toggle__line w-10 h-6 rounded-full transition-colors duration-300 ease-in-out ${isChecked ? 'bg-green-500' : 'bg-[#727272]'}`} />
+                                                <div className={`toggle__dot absolute left-1 top-1/2 w-4 h-4 bg-white rounded-full shadow-md transform -translate-y-1/2 transition-transform duration-300 ease-in-out ${isChecked ? 'translate-x-4' : ''}`} />
+                                            </div>
+                                        </label>
                                     </div>
-                                )}
+                                </div>
+                            </div>
+
+                            <div className="rounded-xl bg-bg-primary border border-[#787878] border-opacity-10">
+                                <div className="p-4 border-b border-zinc-800 bg-[#111111] bg-opacity-65 flex items-center gap-2">
+                                    <IoDocumentTextSharp className="w-5 h-5 text-zinc-400" />
+                                    <span className="text-sm font-medium font-inter">Legal</span>
+                                </div>
+
+                                <div className="p-4 lg:p-6 space-y-6">
+                                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                                        <div className="space-y-2">
+                                            <span className="text-sm font-medium font-inter">Contact support</span>
+                                            <span className="text-xs text-zinc-500 block">Need help? We're here for you</span>
+                                        </div>
+                                        <input
+                                            type="text"
+                                            value="Chat with support"
+                                            className="bg-primary border text-sm font-inter text-center border-zinc-800 rounded-full px-5 py-2.5 focus:outline-none w-full lg:w-52"
+                                            readOnly
+                                        />
+                                    </div>
+                                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                                        <div className="flex flex-col gap-2">
+                                            <span className="text-sm font-medium font-inter">Terms and Privacy</span>
+                                            <span className="text-xs text-zinc-500">View legal documents</span>
+                                        </div>
+                                        <input
+                                            type="text"
+                                            value="Terms and Privacy"
+                                            className="bg-primary border text-sm font-inter text-center border-zinc-800 rounded-full px-5 py-2.5 focus:outline-none w-full lg:w-52"
+                                            readOnly
+                                        />
+                                    </div>
+
+                                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                                        <div className="flex flex-col gap-2">
+                                            <span className="text-sm font-medium font-inter">Logout</span>
+                                            <span className="text-xs text-zinc-500">You'ill be logged out from this device</span>
+                                        </div>
+                                        <input
+                                            type="text"
+                                            value="Logout"
+                                            className="bg-primary border text-sm font-inter text-center text-[#f43f5e] border-zinc-800 rounded-full px-5 py-2.5 focus:outline-none w-full lg:w-52"
+                                            readOnly
+                                        />
+                                    </div>
+
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    )}
 
+                    {activeTab === "past" && (
+                        <div className="text-center py-12">
+                            <h2 className="text-xl font-bold mb-1 font-inter">Coming soon</h2>
+                            <p className="font-inter">We are preparing something special</p>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

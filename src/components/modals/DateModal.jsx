@@ -4,16 +4,12 @@ import VerificationModal from './VerificationModal';
 import { Slider, Switch } from 'antd';
 
 
-const DateModal = ({ isOpen, onClose, onDateChange }) => {
-    const [startDate, setStartDate] = useState(new Date());
-    const [endDate, setEndDate] = useState(new Date());
+const DateModal = ({ isOpen, onClose, onDateChange, filteredEvents, startDate, endDate, setStartDate, setEndDate }) => {
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [selectionMode, setSelectionMode] = useState('start');
     const [activeButton, setActiveButton] = useState('');
 
-    const formatDate = (date) => {
-        return date.toISOString().split('T')[0];
-    };
+    const formatDate = (date) => (date ? date.toISOString().split('T')[0] : '');
 
     useEffect(() => {
         if (isOpen) {
@@ -23,21 +19,18 @@ const DateModal = ({ isOpen, onClose, onDateChange }) => {
 
     if (!isOpen) return null;
 
-    const daysInMonth = (date) => {
-        return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-    };
-
-    const startDayOfMonth = (date) => {
-        return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
-    };
+    const daysInMonth = (date) => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+    const startDayOfMonth = (date) => new Date(date.getFullYear(), date.getMonth(), 1).getDay();
 
     const months = [
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December',
     ];
 
     const handleDateClick = (day) => {
         const selectedDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+
+        setActiveButton('');
 
         if (selectionMode === 'start') {
             setStartDate(selectedDate);
@@ -63,8 +56,8 @@ const DateModal = ({ isOpen, onClose, onDateChange }) => {
 
         switch (option) {
             case 'today':
-                setStartDate(start);
-                setEndDate(start);
+                setStartDate(today);
+                setEndDate(today);
                 break;
             case 'tomorrow':
                 start.setDate(today.getDate() + 1);
@@ -82,6 +75,8 @@ const DateModal = ({ isOpen, onClose, onDateChange }) => {
                 end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
                 setStartDate(start);
                 setEndDate(end);
+                break;
+            default:
                 break;
         }
 
@@ -130,7 +125,7 @@ const DateModal = ({ isOpen, onClose, onDateChange }) => {
                 <button
                     key={day}
                     className={`h-8 w-8 rounded-lg flex items-center font-inter justify-center text-xs
-                ${isToday ? 'bg-white text-black' : ''}
+                ${isToday && !startDate && !endDate ? 'bg-white text-black' : ''}
                 ${isInRange ? 'bg-white text-black' : 'hover:bg-gray-800'}
                 ${isStart ? 'bg-white text-black' : ''}
                 ${isEnd ? 'bg-white text-black' : ''}
@@ -156,7 +151,7 @@ const DateModal = ({ isOpen, onClose, onDateChange }) => {
         setStartDate(null);
         setEndDate(null);
         setSelectionMode('start');
-        setActiveButton('')
+        setActiveButton('');
     };
 
     return (
@@ -244,10 +239,10 @@ const DateModal = ({ isOpen, onClose, onDateChange }) => {
 
                     <div className="flex flex-col gap-2">
                         <button
+                            onClick={onClose}
                             className="w-full py-3 bg-white text-black rounded-full text-xs font-medium hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                            disabled={!startDate || !endDate}
                         >
-                            Show events
+                            Show {filteredEvents || 0} matching events
                         </button>
                         <button
                             className="w-full py-3 border border-[#232323] rounded-full text-xs text-center text-white hover:text-white"

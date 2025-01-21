@@ -73,27 +73,27 @@ const Info = () => {
                         count === null
                             ? 1
                             : maxCount
-                            ? Math.min(count + 1, maxCount)
-                            : count + 1;
-    
+                                ? Math.min(count + 1, maxCount)
+                                : count + 1;
+
                     setSelectedTicket({
                         ...event?.tickets[index],
                         count: updatedCount,
                     });
-    
+
                     return updatedCount;
                 }
                 return null;
             })
         );
     };
-    
+
     const handleDecrement = (index) => {
         setTicketCounts((prevCounts) =>
             prevCounts.map((count, i) => {
                 if (i === index) {
                     const updatedCount = count === 1 ? null : count - 1;
-    
+
                     if (updatedCount === null) {
                         setSelectedTicket(null);
                     } else {
@@ -102,14 +102,14 @@ const Info = () => {
                             count: updatedCount,
                         });
                     }
-    
+
                     return updatedCount;
                 }
                 return count;
             })
         );
     };
-    
+
     useEffect(() => {
         console.log('Selected Ticket:', selectedTicket);
     }, [selectedTicket]);
@@ -372,12 +372,27 @@ const Info = () => {
                                                     <div className="h-[1px] bg-gradient-to-r from-transparent via-gray-500 to-transparent"></div>
                                                 </div>
                                                 <div>
-                                                    <div className="text-2xl font-medium mt-1 mb-1 font-inter">
-                                                        {ticketCounts[index] === null
-                                                            ? `$${ticket.price}`
-                                                            : `$${ticket.price} x ${ticketCounts[index]}`}
-                                                    </div>
-                                                    {renderDescription(ticket.ticket_description, ticket.id || index)}
+                                                    {
+                                                        event.event_type === 'ticket' ? (
+                                                            <>
+                                                                <div className="text-2xl font-medium mt-1 mb-1 font-inter">
+                                                                    {ticketCounts[index] === null
+                                                                        ? `$${ticket.price}`
+                                                                        : `$${ticket.price} x ${ticketCounts[index]}`}
+                                                                </div>
+                                                                {renderDescription(ticket.ticket_description, ticket.id || index)}
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <div className="text-2xl font-medium mt-1 mb-1 font-inter">
+                                                                    {ticketCounts[index] === null
+                                                                        ? `Free`
+                                                                        : `Free x ${ticketCounts[index]}`}
+                                                                </div>
+                                                                {renderDescription(ticket.ticket_description, ticket.id || index)}
+                                                            </>
+                                                        )
+                                                    }
                                                 </div>
                                                 <div className="flex items-center mt-4 bg-primary px-1 py-1 rounded-full w-max">
                                                     <button

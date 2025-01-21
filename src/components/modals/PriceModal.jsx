@@ -3,8 +3,7 @@ import { X, Globe } from 'lucide-react';
 import VerificationModal from './VerificationModal';
 import { Slider, Switch } from 'antd';
 
-const PriceModal = ({ isOpen, onClose, sliderValue, setSliderValue, filteredEvents }) => {
-    const [showFreeOnly, setShowFreeOnly] = useState(false);
+const PriceModal = ({ isOpen, onClose, sliderValue, setSliderValue, filteredEvents, showFreeOnly, setShowFreeOnly }) => {
 
     if (!isOpen) return null;
 
@@ -86,6 +85,7 @@ const PriceModal = ({ isOpen, onClose, sliderValue, setSliderValue, filteredEven
                     </label>
 
                     <button
+                        onClick={onClose}
                         className={`w-full rounded-full px-4 py-3 transition duration-200 bg-white text-black hover:bg-[#f2f2f2] text-xs`}
                     >
                         See {filteredEvents} matching events

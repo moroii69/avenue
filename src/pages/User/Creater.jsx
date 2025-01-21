@@ -20,6 +20,8 @@ const Creater = () => {
     const [activeTab, setActiveTab] = useState("live");
     const [organizer, setOrganizer] = useState({});
     const [events, setEvents] = useState([]);
+    const [filteredEvents, setFilteredEvents] = useState([]);
+    const [filteredPastEvents, setFilteredPastEvents] = useState([]);
 
     const handleIncrement = () => setTickets(prev => Math.min(prev + 1, 10));
     const handleDecrement = () => setTickets(prev => Math.max(prev - 1, 1));
@@ -84,11 +86,34 @@ const Creater = () => {
         month: 'long'
     });
 
+    useEffect(() => {
+        const currentDate = new Date();
+        currentDate.setHours(0, 0, 0, 0);
+
+        const upcomingEvents = events.filter(event => {
+            const eventDate = new Date(event.start_date);
+            eventDate.setHours(0, 0, 0, 0);
+            return eventDate >= currentDate;
+        });
+        setFilteredEvents(upcomingEvents);
+
+        const pastEvents = events.filter(event => {
+            const eventDate = new Date(event.start_date);
+            eventDate.setHours(0, 0, 0, 0);
+            return eventDate < currentDate;
+        });
+        setFilteredPastEvents(pastEvents);
+        
+
+    }, [events]);
+
+
     return (
         <div>
             <div className="min-h-screen bg-primary text-white mt-5">
-                <div className="justify-center mx-auto p-6 flex gap-8">
+                <div className="flex flex-col lg:flex-row justify-center mx-auto p-6 gap-8">
 
+                    {/* Organizer Profile Section */}
                     <div className="max-w-xs flex-1 border border-[#222222] px-4 py-4 rounded-2xl overflow-y-auto h-full">
                         <div className="flex mt-0 shadow-md rounded-2xl p-2 w-full">
                             <div className="flex items-center">
@@ -112,7 +137,7 @@ const Creater = () => {
                         </div>
                         <div className="flex items-center gap-1 mt-2">
                             <Calendar1Icon size={14} />
-                            <p className=" text-gray-400 text-sm">Organizer since {formattedDate}</p>
+                            <p className="text-gray-400 text-sm">Organizer since {formattedDate}</p>
                         </div>
 
                         <div className="border border-[#222222] rounded-2xl mt-6 p-3">
@@ -131,7 +156,7 @@ const Creater = () => {
                             </div>
                         </div>
                         <div className="flex flex-col items-center space-y-4 mt-5">
-                            <div className="flex space-x-4">
+                            <div className="flex space-x-3">
                                 <a href={organizer.twitter} className="card bg-primary border border-[#222222] text-white p-2 rounded-full shadow-lg flex items-center justify-center w-20 h-12">
                                     <BsTwitterX size={14} />
                                 </a>
@@ -145,34 +170,31 @@ const Creater = () => {
                         </div>
                     </div>
 
+                    {/* Events Section */}
                     <div className="w-full max-w-2xl">
                         <div className="mx-auto">
-                            <div className="flex border border-[#222222] p-1 rounded-full">
+                            {/* Tab buttons */}
+                            <div className="flex border border-[#222222] p-1 rounded-full mb-6">
                                 <button
                                     onClick={() => setActiveTab("live")}
-                                    className={`flex-1 py-2 text-center transition-all duration-300 ease-in-out ${activeTab === "live"
-                                        ? "bg-[#131313] text-white font-medium rounded-full p-2"
-                                        : "text-gray-500"
-                                        }`}
+                                    className={`flex-1 py-2 text-center transition-all duration-300 ease-in-out ${activeTab === "live" ? "bg-[#131313] text-white font-medium rounded-full p-2" : "text-gray-500"}`}
                                 >
                                     Live Events
                                 </button>
                                 <button
                                     onClick={() => setActiveTab("past")}
-                                    className={`flex-1 py-2 text-center transition-all duration-300 ease-in-out ${activeTab === "past"
-                                        ? "bg-[#131313] text-white font-medium rounded-full p-2"
-                                        : "text-gray-500"
-                                        }`}
+                                    className={`flex-1 py-2 text-center transition-all duration-300 ease-in-out ${activeTab === "past" ? "bg-[#131313] text-white font-medium rounded-full p-2" : "text-gray-500"}`}
                                 >
                                     Past Events
                                 </button>
                             </div>
 
-                            <div className="mt-6" style={{ height: "calc(100vh - 120px)" }}>
+                            <div className="mt-6">
+                                {/* Live Events Tab */}
                                 {activeTab === "live" && (
                                     <div className="h-full overflow-y-auto bg-primary hide-scrollbar">
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-6 mb-10">
-                                            {events.map(card => (
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 mb-10">
+                                            {filteredEvents.map(card => (
                                                 <div key={card._id} className="bg-[#3e3e3e] bg-opacity-15 px-3 py-2 rounded-2xl shadow-lg text-center flex flex-col transition-transform duration-300 transform hover:scale-95">
                                                     <div className="flex justify-between items-center mb-2">
                                                         <div className="flex items-center">
@@ -201,28 +223,84 @@ const Creater = () => {
                                                             <FaLocationDot className="text-[#a2a2a2] mr-1" />
                                                             <span className="text-[#878787] text-sm">{card.venue_name}</span>
                                                         </div>
-                                                        <p className="text-white font-medium text-xl">
-                                                            <span className="text-gray-500 text-xl">$</span>{card.ticket_start_price}+
-                                                        </p>
+                                                        {
+                                                            card.event_type === 'ticket' ? (
+                                                                <p className="text-white font-medium text-xl">
+                                                                    <span className="text-gray-500 text-xl">$</span>{card.ticket_start_price}+
+                                                                </p>
+                                                            ) : (
+                                                                <p className="text-white font-medium text-xl">
+                                                                    Free
+                                                                </p>
+                                                            )
+                                                        }
                                                     </div>
                                                 </div>
                                             ))}
                                         </div>
                                     </div>
                                 )}
+                                {/* Past Events Tab */}
                                 {activeTab === "past" && (
-                                    <div>
-                                        <h2 className="text-xl font-bold mb-1 text-center">No Past Events</h2>
-                                        <p className="text-center">No past events for this creator.</p>
+                                    // <div>
+                                    //     <h2 className="text-xl font-bold mb-1 text-center">No Past Events</h2>
+                                    //     <p className="text-center">No past events for this creator.</p>
+                                    // </div>
+                                    <div className="h-full overflow-y-auto bg-primary hide-scrollbar">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 mb-10">
+                                            {filteredPastEvents.map(card => (
+                                                <div key={card._id} className="bg-[#3e3e3e] bg-opacity-15 px-3 py-2 rounded-2xl shadow-lg text-center flex flex-col transition-transform duration-300 transform hover:scale-95">
+                                                    <div className="flex justify-between items-center mb-2">
+                                                        <div className="flex items-center">
+                                                            <div className="w-8 h-8 rounded-full flex justify-center items-center">
+                                                                <FaArtstation className="text-white" size={15} />
+                                                            </div>
+                                                            <h2 className="text-white text-xs">{card.category}</h2>
+                                                        </div>
+                                                        <p className="text-white text-xs">{formatDate(card.start_date)}</p>
+                                                    </div>
+
+                                                    <div className="relative mb-4">
+                                                        <img
+                                                            src={card.flyer}
+                                                            alt="event"
+                                                            className="w-full h-72 object-cover rounded-xl"
+                                                        />
+                                                        <div className="absolute top-2 right-2 bg-gray-500 bg-opacity-50 p-2 rounded-full text-white">
+                                                            <FaBookmark />
+                                                        </div>
+                                                    </div>
+
+                                                    <h2 className="text-white text-sm text-start font-semibold">{card.event_name}</h2>
+                                                    <div className="flex justify-between items-center">
+                                                        <div className="flex items-center">
+                                                            <FaLocationDot className="text-[#a2a2a2] mr-1" />
+                                                            <span className="text-[#878787] text-sm">{card.venue_name}</span>
+                                                        </div>
+                                                        {
+                                                            card.event_type === 'ticket' ? (
+                                                                <p className="text-white font-medium text-xl">
+                                                                    <span className="text-gray-500 text-xl">$</span>{card.ticket_start_price}+
+                                                                </p>
+                                                            ) : (
+                                                                <p className="text-white font-medium text-xl">
+                                                                    Free
+                                                                </p>
+                                                            )
+                                                        }
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
                                 )}
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
+
     );
 };
 

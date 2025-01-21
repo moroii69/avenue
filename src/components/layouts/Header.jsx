@@ -25,6 +25,25 @@ const Header = () => {
     setOrganizerName(OrganizerName)
   })
 
+  useEffect(() => {
+    const currentPage = window.location.pathname;
+    if (currentPage === '/') {
+      setActiveButton('Explore');
+    } else if (currentPage === '/type') {
+      setActiveButton('Create');
+    }
+  }, []);
+
+  const handleExplore = () => {
+    setActiveButton('Explore');
+    window.location.href = "/"
+  }
+
+  const handleCreate = () => {
+    setActiveButton('Create');
+    window.location.href = "/type"
+  }
+
   return (
     <nav className={`${location.pathname === '/' ? "bg-primary" : "bg-[#000000]"} text-white flex items-center justify-between px-6 py-3`}>
       <a href="/" className="flex items-center space-x-2 text-lg font-bold">
@@ -67,7 +86,7 @@ const Header = () => {
       ) : (
         <div className="flex space-x-3 bg-[#4e4e4e] bg-opacity-50 rounded-full py-1 px-1">
           <button
-            onClick={() => setActiveButton('Explore')}
+            onClick={handleExplore}
             className={`px-2 py-1 sm:py-2 sm:px-4 text-xs sm:text-sm font-inter rounded-full sm:font-bold font-semibold transition ${activeButton === 'Explore'
               ? 'bg-[#F0F0F0] bg-opacity-10 text-white'
               : 'text-[#b0b0b0] hover:bg-[#F0F0F0] hover:bg-opacity-10'
@@ -76,7 +95,7 @@ const Header = () => {
             Explore
           </button>
           <button
-            onClick={() => setActiveButton('Create')}
+            onClick={handleCreate}
             className={`px-2 py-1 sm:py-2 sm:px-4 text-xs sm:text-sm font-inter rounded-full font-bold transition ${activeButton === 'Create'
               ? 'bg-[#F0F0F0] bg-opacity-10 text-white'
               : 'text-[#b0b0b0] hover:bg-[#F0F0F0] hover:bg-opacity-10'
