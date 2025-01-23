@@ -192,16 +192,16 @@ const Home = () => {
 
   return (
     <div className="font-manrope flex flex-col items-center justify-center text-center mt-28 bg-primary px-4">
-      {/* Heading Section */}
       <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold text-white tracking-tighter">
         Find
         <img
           src={image1}
           alt="event icon"
-          className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-32 lg:h-32 inline-block align-middle"
+          className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-32 lg:h-32 inline-block align-middle mx-3"
         />
         events
       </h1>
+
       <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-medium text-white mb-4 tracking-tighter -mt-4 sm:-mt-6 lg:-mt-8">
         in <span className="text-[#8a8686] underline decoration-[#2e2e2e] decoration-4">your</span> area
       </h1>
@@ -217,13 +217,13 @@ const Home = () => {
           <button
             onClick={card.onClick}
             key={card.id}
-            className="bg-primary px-5 md:px-6 sm:px-8 py-4 rounded-3xl shadow-lg text-center flex flex-col items-center transition-transform duration-300 transform hover:scale-90"
+            className="bg-[#141414] bg-opacity-70 px-5 md:px-10 sm:px-8 py-4 rounded-3xl shadow-lg text-center flex flex-col items-center transition-transform duration-300 transform hover:scale-90 relative"
           >
             <div className="mb-2 text-white flex justify-center">{card.icon}</div>
             <div className="flex items-center justify-between">
               <p className="text-lg text-white font-medium font-inter">{card.text}</p>
               {card.isActive && (
-                <div className="flex items-center justify-center bg-[#34b2da] bg-opacity-15 text-[#34b2da] rounded-md w-6 h-6 ml-2">
+                <div className='p-0.5 bg-[#34b2da] bg-opacity-15 rounded-md mt-1 ml-1 text-[#34b2da]'>
                   <FiCheck className="h-4 w-4" />
                 </div>
               )}
@@ -239,6 +239,7 @@ const Home = () => {
           </button>
         ) : null}
       </div>
+
 
       <PriceModal
         filteredEvents={filteredEvents.length}
@@ -256,7 +257,7 @@ const Home = () => {
         filteredEvents={filteredEvents.length}
         onDateChange={handleDateChange}
         isOpen={isModalDate}
-        startDate={startDate} 
+        startDate={startDate}
         setStartDate={setStartDate}
         endDate={endDate}
         setEndDate={setEndDate}
@@ -291,8 +292,8 @@ const Home = () => {
                   className="w-96 h-96 object-cover rounded-xl"
                 />
               </div>
-              <div className="absolute top-2 right-2 bg-gray-500/50 p-2 rounded-full text-white">
-                <FaBookmark />
+              <div className="absolute top-2 right-2 bg-gray-500/50 p-2 rounded-full text-white border border-opacity-10 border-gray-50">
+                <FaBookmark className='text-[#9b9b9b]' />
               </div>
             </div>
 
@@ -331,7 +332,7 @@ const Home = () => {
         ))}
       </div>
 
-      <div className="mt-5">
+      {/* <div className="mt-5">
         <div className="bg-primary py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-8 lg:px-20">
             <div className="overflow-x-auto overflow-y-hidden">
@@ -348,7 +349,7 @@ const Home = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
     </div>
 

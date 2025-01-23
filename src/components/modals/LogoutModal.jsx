@@ -37,7 +37,7 @@ const LogoutModal = ({ isOpen, onClose }) => {
                                 localStorage.clear();
                                 window.location.href = "/";
                             }}
-                            className="w-full p-2 font-inter rounded-lg bg-[#95000e] text-sm border border-[#222222] text-white focus:outline-none"
+                            className="w-full p-2 font-inter rounded-full bg-[#95000e] text-sm text-white focus:outline-none"
                             placeholder="Type and select from list"
                         >Logout</button>
                     </div>

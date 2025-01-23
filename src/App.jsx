@@ -12,13 +12,15 @@ import QrTicket from "./pages/User/QrTicket";
 import Tickets from "./pages/User/Tickets";
 import Profile from "./pages/User/Profile";
 import Type from "./pages/Organizer/Type";
+import Ticket from "./pages/User/Ticket";
+import Saved from "./pages/User/Saved";
 
 function App() {
   const location = useLocation();
   const navigate = useNavigate();
 
   const hideHeader = ["/login", "/qr-ticket"];
-  const hideFooter = ["/login", "/info", "/creater", "/checkout", "/qr-ticket", "/tickets", "/profile"];
+  const hideFooter = ["/login", "/info", "/creater", "/checkout", "/qr-ticket", "/tickets", "/profile", "/ticket", "/saved"];
 
   const shouldHideNavbarAndFooter = hideHeader.some((path) =>
     location.pathname.startsWith(path)
@@ -55,8 +57,13 @@ function App() {
             } />
           <Route path="/qr-ticket/:id" element={<QrTicket />} />
           <Route path="/tickets" element={<Tickets />} />
+          <Route path="/ticket" element={
+            <Elements stripe={stripePromise}>
+              <Ticket />
+            </Elements>} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/type" element={<Type />} />
+          <Route path="/saved" element={<Saved />} />
         </Routes>
         {!shouldHideFooter && <Footer />}
       </div>

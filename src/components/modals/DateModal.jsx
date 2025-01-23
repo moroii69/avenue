@@ -126,7 +126,7 @@ const DateModal = ({ isOpen, onClose, onDateChange, filteredEvents, startDate, e
                     key={day}
                     className={`h-8 w-8 rounded-lg flex items-center font-inter justify-center text-xs
                 ${isToday && !startDate && !endDate ? 'bg-white text-black' : ''}
-                ${isInRange ? 'bg-white text-black' : 'hover:bg-gray-800'}
+                ${isInRange ? 'bg-white text-black' : 'hover:bg-gray-500 hover:bg-opacity-15 hover:text-white'}
                 ${isStart ? 'bg-white text-black' : ''}
                 ${isEnd ? 'bg-white text-black' : ''}
                 ${isStart || isEnd ? 'ring-2 ring-white' : ''}`}
@@ -174,7 +174,7 @@ const DateModal = ({ isOpen, onClose, onDateChange, filteredEvents, startDate, e
                     </div>
 
                     <div className="flex flex-col items-start mb-8">
-                        <p className="text-gray-400 text-xs mt-1 font-inter">When do you want to go?</p>
+                        <p className="text-gray-400 text-xs mt-1.5 font-inter">When do you want to go?</p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 mb-4">

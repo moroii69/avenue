@@ -5,6 +5,8 @@ import { FaRegCalendarAlt } from 'react-icons/fa';
 import { FaTicketAlt, FaUser, FaSignOutAlt } from "react-icons/fa";
 import LogoutModal from '../modals/LogoutModal';
 import logo from "../../assets/logo.png"
+import { BookMarked } from 'lucide-react';
+import { LuBookMarked } from 'react-icons/lu';
 
 const Header = () => {
   const { name, id } = useParams();
@@ -83,6 +85,14 @@ const Header = () => {
         <>
           <div></div>
         </>
+      ) : location.pathname.startsWith('/ticket') ? (
+        <>
+          <div></div>
+        </>
+      ) : location.pathname.startsWith('/saved') ? (
+        <>
+          <div></div>
+        </>
       ) : (
         <div className="flex space-x-3 bg-[#4e4e4e] bg-opacity-50 rounded-full py-1 px-1">
           <button
@@ -151,7 +161,7 @@ const Header = () => {
                 <div className="flex space-x-4">
                   <div className="relative inline-block text-left">
                     <button
-                      className="bg-white sm:block font-inter text-xs sm:text-sm text-black px-4 py-1 sm:px-5 sm:py-2 rounded-full font-medium hover:bg-gray-200 transition"
+                      className="bg-white sm:block font-inter text-xs sm:text-sm text-black px-4 py-1 sm:px-5 sm:py-2.5 rounded-full font-medium hover:bg-gray-200 transition"
                       onClick={() => setIsOpen((prev) => !prev)}
                     >
                       Profile
@@ -169,13 +179,23 @@ const Header = () => {
                             <span className="text-white text-xs font-inter">My Tickets</span>
                           </a>
                           <a
+                            href="/saved"
+                            className="flex items-center px-4 py-2 hover:bg-[#444444] hover:rounded-lg mx-2 cursor-pointer"
+                          >
+                            <LuBookMarked className="text-gray-300 mr-2" />
+                            <span className="text-white text-xs font-inter">My Saved</span>
+                          </a>
+                          <a
                             href="/profile"
                             className="flex items-center px-4 py-2 hover:bg-[#444444] hover:rounded-lg mx-2 cursor-pointer"
                           >
                             <FaUser className="text-gray-300 mr-2" />
                             <span className="text-white text-xs font-inter">My Account</span>
                           </a>
-                          <a onClick={() => setIsModalLogout(true)}
+                          <a onClick={() => {
+                            localStorage.clear();
+                            window.location.href = "/";
+                          }}
                             className="flex items-center px-4 py-2 hover:bg-[#444444] hover:rounded-lg mx-2 cursor-pointer"
                           >
                             <FaSignOutAlt className="text-gray-300 mr-2" />

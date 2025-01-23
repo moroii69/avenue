@@ -25,7 +25,7 @@ const PriceModal = ({ isOpen, onClose, sliderValue, setSliderValue, filteredEven
             <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-xs">
                 <div className="bg-[#151515] rounded-xl p-6 shadow-xl relative">
                     <div className="flex justify-between items-center">
-                        <h2 className="text-md font-semibold text-white">Price Range</h2>
+                        <h2 className="text-md font-semibold text-white">Price range</h2>
                         <button
                             onClick={onClose}
                             className="text-gray-400 hover:text-white"
@@ -34,7 +34,7 @@ const PriceModal = ({ isOpen, onClose, sliderValue, setSliderValue, filteredEven
                         </button>
                     </div>
                     <div className="flex flex-col items-start mb-8">
-                        <p className="text-gray-400 text-xs mt-1">Show events within your budget</p>
+                        <p className="text-gray-400 text-xs mt-1.5">Show events within your budget</p>
                     </div>
 
                     <div className="mb-6">
@@ -49,7 +49,14 @@ const PriceModal = ({ isOpen, onClose, sliderValue, setSliderValue, filteredEven
                                 formatter: (val) => (val === 0 ? "Free" : val === 100 ? "All" : `$ ${val}`),
                             }}
                             disabled={showFreeOnly}
+                            trackStyle={{ backgroundColor: '#34b2da' }}
+                            railStyle={{ backgroundColor: '#2a2a2a' }} 
+                            handleStyle={{
+                                backgroundColor: '#141414',
+                                borderColor: '#34b2da'
+                            }}
                         />
+
                     </div>
 
                     <div className="flex justify-between mb-6">
@@ -57,7 +64,7 @@ const PriceModal = ({ isOpen, onClose, sliderValue, setSliderValue, filteredEven
                             type="text"
                             value={formatDisplayValue(sliderValue)[0]}
                             readOnly
-                            className="w-[48%] p-2 text-xs rounded-xl bg-[#151515] border border-[#222222] text-white focus:outline-none"
+                            className={`w-[48%] p-3 text-xs rounded-xl ${showFreeOnly ? "bg-[#cacaca] bg-opacity-10 text-[#cccccc]" : "bg-[#151515]"} bg-[#151515] border border-[#222222] text-white focus:outline-none"`}
                             placeholder="$0"
                             disabled={showFreeOnly}
                         />
@@ -65,7 +72,7 @@ const PriceModal = ({ isOpen, onClose, sliderValue, setSliderValue, filteredEven
                             type="text"
                             value={formatDisplayValue(sliderValue)[1]}
                             readOnly
-                            className="w-[48%] p-2 text-xs rounded-xl bg-[#151515] border border-[#222222] text-white focus:outline-none"
+                            className={`w-[48%] p-3 text-xs rounded-xl ${showFreeOnly ? "bg-[#cacaca] bg-opacity-10 text-[#cccccc]" : "bg-[#151515]"} bg-[#151515] border border-[#222222] text-white focus:outline-none"`}
                             placeholder="$1,000"
                             disabled={showFreeOnly}
                         />

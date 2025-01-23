@@ -103,7 +103,7 @@ const Creater = () => {
             return eventDate < currentDate;
         });
         setFilteredPastEvents(pastEvents);
-        
+
 
     }, [events]);
 
@@ -212,8 +212,8 @@ const Creater = () => {
                                                             alt="event"
                                                             className="w-full h-72 object-cover rounded-xl"
                                                         />
-                                                        <div className="absolute top-2 right-2 bg-gray-500 bg-opacity-50 p-2 rounded-full text-white">
-                                                            <FaBookmark />
+                                                        <div className="absolute top-2 right-2 bg-gray-500/50 p-2 rounded-full text-white border border-opacity-10 border-gray-50">
+                                                            <FaBookmark className='text-[#9b9b9b]' />
                                                         </div>
                                                     </div>
 

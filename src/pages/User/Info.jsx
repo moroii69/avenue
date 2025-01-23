@@ -120,7 +120,7 @@ const Info = () => {
         localStorage.setItem('selectedTicketId', selectedTicket._id);
         localStorage.setItem('selectedTicketName', selectedTicket.ticket_name);
         localStorage.setItem('user_organizer_id', event?.organizer_id?._id)
-        navigate("/checkout");
+        navigate("/ticket");
     };
 
     const formatDate = (dateString) => {
@@ -215,7 +215,7 @@ const Info = () => {
                 ?
                 <>
                     <div className='text-center mt-10'>
-                        <Spin size="large" />
+                        <Spin size="large"  />
                     </div>
                 </>
                 : (
@@ -225,7 +225,7 @@ const Info = () => {
                                 <p className='font-inter text-sm'><span className='text-[#898989] text-sm font-inter'>Home /</span> {eventName}</p>
                             </div> */}
                             <div className="max-w-5xl mx-auto p-6 flex flex-col lg:flex-row gap-8">
-                                <div className="flex-1 border border-[#111111] px-4 py-4 rounded-2xl overflow-y-auto">
+                                <div className="flex-1 border border-gray-300 border-opacity-10 px-4 py-4 rounded-2xl overflow-y-auto">
                                     <div className="bg-neutral-900 rounded-lg overflow-hidden">
                                         <img
                                             src={`${event.flyer}`}
@@ -239,7 +239,7 @@ const Info = () => {
                                         </div>
                                         <h1 className="text-3xl font-bold font-inter">{event.event_name}</h1>
                                         <div className="flex items-center space-x-2 text-gray-400">
-                                            <IoLocationOutline />
+                                            <IoLocationOutline size={14} />
                                             <span className='font-inter text-sm'>{event.venue_name}</span>
                                             <span>•</span>
                                             <Calendar size={16} />
@@ -342,7 +342,7 @@ const Info = () => {
                                                     {
                                                         userId ? (
                                                             <div className="flex items-center justify-center">
-                                                                <button onClick={handleCheckout} className="bg-white font-inter text-black py-2 px-6 rounded-full hover:bg-gray-100">
+                                                                <button onClick={handleCheckout} className="bg-white font-inter text-black py-3 px-6 rounded-full hover:bg-gray-100 text-sm">
                                                                     Go to checkout
                                                                 </button>
                                                             </div>
@@ -399,7 +399,7 @@ const Info = () => {
                                                         onClick={() => handleDecrement(index)}
                                                         className={`p-3 font-inter bg-[#141414] text-white rounded-full ${ticketCounts[index] === null
                                                             ? 'cursor-not-allowed opacity-50'
-                                                            : 'hover:bg-gray-700'}`}
+                                                            : 'hover:bg-gray-500 hover:bg-opacity-30'}`}
                                                         disabled={ticketCounts[index] === null}
                                                     >
                                                         <MinusIcon size={16} />
@@ -410,7 +410,7 @@ const Info = () => {
                                                     </span>
                                                     <button
                                                         onClick={() => handleIncrement(index)}
-                                                        className="p-3 bg-[#141414] text-white rounded-full hover:bg-gray-700"
+                                                        className="p-3 bg-[#141414] text-white rounded-full hover:bg-gray-500 hover:bg-opacity-30"
                                                     >
                                                         <PlusIcon size={16} />
                                                     </button>
