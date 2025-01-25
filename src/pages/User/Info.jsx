@@ -215,7 +215,7 @@ const Info = () => {
                 ?
                 <>
                     <div className='text-center mt-10'>
-                        <Spin size="large"  />
+                        <Spin size="large" />
                     </div>
                 </>
                 : (
@@ -333,11 +333,21 @@ const Info = () => {
                                             <div className="mb-0">
                                                 <h3 className="text-gray-400 text-xs mb-1 font-inter">TOTAL AMOUNT</h3>
                                                 <div className="flex justify-between items-center">
-                                                    <div className="text-2xl font-medium font-inter">
-                                                        ${ticketCounts.reduce((total, count, index) => {
-                                                            return total + (count > 0 ? count * event.tickets[index].price : 0);
-                                                        }, 0).toFixed(2)}
-                                                    </div>
+                                                    {
+                                                        event.event_type === 'rsvp' ? (
+                                                            <div className="text-2xl font-medium font-inter">
+                                                                Free
+                                                            </div>
+                                                        ) : (
+                                                            <>
+                                                                <div className="text-2xl font-medium font-inter">
+                                                                    ${ticketCounts.reduce((total, count, index) => {
+                                                                        return total + (count > 0 ? count * event.tickets[index].price : 0);
+                                                                    }, 0).toFixed(2)}
+                                                                </div>
+                                                            </>
+                                                        )
+                                                    }
                                                     <div className="flex-grow"></div>
                                                     {
                                                         userId ? (

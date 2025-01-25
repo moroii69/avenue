@@ -28,10 +28,9 @@ const Header = () => {
   })
 
   useEffect(() => {
-    const currentPage = window.location.pathname;
-    if (currentPage === '/') {
+    if (location.pathname === '/') {
       setActiveButton('Explore');
-    } else if (currentPage === '/type') {
+    } else if (location.pathname === '/type') {
       setActiveButton('Create');
     }
   }, []);

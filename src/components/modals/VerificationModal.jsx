@@ -8,6 +8,8 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
     const [code, setCode] = useState(['', '', '', '', '', '']);
     const inputRefs = useRef([...Array(6)].map(() => React.createRef()));
     const [error, setError] = useState(null);
+    const [success, setSuccess] = useState(false);
+    const [countdown, setCountdown] = useState(null);
 
 
     const handleChange = (index, value) => {
@@ -55,14 +57,19 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
                         localStorage.setItem('organizerId', organizer._id);
                         localStorage.setItem('accountId', organizer.stripeAccountId);
                     }
-                    Modal.success({
-                        title: 'Successfully Logged in',
-                        content: 'Continue your browsing events',
-                        onOk: () => {
-                            window.location.reload();
-                        },
-                    });
+                    setSuccess(true)
                     setError(null);
+
+                    setCountdown(3);
+                    const timer = setInterval(() => {
+                        setCountdown((prev) => {
+                            if (prev === 1) {
+                                clearInterval(timer);
+                                window.location.reload();
+                            }
+                            return prev - 1;
+                        });
+                    }, 1000);
                 } else {
                     setError('Invalid OTP');
                 }
@@ -117,8 +124,15 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
                             />
                         ))}
                     </div>
+                    {success && (
+                        <>
+                            <div className="text-green-300 font-inter text-xs bg-green-800 px-16 py-2 bg-opacity-30 border border-green-950 rounded-xl whitespace-nowrap">
+                                <p>Logged in successfully! ({countdown})</p>
+                            </div>
+                        </>
+                    )}
                     {error && (
-                        <div className="text-red-300 font-inter text-xs bg-red-800 px-28 py-3 bg-opacity-30 border border-red-950 rounded-xl">
+                        <div className="text-red-300 font-inter text-xs bg-red-800 px-16 py-2 bg-opacity-30 border border-red-950 rounded-xl">
                             {error}
                         </div>
                     )}

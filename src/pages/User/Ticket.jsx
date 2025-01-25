@@ -194,7 +194,8 @@ const Ticket = () => {
                 email: formData.email
             });
             if (response.data.success === true) {
-                window.location.href = `/qr-ticket/${response.data.paymentId}`;
+                //window.location.href = `/qr-ticket/${response.data.paymentId}`;
+                setStep((prev) => Math.min(prev + 1, 3))
             }
         } catch (error) {
             setPaymentError(error.message);
@@ -266,7 +267,7 @@ const Ticket = () => {
                 ) : (
                     <div className="bg-primary px-4 mt-10 mb-10">
                         <div className="flex flex-col lg:flex-row justify-center gap-6">
-                            <div className="max-w-md flex-1"> 
+                            <div className="max-w-md flex-1">
                                 <div className="border border-[#292929] rounded-xl">
                                     <div className="rounded-    xl bg-primary border border-[#787878] border-opacity-10">
                                         <div className="p-3.5 border-b border-zinc-800 bg-[#111111] bg-opacity-65 flex items-center gap-2">
@@ -340,80 +341,104 @@ const Ticket = () => {
                                                         <div className="mx-3">
                                                             <div className="text-start mb-4">
                                                                 <p className="text-xs font-inter text-gray-400">TOTAL AMOUNT</p>
-                                                                <p className="text-2xl font-medium font-inter text-gray-50 mt-2"><span className="text-[#606060]">$</span>{calculateTotal()}</p>
-                                                            </div>
-                                                            <form
-                                                                onSubmit={async (event) => {
-                                                                    event.preventDefault();
-
-                                                                    if (!stripe || !elements) {
-                                                                        return;
-                                                                    }
-
-                                                                    setPaymentProcessing(true);
-                                                                    setPaymentError(null);
-
-                                                                    try {
-                                                                        const response = await axios.post(`${url}/create-payment-intent`, {
-                                                                            amount: Math.round(parseFloat(calculateTotal()) * 100),
-                                                                            organizerId: organizerId,
-                                                                            userId: userId,
-                                                                            eventId: eventId,
-                                                                            date: Date.now(),
-                                                                            status: "pending",
-                                                                            count: counts,
-                                                                            ticketId: selectedTicketId,
-                                                                            tickets: ticket,
-                                                                            firstName: formData.firstName,
-                                                                            lastName: formData.lastName,
-                                                                            email: formData.email,
-                                                                            tax: Number(event.tax) !== 0,
-                                                                        });
-
-                                                                        const { clientSecret, paymentId } = response.data;
-                                                                        setPayId(paymentId)
-                                                                        const result = await stripe.confirmCardPayment(clientSecret, {
-                                                                            payment_method: {
-                                                                                card: elements.getElement(CardElement),
-                                                                                billing_details: {},
-                                                                            },
-                                                                        });
-
-                                                                        if (result.error) {
-                                                                            setPaymentError(result.error.message);
-                                                                        } else if (result.paymentIntent.status === "succeeded") {
-                                                                            //window.location.href = `/qr-ticket/${paymentId}`;
-                                                                            setStep((prev) => Math.min(prev + 1, 3));
-                                                                        }
-                                                                    } catch (error) {
-                                                                        setPaymentError(error.message);
-                                                                    } finally {
-                                                                        setPaymentProcessing(false);
-                                                                    }
-                                                                }}
-                                                                className="w-full max-w-md mt-4"
-                                                            >
-                                                                <div className="rounded-lg">
-                                                                    <div className="bg-[#1a1a1a] p-3 rounded">
-                                                                        <CardElement options={cardElementOptions} />
-                                                                    </div>
-
-                                                                    {paymentError && (
-                                                                        <div className="text-red-500 mt-2 text-sm">
-                                                                            {paymentError}
-                                                                        </div>
+                                                                <p className="text-2xl font-medium font-inter text-gray-50 mt-2">
+                                                                    {event.event_type === 'rsvp' ? (
+                                                                        "Free"
+                                                                    ) : (
+                                                                        <>
+                                                                            <span className="text-[#606060]">$</span>
+                                                                            {calculateTotal()}
+                                                                        </>
                                                                     )}
+                                                                </p>
+                                                            </div>
+                                                            {
+                                                                event.event_type === 'rsvp' ? (
+                                                                    <>
+                                                                        <button
+                                                                            onClick={handleRSVPAdd}
+                                                                            className={`w-full mt-4 font-inter py-3 rounded-full font-medium bg-white`}
+                                                                        >
+                                                                            Book now
+                                                                        </button>
+                                                                    </>
+                                                                ) : (
+                                                                    <>
+                                                                        <form
+                                                                            onSubmit={async (event) => {
+                                                                                event.preventDefault();
 
-                                                                    <button
-                                                                        type="submit" // Submit the form, triggering handlePayment
-                                                                        disabled={!stripe || paymentProcessing}
-                                                                        className={`w-full mt-4 font-inter py-3 rounded-full font-medium ${paymentProcessing ? "bg-gray-600 cursor-not-allowed" : "bg-white hover:bg-slate-100"
-                                                                            } text-black`}
-                                                                    >
-                                                                        Pay ${calculateTotal()} now
-                                                                    </button>
-                                                                </div>
-                                                            </form>
+                                                                                if (!stripe || !elements) {
+                                                                                    return;
+                                                                                }
+
+                                                                                setPaymentProcessing(true);
+                                                                                setPaymentError(null);
+
+                                                                                try {
+                                                                                    const response = await axios.post(`${url}/create-payment-intent`, {
+                                                                                        amount: Math.round(parseFloat(calculateTotal()) * 100),
+                                                                                        organizerId: organizerId,
+                                                                                        userId: userId,
+                                                                                        eventId: eventId,
+                                                                                        date: Date.now(),
+                                                                                        status: "pending",
+                                                                                        count: counts,
+                                                                                        ticketId: selectedTicketId,
+                                                                                        tickets: ticket,
+                                                                                        firstName: formData.firstName,
+                                                                                        lastName: formData.lastName,
+                                                                                        email: formData.email,
+                                                                                        tax: Number(event.tax) !== 0,
+                                                                                    });
+
+                                                                                    const { clientSecret, paymentId } = response.data;
+                                                                                    setPayId(paymentId)
+                                                                                    const result = await stripe.confirmCardPayment(clientSecret, {
+                                                                                        payment_method: {
+                                                                                            card: elements.getElement(CardElement),
+                                                                                            billing_details: {},
+                                                                                        },
+                                                                                    });
+
+                                                                                    if (result.error) {
+                                                                                        setPaymentError(result.error.message);
+                                                                                    } else if (result.paymentIntent.status === "succeeded") {
+                                                                                        //window.location.href = `/qr-ticket/${paymentId}`;
+                                                                                        setStep((prev) => Math.min(prev + 1, 3));
+                                                                                    }
+                                                                                } catch (error) {
+                                                                                    setPaymentError(error.message);
+                                                                                } finally {
+                                                                                    setPaymentProcessing(false);
+                                                                                }
+                                                                            }}
+                                                                            className="w-full max-w-md mt-4"
+                                                                        >
+                                                                            <div className="rounded-lg">
+                                                                                <div className="bg-[#1a1a1a] p-3 rounded">
+                                                                                    <CardElement options={cardElementOptions} />
+                                                                                </div>
+
+                                                                                {paymentError && (
+                                                                                    <div className="text-red-500 mt-2 text-sm">
+                                                                                        {paymentError}
+                                                                                    </div>
+                                                                                )}
+
+                                                                                <button
+                                                                                    type="submit" // Submit the form, triggering handlePayment
+                                                                                    disabled={!stripe || paymentProcessing}
+                                                                                    className={`w-full mt-4 font-inter py-3 rounded-full font-medium ${paymentProcessing ? "bg-gray-600 cursor-not-allowed" : "bg-white hover:bg-slate-100"
+                                                                                        } text-black`}
+                                                                                >
+                                                                                    Pay ${calculateTotal()} now
+                                                                                </button>
+                                                                            </div>
+                                                                        </form>
+                                                                    </>
+                                                                )
+                                                            }
                                                             <div className="flex justify-center items-center mt-2">
                                                                 <FiLock className="text-[#606060] mr-2 h-4 w-4" />
                                                                 <p className="font-inter text-[#606060] text-xs">your data is encrypted</p>
@@ -480,7 +505,19 @@ const Ticket = () => {
                                             <div className="flex justify-between items-center">
                                                 <div>
                                                     <span className="text-xs font-medium font-inter text-[#7e7e7e]">{selectedTicketName}</span>
-                                                    <p className="text-2xl text-white font-medium"><span className='text-[#7e7e7e]'>$</span>{(counts * selectedTicketPrice).toFixed(2)} x {counts}</p>
+                                                    <p className="text-2xl text-white font-medium">
+                                                        {
+                                                            event.event_type === 'rsvp' ? (
+                                                                <>
+                                                                    <span className='text-[#7e7e7e]'></span>Free x {counts}
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <span className='text-[#7e7e7e]'>$</span>{(counts * selectedTicketPrice).toFixed(2)} x {counts}
+                                                                </>
+                                                            )
+                                                        }
+                                                    </p>
                                                 </div>
                                                 <div className="flex items-center space-x-2 border border-[#272727] rounded-full p-1">
                                                     <button

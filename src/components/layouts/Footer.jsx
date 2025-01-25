@@ -20,7 +20,7 @@ const Footer = () => {
                                     Subscribe to our newsletter
                                 </h2>
                                 <p className="mt-4 text-xs font-inter text-gray-300 w-80">
-                                    Enter your Email Id Below
+                                    Enter your email below:
                                 </p>
                                 <div className="mt-10 flex flex-col sm:flex-row max-w-xs sm:max-w-md gap-x-4">
                                     <label htmlFor="email-address" className="sr-only">

@@ -143,7 +143,16 @@ const Home = () => {
   };
 
   function getDateOnly(date) {
+    if (!date) return null;
+    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(date)) {
+      date += ":00";
+    }
     const d = new Date(date);
+    if (isNaN(d.getTime())) {
+      console.error("Invalid date:", date);
+      return null;
+    }
+
     return d.toISOString().split('T')[0];
   }
 
@@ -289,7 +298,7 @@ const Home = () => {
                 <img
                   src={card.flyer}
                   alt="event"
-                  className="w-96 h-96 object-cover rounded-xl"
+                  className="w-72 h-72 object-cover rounded-xl"
                 />
               </div>
               <div className="absolute top-2 right-2 bg-gray-500/50 p-2 rounded-full text-white border border-opacity-10 border-gray-50">
