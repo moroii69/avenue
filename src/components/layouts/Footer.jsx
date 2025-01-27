@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { BiCalendarCheck, BiEnvelope } from 'react-icons/bi'
 import { BsLinkedin, BsTwitter, BsYoutube } from 'react-icons/bs'
 import { HiHandRaised } from 'react-icons/hi2'
@@ -6,8 +6,34 @@ import { LiaLinkedinIn } from 'react-icons/lia';
 import newsLetter from "../../assets/home-subscribe.png"
 import homeName from "../../assets/home-name.png"
 import logo from "../../assets/logo.png"
+import url from "../../constants/url"
+import axios from 'axios';
 
 const Footer = () => {
+    const [email, setEmail] = useState("");
+    const [showNotifier, setShowNotifier] = useState(false)
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const payload = { email };
+
+        try {
+            const response = await axios.post(`${url}/subscribe/add-subscribe`, payload);
+            if (response.status === 201) {
+                setEmail("")
+                setShowNotifier(true)
+                setTimeout(() => {
+                    setShowNotifier(false);
+                }, 2000);
+            } else {
+                alert("Something went wrong. Please try again.");
+            }
+        } catch (error) {
+            console.error("Error saving email:", error);
+            alert("Failed to save email. Please check the console for details.");
+        }
+    };
+
     return (
         <>
             <div className='bg-primary'>
@@ -26,7 +52,7 @@ const Footer = () => {
                                     <label htmlFor="email-address" className="sr-only">
                                         Email address
                                     </label>
-                                    <div className="relative w-full sm:w-auto">
+                                    <form onSubmit={handleSubmit} className="relative w-full sm:w-auto">
                                         <input
                                             id="email-address"
                                             name="email"
@@ -34,19 +60,32 @@ const Footer = () => {
                                             required
                                             placeholder="example@gmail.com"
                                             autoComplete="email"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
                                             className="min-w-0 flex-auto rounded-md border outline-none border-[#272727] bg-[#141414] px-3.5 py-1 text-white shadow-sm sm:text-sm sm:leading-6 pl-10"
                                         />
                                         <div className="absolute left-3 top-3 transform -translate-y-1 text-white text-opacity-60">
                                             <BiEnvelope className="h-5 w-5" />
                                         </div>
-                                    </div>
-                                    <button
-                                        type="submit"
-                                        className="flex-none mt-4 sm:mt-0 font-inter rounded-full bg-white px-3.5 py-1 text-sm font-medium text-primary shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-                                    >
-                                        Sign up
-                                    </button>
+                                        <button
+                                            type="submit"
+                                            className="flex-none mt-4 sm:mt-0 ml-3 font-inter rounded-full bg-white px-3.5 py-2 text-sm font-medium text-primary shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+                                        >
+                                            Sign up
+                                        </button>
+                                    </form>
                                 </div>
+                                {
+                                    showNotifier && (
+                                        <>
+                                            <div className="bg-green-600 w-full sm:w-64 p-1.5 mt-3 bg-opacity-30 rounded-lg shadow-lg flex items-center justify-center">
+                                                <p className="font-inter text-sm text-center text-white">
+                                                    Request sent successfully!
+                                                </p>
+                                            </div>
+                                        </>
+                                    )
+                                }
                             </div>
                             <div className="relative flex items-end justify-center h-full mt-3">
                                 <img

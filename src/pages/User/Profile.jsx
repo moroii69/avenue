@@ -6,6 +6,7 @@ import url from "../../constants/url"
 import { useParams } from 'react-router-dom';
 import { IoLockClosed, IoDocumentTextSharp } from "react-icons/io5";
 import { MdDone } from "react-icons/md";
+import { FaCheck } from 'react-icons/fa';
 
 const Profile = () => {
     const { id } = useParams();
@@ -16,6 +17,9 @@ const Profile = () => {
     const [phoneNumber, setPhoneNumber] = useState('');
     const [loading, setLoading] = useState(false);
     const [isChecked, setIsChecked] = useState(false);
+    const [firstNameState, setFirstNameState] = useState({ isFocused: false, isLoading: false, isSuccess: false });
+    const [emailState, setEmailState] = useState({ isFocused: false, isLoading: false, isSuccess: false });
+    const [phoneState, setPhoneState] = useState({ isFocused: false, isLoading: false, isSuccess: false });
 
     const [activeTab, setActiveTab] = useState("live");
     const [organizer, setOrganizer] = useState({});
@@ -143,29 +147,59 @@ const Profile = () => {
         fetchBook();
     }, [userId]);
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        const formData = new FormData();
-        formData.append('firstName', firstName);
-        formData.append('email', email);
-        formData.append('phoneNumber', "+1" + phoneNumber);
-        if (profilePhoto) {
-            formData.append('profile_image', profilePhoto);
+    const handleSubmit = (field) => {
+        let formData = new FormData();
+
+        if (field === "firstName") {
+            formData.append("firstName", firstName);
+        } else if (field === "email") {
+            formData.append("email", email);
+        } else if (field === "phone") {
+            formData.append("phoneNumber", "+1" + phoneNumber);
         }
+
+        if (profilePhoto) {
+            formData.append("profile_image", profilePhoto);
+        }
+
+        const setStateFunction = (stateUpdater) => {
+            stateUpdater((prevState) => ({
+                ...prevState,
+                isLoading: true,
+                isSuccess: false,
+            }));
+        };
+
+        if (field === "firstName") setStateFunction(setFirstNameState);
+        if (field === "email") setStateFunction(setEmailState);
+        if (field === "phone") setStateFunction(setPhoneState);
 
         axios
             .put(`${url}/auth/update-user/${userId}`, formData, {
                 headers: {
-                    'Content-Type': 'multipart/form-data',
+                    "Content-Type": "multipart/form-data",
                 },
             })
             .then((response) => {
-                alert('Profile updated successfully!');
-                window.location.reload()
-                localStorage.setItem('userName', firstName);
+                if (field === "firstName") setFirstNameState((prev) => ({ ...prev, isLoading: false, isSuccess: true }));
+                if (field === "email") setEmailState((prev) => ({ ...prev, isLoading: false, isSuccess: true }));
+                if (field === "phone") setPhoneState((prev) => ({ ...prev, isLoading: false, isSuccess: true }));
+
+                if (field === "firstName") {
+                    localStorage.setItem("userName", firstName);
+                }
+
+                setTimeout(() => {
+                    if (field === "firstName") setFirstNameState((prev) => ({ ...prev, isSuccess: false }));
+                    if (field === "email") setEmailState((prev) => ({ ...prev, isSuccess: false }));
+                    if (field === "phone") setPhoneState((prev) => ({ ...prev, isSuccess: false }));
+                }, 2000);
             })
             .catch((error) => {
-                console.error('Error updating profile:', error);
+                console.error("Error updating profile:", error);
+                if (field === "firstName") setFirstNameState((prev) => ({ ...prev, isLoading: false }));
+                if (field === "email") setEmailState((prev) => ({ ...prev, isLoading: false }));
+                if (field === "phone") setPhoneState((prev) => ({ ...prev, isLoading: false }));
             });
     };
 
@@ -302,10 +336,22 @@ const Profile = () => {
                                                 type="text"
                                                 value={firstName}
                                                 onChange={(e) => setFirstName(e.target.value)}
+                                                onFocus={() => setFirstNameState((prev) => ({ ...prev, isFocused: true }))}
+                                                onBlur={() => setFirstNameState((prev) => ({ ...prev, isFocused: false }))}
                                                 className="bg-primary border text-sm font-inter border-zinc-800 rounded-full px-5 py-2.5 pr-20 focus:outline-none w-full"
                                             />
-                                            <button onClick={handleSubmit} className="absolute right-1 top-1/2 transform bg-[#727272] bg-opacity-15 font-inter text-white py-2 px-3 rounded-full -translate-y-1/2 text-sm">
-                                                Change
+                                            <button
+                                                onClick={() => handleSubmit("firstName")}
+                                                className={`absolute right-1 top-1/2 transform -translate-y-1/2 font-inter text-sm py-2 px-3 rounded-full transition-all 
+                                                ${firstNameState.isFocused || firstNameState.isLoading || firstNameState.isSuccess ? "bg-white text-black" : "bg-[#727272] text-white bg-opacity-15"}`}
+                                            >
+                                                {firstNameState.isLoading ? (
+                                                    <div className="loader border-t-2 border-black border-opacity-70 w-4 h-4 rounded-full animate-spin"></div>
+                                                ) : firstNameState.isSuccess ? (
+                                                    <FaCheck className="text-green-500" />
+                                                ) : (
+                                                    "Change"
+                                                )}
                                             </button>
                                         </div>
                                     </div>
@@ -320,10 +366,22 @@ const Profile = () => {
                                                 type="text"
                                                 value={email}
                                                 onChange={(e) => setEmail(e.target.value)}
+                                                onFocus={() => setEmailState((prev) => ({ ...prev, isFocused: true }))}
+                                                onBlur={() => setEmailState((prev) => ({ ...prev, isFocused: false }))}
                                                 className="bg-primary border text-sm font-inter border-zinc-800 rounded-full px-5 py-2.5 pr-20 focus:outline-none w-full"
                                             />
-                                            <button onClick={handleSubmit} className="absolute right-1 top-1/2 transform bg-[#727272] bg-opacity-15 font-inter text-white py-2 px-3 rounded-full -translate-y-1/2 text-sm">
-                                                Change
+                                            <button
+                                                onClick={() => handleSubmit("email")}
+                                                className={`absolute right-1 top-1/2 transform -translate-y-1/2 font-inter text-sm py-2 px-3 rounded-full transition-all 
+                                                ${emailState.isFocused || emailState.isLoading || emailState.isSuccess ? "bg-white text-black" : "bg-[#727272] text-white bg-opacity-15"}`}
+                                            >
+                                                {emailState.isLoading ? (
+                                                    <div className="loader border-t-2 border-black border-opacity-70 w-4 h-4 rounded-full animate-spin"></div>
+                                                ) : emailState.isSuccess ? (
+                                                    <FaCheck className="text-green-500" />
+                                                ) : (
+                                                    "Change"
+                                                )}
                                             </button>
                                         </div>
                                     </div>
@@ -345,20 +403,26 @@ const Profile = () => {
                                                 </div>
                                                 <input
                                                     type="text"
-                                                    value={phoneNumber.startsWith('+1') ? phoneNumber.slice(2) : phoneNumber}
-                                                    onChange={(e) => {
-                                                        setPhoneNumber(e.target.value);
-                                                    }}
+                                                    value={phoneNumber.startsWith("+1") ? phoneNumber.slice(2) : phoneNumber}
+                                                    onChange={(e) => setPhoneNumber(e.target.value)}
                                                     className="bg-transparent text-sm flex-1 focus:outline-none px-2 text-white mx-3"
                                                 />
-
-                                                <button onClick={handleSubmit} className="absolute right-1 top-1/2 transform bg-[#727272] bg-opacity-15 font-inter text-white py-2 px-3 rounded-full -translate-y-1/2 text-sm hover:text-white">
-                                                    Change
+                                                <button
+                                                    onClick={() => handleSubmit("phone")}
+                                                    className={`absolute right-1 top-1/2 transform -translate-y-1/2 font-inter text-sm py-2 px-3 rounded-full transition-all 
+                                                    ${phoneState.isFocused || phoneState.isLoading || phoneState.isSuccess ? "bg-white text-black" : "bg-[#727272] text-white bg-opacity-15"}`}
+                                                >
+                                                    {phoneState.isLoading ? (
+                                                        <div className="loader border-t-2 border-black border-opacity-70 w-4 h-4 rounded-full animate-spin"></div>
+                                                    ) : phoneState.isSuccess ? (
+                                                        <FaCheck className="text-green-500" />
+                                                    ) : (
+                                                        "Change"
+                                                    )}
                                                 </button>
                                             </div>
                                         </div>
                                     </div>
-
                                 </div>
                             </div>
 
@@ -402,12 +466,12 @@ const Profile = () => {
                                             <span className="text-sm font-medium font-inter">Contact support</span>
                                             <span className="text-xs text-zinc-500 block">Need help? We're here for you</span>
                                         </div>
-                                        <input
-                                            type="text"
-                                            value="Chat with support"
-                                            className="bg-primary border text-sm font-inter text-center border-zinc-800 rounded-full px-5 py-2.5 focus:outline-none w-full lg:w-52"
-                                            readOnly
-                                        />
+                                        <a
+                                            href="mailto:avenuetx02@gmail.com"
+                                            className="bg-primary border text-sm font-inter text-center text-white border-zinc-800 rounded-full px-5 py-2.5 focus:outline-none w-full lg:w-52"
+                                        >
+                                            Chat with support
+                                        </a>
                                     </div>
                                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                                         <div className="flex flex-col gap-2">
@@ -423,18 +487,19 @@ const Profile = () => {
                                     </div>
 
                                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                                        <div className="flex flex-col gap-2">
+                                        <div
+                                            className="flex flex-col gap-2">
                                             <span className="text-sm font-medium font-inter">Logout</span>
                                             <span className="text-xs text-zinc-500">You'ill be logged out from this device</span>
                                         </div>
-                                        <input
-                                            type="text"
-                                            value="Logout"
+                                        <button
                                             className="bg-primary border text-sm font-inter text-center text-[#f43f5e] border-zinc-800 rounded-full px-5 py-2.5 focus:outline-none w-full lg:w-52"
-                                            readOnly
-                                        />
+                                            onClick={() => {
+                                                localStorage.clear();
+                                                window.location.href = "/";
+                                            }}
+                                        >Logout</button>
                                     </div>
-
                                 </div>
                             </div>
                         </div>

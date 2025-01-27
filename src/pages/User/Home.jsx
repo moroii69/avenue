@@ -25,6 +25,7 @@ const Home = () => {
   const [startDate, setStartDate] = useState();
   const [endDate, setEndDate] = useState();
   const [showFreeOnly, setShowFreeOnly] = useState(false);
+  const [userId, setUserId] = useState(null);
 
   const cards = [
     // { id: 1, icon: <MdWindow size={20} color='#898989' />, text: 'Type' },
@@ -199,6 +200,25 @@ const Home = () => {
     setShowFreeOnly(false)
   };
 
+  useEffect(() => {
+    const storedUserId = localStorage.getItem("userID");
+    setUserId(storedUserId);
+  }, []);
+
+  const handleBookmark = async (eventId) => {
+    try {
+      const response = await axios.post(`${url}/saved/add-saved`, {
+        event_id: eventId,
+        user_id: userId
+      });
+      if (response.status === 201) {
+        console.log("Event saved successfully:", response.data);
+      }
+    } catch (error) {
+      console.error("Error saving the event:", error);
+    }
+  };
+
   return (
     <div className="font-manrope flex flex-col items-center justify-center text-center mt-28 bg-primary px-4">
       <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold text-white tracking-tighter">
@@ -301,7 +321,12 @@ const Home = () => {
                   className="w-72 h-72 object-cover rounded-xl"
                 />
               </div>
-              <div className="absolute top-2 right-2 bg-gray-500/50 p-2 rounded-full text-white border border-opacity-10 border-gray-50">
+              <div
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleBookmark(card._id);
+                }}
+                className="absolute top-2 right-2 bg-gray-500/50 p-2 rounded-full text-white border border-opacity-10 border-gray-50">
                 <FaBookmark className='text-[#9b9b9b]' />
               </div>
             </div>

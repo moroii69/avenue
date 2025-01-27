@@ -13,6 +13,7 @@ import { FiSearch } from "react-icons/fi";
 const Saved = () => {
     const [activeTab, setActiveTab] = useState("upcoming");
     const [events, setEvents] = useState([]);
+    const [savedEvents, setSavedEvents] = useState([])
     const [isModalQrTicket, setIsModalQrTicket] = useState(false);
     const [selectedCard, setSelectedCard] = useState(null);
 
@@ -132,6 +133,32 @@ const Saved = () => {
         fetchBook();
     }, [userId]);
 
+    const fetchSavedEvents = async () => {
+        try {
+            const response = await axios.get(`${url}/saved/get-saved-id/${userId}`);
+            setSavedEvents(response.data.data);
+        } catch (error) {
+            console.error('Error fetching events:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchSavedEvents()
+    }, [userId])
+
+    const handleDeleteSavedEvent = async (id) => {
+        try {
+            const response = await axios.delete(`${url}/saved/delete-saved/${id}`);
+            if (response.status === 200) {
+                window.location.reload();
+            } else {
+                console.error("Failed to delete the saved event");
+            }
+        } catch (error) {
+            console.error("Error deleting the saved event:", error);
+        }
+    };
+
     return (
         <div className="bg-black min-h-screen p-6 text-white">
             <div className="flex flex-col md:flex-row justify-between items-center mb-8 px-6 md:px-8">
@@ -181,15 +208,15 @@ const Saved = () => {
                             </div>
                         ) : (
                             <div className="mt-6 md:mt-10 mb-10 px-4 md:px-8">
-                                {book.length > 0 ? (
+                                {savedEvents.length > 0 ? (
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                                        {book.map((card) => (
+                                        {savedEvents.map((card) => (
                                             <button
                                                 key={card.id}
                                                 onClick={() =>
                                                     handleDetail(
                                                         card._id,
-                                                        card.party_id.event_name.replace(/\s+/g, "-")
+                                                        card.event_id.event_name.replace(/\s+/g, "-")
                                                     )
                                                 }
                                                 className="bg-[#3e3e3e] bg-opacity-15 px-4 py-4 rounded-xl shadow-lg text-center flex flex-col transition-transform duration-300 transform hover:scale-105"
@@ -200,41 +227,39 @@ const Saved = () => {
                                                             <FaArtstation className="text-purple-800" size={15} />
                                                         </div>
                                                         <h2 className="text-white/50 text-xs uppercase font-inter ml-2 truncate">
-                                                            {card?.party_id?.category}
+                                                            {card?.event_id?.category}
                                                         </h2>
                                                     </div>
                                                     <p className="text-white/50 text-xs font-inter flex-shrink-0">
-                                                        {formatDate(card?.party_id?.start_date)}
+                                                        {formatDate(card?.event_id?.start_date)}
                                                     </p>
                                                 </div>
 
                                                 <div className="relative mb-4">
                                                     <img
-                                                        src={card?.party_id?.flyer}
+                                                        src={card?.event_id?.flyer}
                                                         alt="event"
                                                         className="w-full h-auto object-cover rounded-xl"
                                                     />
-                                                    <div className="absolute top-2 right-2 bg-gray-500 bg-opacity-50 p-2 rounded-full text-white">
+                                                    <button
+                                                        onClick={() => handleDeleteSavedEvent(card._id)}
+                                                        className="absolute top-2 right-2 bg-gray-500 bg-opacity-50 p-2 rounded-full text-white">
                                                         <GoBookmarkSlashFill />
-                                                    </div>
-                                                    {/* <div className="absolute bottom-0 w-full text-white text-start px-2 py-1 rounded-b-xl striped-background">
-                                                        <span className="text-xs font-medium font-inter">
-                                                            {card?.tickets?.ticket_name}
-                                                        </span>
-                                                    </div> */}
+                                                    </button>
+
                                                 </div>
 
                                                 <div className="flex items-center justify-between w-full mb-2 gap-2">
                                                     <div className="min-w-0 flex-1">
                                                         <div className="flex items-center mt-1">
                                                             <span className="text-white text-lg font-inter truncate">
-                                                                {card?.party_id?.event_name}
+                                                                {card?.event_id?.event_name}
                                                             </span>
                                                         </div>
                                                         <div className="flex items-center mt-1">
                                                             <FaLocationDot className="text-neutral-400 mr-1 flex-shrink-0" size={12} />
                                                             <span className="text-white/50 text-sm font-inter truncate">
-                                                                {card?.party_id?.venue_name}
+                                                                {card?.event_id?.venue_name}
                                                             </span>
                                                         </div>
                                                     </div>
@@ -242,7 +267,7 @@ const Saved = () => {
                                                         <p className="text-white font-medium whitespace-nowrap">
                                                             <span className="text-gray-500 text-2xl font-inter">$</span>
                                                             <span className="text-2xl font-semibold font-inter">
-                                                                {card?.party_id?.ticket_start_price}+
+                                                                {card?.event_id?.ticket_start_price}+
                                                             </span>
                                                         </p>
                                                     </div>

@@ -7,6 +7,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { use } from 'react';
 import { Spin } from 'antd';
 import LoginModal from '../../components/modals/LoginModal';
+import { FaEnvelope, FaPhone } from 'react-icons/fa';
 
 const Info = () => {
     const { name } = useParams()
@@ -21,9 +22,14 @@ const Info = () => {
     const [organizerName, setOrganizerName] = useState("");
     const [loading, setLoading] = useState(false)
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
     const id = localStorage.getItem('user_event_id') || {};
     const userId = localStorage.getItem('userID') || "";
+
+    const toggleDropdown = () => {
+        setIsDropdownOpen((prev) => !prev);
+    };
 
     useEffect(() => {
         const EventName = localStorage.getItem('user_event_name') || "";
@@ -291,8 +297,44 @@ const Info = () => {
                                         <p className='mt-4 text-gray-300 w-6/7 text-sm leading-relaxed font-inter' dangerouslySetInnerHTML={{ __html: event.event_description }}></p>
                                     </div>
 
-                                    <div className='flex justify-center items-center mt-5'>
-                                        <button className='w-full border border-[#212121] rounded-full py-3 font-inter'>Contact host</button>
+                                    <div className="flex flex-col items-center mt-5">
+                                        <button
+                                            onClick={toggleDropdown}
+                                            className="w-full border border-[#212121] rounded-full py-3 font-inter focus:outline-none"
+                                        >
+                                            Contact host
+                                        </button>
+                                        {(event?.organizer_id?.email || event?.organizer_id?.phone) && (
+                                            <>
+                                                {isDropdownOpen && (
+                                                    <div className="mt-2 w-full border border-[#212121] rounded-lg shadow-lg p-4 space-y-3">
+                                                        {event?.organizer_id?.email && (
+                                                            <div className="flex items-center gap-3">
+                                                                <FaEnvelope className="text-[#ffffff]" />
+                                                                <a
+                                                                    href={`mailto:${event.organizer_id.email}`}
+                                                                    className="text-sm font-inter text-[#ffffff] hover:underline"
+                                                                >
+                                                                    {event.organizer_id.email}
+                                                                </a>
+                                                            </div>
+                                                        )}
+                                                        {event?.organizer_id?.phone && (
+                                                            <div className="flex items-center gap-3">
+                                                                <FaPhone className="text-[#ffffff]" />
+                                                                <a
+                                                                    href={`tel:${event.organizer_id.phone}`}
+                                                                    className="text-sm font-inter text-[#ffffff] hover:underline"
+                                                                >
+                                                                    {event.organizer_id.phone}
+                                                                </a>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </>
+                                        )}
+
                                     </div>
                                     <div className='flex justify-center items-center mt-2'>
                                         <p className='text-sm text-gray-500 font-inter'>To get on the guest list, contact the host</p>

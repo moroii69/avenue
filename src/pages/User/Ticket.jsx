@@ -5,7 +5,7 @@ import { FaCheckCircle } from "react-icons/fa";
 import { FiLock } from 'react-icons/fi';
 import success from "../../assets/success.png"
 import { useLocation } from "react-router-dom";
-import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import { CardElement, useStripe, useElements, PaymentRequestButtonElement } from "@stripe/react-stripe-js";
 import axios from "axios";
 import url from "../../constants/url";
 import { Button, Modal, Space } from 'antd';
@@ -39,6 +39,10 @@ const Ticket = () => {
     const [userId, setUserId] = useState(null);
     const [userName, setUserName] = useState(null);
     const [organizerId, setOrganizerId] = useState(null);
+
+    const [paymentRequest, setPaymentRequest] = useState(null);
+    //const [paymentProcessing, setPaymentProcessing] = useState(false);
+    //const [paymentError, setPaymentError] = useState(null);
 
     const [details, setDetails] = useState(false)
     const [basicModal, setBasicModal] = useState(false)
@@ -257,6 +261,26 @@ const Ticket = () => {
         fetchBook();
     }, [payId]);
 
+    useEffect(() => {
+        if (stripe) {
+            const pr = stripe.paymentRequest({
+                country: "US",
+                currency: "usd",
+                total: {
+                    label: "Total Amount",
+                    amount: Math.round(parseFloat(calculateTotal()) * 100),
+                },
+                requestPayerName: true,
+                requestPayerEmail: true,
+            });
+            pr.canMakePayment().then((result) => {
+                if (result) {
+                    setPaymentRequest(pr);
+                }
+            });
+        }
+    }, [stripe, calculateTotal]);
+
     return (
         <>
             {
@@ -393,18 +417,21 @@ const Ticket = () => {
                                                                                     });
 
                                                                                     const { clientSecret, paymentId } = response.data;
-                                                                                    setPayId(paymentId)
+                                                                                    setPayId(paymentId);
+
                                                                                     const result = await stripe.confirmCardPayment(clientSecret, {
                                                                                         payment_method: {
                                                                                             card: elements.getElement(CardElement),
-                                                                                            billing_details: {},
+                                                                                            billing_details: {
+                                                                                                name: `${formData.firstName} ${formData.lastName}`,
+                                                                                                email: formData.email,
+                                                                                            },
                                                                                         },
                                                                                     });
 
                                                                                     if (result.error) {
                                                                                         setPaymentError(result.error.message);
                                                                                     } else if (result.paymentIntent.status === "succeeded") {
-                                                                                        //window.location.href = `/qr-ticket/${paymentId}`;
                                                                                         setStep((prev) => Math.min(prev + 1, 3));
                                                                                     }
                                                                                 } catch (error) {
@@ -415,19 +442,18 @@ const Ticket = () => {
                                                                             }}
                                                                             className="w-full max-w-md mt-4"
                                                                         >
+                                                                            {/* Card Payment */}
                                                                             <div className="rounded-lg">
                                                                                 <div className="bg-[#1a1a1a] p-3 rounded">
                                                                                     <CardElement options={cardElementOptions} />
                                                                                 </div>
 
                                                                                 {paymentError && (
-                                                                                    <div className="text-red-500 mt-2 text-sm">
-                                                                                        {paymentError}
-                                                                                    </div>
+                                                                                    <div className="text-red-500 mt-2 text-sm">{paymentError}</div>
                                                                                 )}
 
                                                                                 <button
-                                                                                    type="submit" // Submit the form, triggering handlePayment
+                                                                                    type="submit"
                                                                                     disabled={!stripe || paymentProcessing}
                                                                                     className={`w-full mt-4 font-inter py-3 rounded-full font-medium ${paymentProcessing ? "bg-gray-600 cursor-not-allowed" : "bg-white hover:bg-slate-100"
                                                                                         } text-black`}
@@ -436,6 +462,29 @@ const Ticket = () => {
                                                                                 </button>
                                                                             </div>
                                                                         </form>
+
+                                                                        {/* Apple Pay */}
+                                                                        <div className="mt-8">
+                                                                            {paymentRequest && paymentRequest.canMakePayment() ? (
+                                                                                <PaymentRequestButtonElement
+                                                                                    options={{ paymentRequest }}
+                                                                                    onClick={async () => {
+                                                                                        try {
+                                                                                            const paymentResult = await paymentRequest.show();
+                                                                                            if (paymentResult.complete === "success") {
+                                                                                                setStep((prev) => Math.min(prev + 1, 3));
+                                                                                            }
+                                                                                        } catch (error) {
+                                                                                            console.error("Apple Pay Error:", error);
+                                                                                        }
+                                                                                    }}
+                                                                                />
+                                                                            ) : (
+                                                                                <p className="text-gray-500 text-sm">
+                                                                                    Apple Pay is not available on this device.
+                                                                                </p>
+                                                                            )}
+                                                                        </div>
                                                                     </>
                                                                 )
                                                             }

@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import LoginModal from '../modals/LoginModal';
 import { useLocation, useParams } from 'react-router-dom';
-import { FaRegCalendarAlt } from 'react-icons/fa';
+import { FaBookmark, FaRegCalendarAlt } from 'react-icons/fa';
 import { FaTicketAlt, FaUser, FaSignOutAlt } from "react-icons/fa";
 import LogoutModal from '../modals/LogoutModal';
 import logo from "../../assets/logo.png"
 import { BookMarked } from 'lucide-react';
 import { LuBookMarked } from 'react-icons/lu';
+import { IoTicketOutline, IoTicketSharp } from 'react-icons/io5';
+import { RiAccountPinCircleLine } from 'react-icons/ri';
 
 const Header = () => {
   const { name, id } = useParams();
@@ -157,49 +159,58 @@ const Header = () => {
           <>
             {
               userId ? (
-                <div className="flex space-x-4">
+                <div className="flex space-x-4 items-center">
                   <div className="relative inline-block text-left">
                     <button
-                      className="bg-white sm:block font-inter text-xs sm:text-sm text-black px-4 py-1 sm:px-5 sm:py-2.5 rounded-full font-medium hover:bg-gray-200 transition"
+                      className="bg-white font-inter text-sm text-black px-4 py-2 rounded-full font-medium hover:bg-gray-200 transition-all shadow-sm focus:outline-none"
                       onClick={() => setIsOpen((prev) => !prev)}
                     >
                       Profile
                     </button>
                     {isOpen && (
                       <div
-                        className="absolute right-0 w-48 mt-2 bg-[#222222] rounded-md shadow-lg border border-[#222222] z-50"
+                        className="absolute right-0 mt-2 w-56 bg-[#1a1a1a] rounded-lg shadow-xl z-50"
                       >
                         <ul className="py-2">
-                          <a
-                            href="/tickets"
-                            className="flex items-center px-4 py-2 hover:bg-[#444444] hover:rounded-lg mx-2 cursor-pointer"
-                          >
-                            <FaTicketAlt className="text-gray-300 mr-2" />
-                            <span className="text-white text-xs font-inter">My Tickets</span>
-                          </a>
-                          <a
-                            href="/saved"
-                            className="flex items-center px-4 py-2 hover:bg-[#444444] hover:rounded-lg mx-2 cursor-pointer"
-                          >
-                            <LuBookMarked className="text-gray-300 mr-2" />
-                            <span className="text-white text-xs font-inter">My Saved</span>
-                          </a>
-                          <a
-                            href="/profile"
-                            className="flex items-center px-4 py-2 hover:bg-[#444444] hover:rounded-lg mx-2 cursor-pointer"
-                          >
-                            <FaUser className="text-gray-300 mr-2" />
-                            <span className="text-white text-xs font-inter">My Account</span>
-                          </a>
-                          <a onClick={() => {
-                            localStorage.clear();
-                            window.location.href = "/";
-                          }}
-                            className="flex items-center px-4 py-2 hover:bg-[#444444] hover:rounded-lg mx-2 cursor-pointer"
-                          >
-                            <FaSignOutAlt className="text-gray-300 mr-2" />
-                            <span className="text-white text-xs font-inter">Logout</span>
-                          </a>
+                          <li>
+                            <a
+                              href="/tickets"
+                              className="flex items-center px-4 py-3 hover:bg-[#2a2a2a] rounded-md transition-all"
+                            >
+                              <IoTicketSharp className="text-gray-400 mr-3" />
+                              <span className="text-white text-xs font-inter">My Tickets</span>
+                            </a>
+                          </li>
+                          <li>
+                            <a
+                              href="/saved"
+                              className="flex items-center px-4 py-3 hover:bg-[#2a2a2a] rounded-md transition-all"
+                            >
+                              <FaBookmark className="text-gray-400 mr-3" size={14} />
+                              <span className="text-white text-xs font-inter">My Saved</span>
+                            </a>
+                          </li>
+                          <li>
+                            <a
+                              href="/profile"
+                              className="flex items-center px-4 py-3 hover:bg-[#2a2a2a] rounded-md transition-all"
+                            >
+                              <RiAccountPinCircleLine className="text-gray-400 mr-3" />
+                              <span className="text-white text-xs font-inter">My Account</span>
+                            </a>
+                          </li>
+                          <li>
+                            <a
+                              onClick={() => {
+                                localStorage.clear();
+                                window.location.href = "/";
+                              }}
+                              className="flex items-center px-4 py-3 hover:bg-[#2a2a2a] rounded-md transition-all cursor-pointer"
+                            >
+                              <FaSignOutAlt className="text-gray-400 mr-3" />
+                              <span className="text-white text-xs font-inter">Logout</span>
+                            </a>
+                          </li>
                         </ul>
                       </div>
                     )}
