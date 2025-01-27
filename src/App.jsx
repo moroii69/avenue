@@ -64,10 +64,6 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/type" element={<Type />} />
           <Route path="/saved" element={<Saved />} />
-          <Route
-            path="/.well-known/apple-developer-merchantid-domain-association"
-            element={<Navigate to="/apple-developer-merchantid-domain-association" replace />}
-          />
         </Routes>
         {!shouldHideFooter && <Footer />}
       </div>

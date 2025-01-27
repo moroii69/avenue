@@ -4,5 +4,12 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  publicDir: 'public'
+  server: {
+    proxy: {
+      '/.well-known/apple-developer-merchantid-domain-association': {
+        target: '/apple-developer-merchantid-domain-association',
+        rewrite: (path) => '/apple-developer-merchantid-domain-association'
+      }
+    }
+  }
 })
