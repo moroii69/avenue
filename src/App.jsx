@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useLocation, useNavigate, Navigate } from "react-router-dom";
 import Header from "../src/components/layouts/Header";
 import Footer from "../src/components/layouts/Footer";
 import Home from "./pages/User/Home";
@@ -64,6 +64,10 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/type" element={<Type />} />
           <Route path="/saved" element={<Saved />} />
+          <Route
+            path="/.well-known/apple-developer-merchantid-domain-association"
+            element={<Navigate to="/apple-developer-merchantid-domain-association" replace />}
+          />
         </Routes>
         {!shouldHideFooter && <Footer />}
       </div>
