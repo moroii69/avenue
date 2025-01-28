@@ -416,23 +416,11 @@ const Info = () => {
                                                         )
                                                     }
                                                     <div className="flex-grow"></div>
-                                                    {
-                                                        userId ? (
-                                                            <div className="flex items-center justify-center">
-                                                                <button onClick={handleCheckout} className="bg-white font-inter text-black py-3 px-6 rounded-full hover:bg-gray-100 text-sm">
-                                                                    Go to checkout
-                                                                </button>
-                                                            </div>
-                                                        ) : (
-                                                            <>
-                                                                <div className="flex items-center justify-center">
-                                                                    <button onClick={() => setIsModalOpen(true)} className="bg-white font-inter text-black py-2 px-6 rounded-full hover:bg-gray-100">
-                                                                        Login
-                                                                    </button>
-                                                                </div>
-                                                            </>
-                                                        )
-                                                    }
+                                                    <div className="flex items-center justify-center">
+                                                        <button onClick={handleCheckout} className="bg-white font-inter text-black py-3 px-6 rounded-full hover:bg-gray-100 text-sm">
+                                                            Go to checkout
+                                                        </button>
+                                                    </div>
                                                     <LoginModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
                                                 </div>
                                             </div>

@@ -10,6 +10,7 @@ import axios from "axios";
 import url from "../../constants/url";
 import { Button, Modal, Space } from 'antd';
 import { Spin } from 'antd';
+import LoginModal from '../../components/modals/LoginModal';
 
 const Ticket = () => {
     const [step, setStep] = useState(1);
@@ -46,6 +47,7 @@ const Ticket = () => {
 
     const [details, setDetails] = useState(false)
     const [basicModal, setBasicModal] = useState(false)
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const [formData, setFormData] = useState({
         firstName: '',
@@ -68,6 +70,8 @@ const Ticket = () => {
     const [type, setType] = useState('');
 
     const [loading, setLoading] = useState(false);
+
+    const userIds = localStorage.getItem('userID') || "";
 
 
     const handleApply = () => {
@@ -331,33 +335,49 @@ const Ticket = () => {
                                             <p className="text-sm">
                                                 {step === 1 && (
                                                     <div className="mt-8">
-                                                        <div className="mb-5 mx-3">
-                                                            <label className="block text-white text-sm mb-2 text-start font-inter">Full name</label>
-                                                            <input
-                                                                type="text"
-                                                                name="firstName"
-                                                                value={formData.firstName}
-                                                                onChange={handleChange}
-                                                                className="w-full font-inter bg-primary border border-[#1c1c1c] rounded-full px-4 py-3 text-white placeholder-zinc-400 focus:outline-none"
-                                                                placeholder="Ali Memmedganiev"
-                                                            />
-                                                        </div>
-                                                        <div className="mb-5 mx-3">
-                                                            <label className="block text-white text-sm mb-2 text-start font-inter">Email address</label>
-                                                            <input
-                                                                type="email"
-                                                                name="email"
-                                                                value={formData.email}
-                                                                onChange={handleChange}
-                                                                className="w-full font-inter bg-primary border border-[#1c1c1c] rounded-full px-4 py-3 text-white placeholder-zinc-400 focus:outline-none"
-                                                                placeholder="alimemmedganiev@gmail.com"
-                                                            />
-                                                        </div>
-                                                        <div className="mx-3">
-                                                            <button onClick={handleNext} className="font-inter w-full bg-white text-black font-medium py-3 px-4 rounded-full hover:bg-gray-100 transition-colors">
-                                                                Continue to payment
-                                                            </button>
-                                                        </div>
+                                                        {userIds ? (
+                                                            <div className="mb-5 mx-3">
+                                                                <label className="block text-white text-sm mb-2 text-start font-inter">Full name</label>
+                                                                <input
+                                                                    type="text"
+                                                                    name="firstName"
+                                                                    value={formData.firstName}
+                                                                    onChange={handleChange}
+                                                                    className="w-full font-inter bg-primary border border-[#1c1c1c] rounded-full px-4 py-3 text-white placeholder-zinc-400 focus:outline-none"
+                                                                    placeholder="Ali Memmedganiev"
+                                                                />
+                                                            </div>
+                                                        ) : (
+                                                            <>
+                                                                <div className="mx-3">
+                                                                    <button onClick={() => setIsModalOpen(true)} className="font-inter w-full bg-white text-black font-medium py-3 px-4 rounded-full hover:bg-gray-100 transition-colors">
+                                                                        Login
+                                                                    </button>
+                                                                </div>
+                                                                <LoginModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+                                                            </>
+                                                        )}
+
+                                                        {userIds && (
+                                                            <>
+                                                                <div className="mb-5 mx-3">
+                                                                    <label className="block text-white text-sm mb-2 text-start font-inter">Email address</label>
+                                                                    <input
+                                                                        type="email"
+                                                                        name="email"
+                                                                        value={formData.email}
+                                                                        onChange={handleChange}
+                                                                        className="w-full font-inter bg-primary border border-[#1c1c1c] rounded-full px-4 py-3 text-white placeholder-zinc-400 focus:outline-none"
+                                                                        placeholder="alimemmedganiev@gmail.com"
+                                                                    />
+                                                                </div>
+                                                                <div className="mx-3">
+                                                                    <button onClick={handleNext} className="font-inter w-full bg-white text-black font-medium py-3 px-4 rounded-full hover:bg-gray-100 transition-colors">
+                                                                        Continue to payment
+                                                                    </button>
+                                                                </div>
+                                                            </>
+                                                        )}
                                                     </div>
                                                 )}
                                                 {step === 2 && (
