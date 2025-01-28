@@ -344,12 +344,12 @@ const Info = () => {
                                         <p className='mt-10 text-gray-400 text-xs font-inter font-semibold'>LOCATION</p>
                                     </div>
                                     <div>
-                                        <p className='mt-4 text-white text-lg font-inter'>{event.venue_name}</p>
+                                        <a href={`${event.map_link || '#'}`} target={event.map_link ? '_blank' : ""} className='mt-4 text-white text-lg font-inter hover:underline'>{event.venue_name}</a>
                                     </div>
                                     <div>
                                         <p className=' text-gray-500 text-xs mt-1'>{event.address}</p>
                                     </div>
-                                    <div className="mt-4" style={{ position: "relative", paddingBottom: "56.25%", height: "0", overflow: "hidden", maxWidth: "100%" }}>
+                                    {/* <div className="mt-4" style={{ position: "relative", paddingBottom: "56.25%", height: "0", overflow: "hidden", maxWidth: "100%" }}>
                                         <iframe
                                             src="https://www.google.com/maps/embed?pb=..."
                                             style={{
@@ -364,7 +364,7 @@ const Info = () => {
                                             allowFullScreen=""
                                             loading="lazy"
                                         ></iframe>
-                                    </div>
+                                    </div> */}
 
                                 </div>
 

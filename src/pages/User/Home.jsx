@@ -29,13 +29,13 @@ const Home = () => {
 
   const cards = [
     // { id: 1, icon: <MdWindow size={20} color='#898989' />, text: 'Type' },
-    {
-      id: 2,
-      icon: <FaLocationDot size={20} color='#898989' />,
-      text: 'Place',
-      onClick: () => { setIsModalPlaceOpen(true); },
-      isActive: ""
-    },
+    // {
+    //   id: 2,
+    //   icon: <FaLocationDot size={20} color='#898989' />,
+    //   text: 'Place',
+    //   onClick: () => { setIsModalPlaceOpen(true); },
+    //   isActive: ""
+    // },
     {
       id: 3,
       icon: <AiFillDollarCircle size={20} color='#898989' />,
