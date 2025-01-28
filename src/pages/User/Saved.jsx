@@ -7,7 +7,7 @@ import { FaCalendarAlt } from "react-icons/fa";
 import "../../css/global.css"
 import QrTicket from "../../components/modals/QrTicket";
 import { Spin } from "antd";
-import { GoBookmarkSlashFill } from "react-icons/go";
+import { GoBookmark, GoBookmarkSlash, GoBookmarkSlashFill } from "react-icons/go";
 import { FiSearch } from "react-icons/fi";
 
 const Saved = () => {
@@ -19,7 +19,8 @@ const Saved = () => {
 
     const [book, setBook] = useState([]);
     const [userId, setUserId] = useState(null);
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(false);
+    const [savedEventIds, setSavedEventIds] = useState(new Set());
 
     const generateICSFile = (event) => {
         const formatDateForICS = (dateString) => {
@@ -133,6 +134,41 @@ const Saved = () => {
         fetchBook();
     }, [userId]);
 
+    const handleBookmark = async (eventId) => {
+        try {
+            if (savedEventIds.has(eventId)) {
+                const response = await axios.delete(`${url}/saved/delete-saved/${eventId}`, {
+                    data: { user_id: userId },
+                });
+
+                if (response.status === 200) {
+                    console.log("Event unsaved successfully:", response.data);
+                    setSavedEventIds((prevState) => {
+                        const newSavedEventIds = new Set(prevState);
+                        newSavedEventIds.delete(eventId);
+                        return newSavedEventIds;
+                    });
+                }
+            } else {
+                const response = await axios.post(`${url}/saved/add-saved`, {
+                    event_id: eventId,
+                    user_id: userId,
+                });
+
+                if (response.status === 201) {
+                    console.log("Event saved successfully:", response.data);
+                    setSavedEventIds((prevState) => {
+                        const newSavedEventIds = new Set(prevState);
+                        newSavedEventIds.add(eventId);
+                        return newSavedEventIds;
+                    });
+                }
+            }
+        } catch (error) {
+            console.error("Error updating bookmark status:", error);
+        }
+    };
+
     const fetchSavedEvents = async () => {
         try {
             const response = await axios.get(`${url}/saved/get-saved-id/${userId}`);
@@ -144,6 +180,29 @@ const Saved = () => {
 
     useEffect(() => {
         fetchSavedEvents()
+    }, [userId]);
+
+    const fetchSavedEventsList = async () => {
+        try {
+            const response = await axios.get(`${url}/saved/get-saved-id/${userId}`);
+
+            if (response.status === 200 && response.data.data) {
+                console.log("Fetched saved events:", response.data.data);
+                const savedIds = new Set(
+                    response.data.data.map((event) => event.event_id._id)
+                );
+                setSavedEventIds(savedIds);
+            } else {
+                console.error("No saved events found in the database.");
+                setSavedEventIds(new Set());
+            }
+        } catch (error) {
+            console.error("Error fetching saved events:", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchSavedEventsList()
     }, [userId])
 
     const handleDeleteSavedEvent = async (id) => {
@@ -169,7 +228,7 @@ const Saved = () => {
                     </p>
                 </div>
                 <div className="flex flex-wrap gap-8 items-center space-y-4 md:space-y-0 justify-between md:justify-start mt-4 md:mt-0">
-                    <div className="flex items-center border border-[#2e2e2e] rounded-full px-4 py-3">
+                    {/* <div className="flex items-center border border-[#2e2e2e] rounded-full px-4 py-3">
                         <div className="text-gray-400 mr-3">
                             <FiSearch className="w-4 h-4" />
                         </div>
@@ -178,7 +237,7 @@ const Saved = () => {
                             placeholder="Search for saved events..."
                             className="bg-transparent text-gray-300 text-sm focus:outline-none w-full"
                         />
-                    </div>
+                    </div> */}
                     <div className="flex space-x-2 md:space-x-6 border border-[#2e2e2e] p-1 rounded-full">
                         <button
                             className={`px-4 py-2 font-inter rounded-full text-xs md:text-sm transition-all duration-300 ease-in-out ${activeTab === "upcoming" ? "bg-[#131313] text-white" : "text-gray-300"
@@ -236,17 +295,26 @@ const Saved = () => {
                                                 </div>
 
                                                 <div className="relative mb-4">
-                                                    <img
-                                                        src={card?.event_id?.flyer}
-                                                        alt="event"
-                                                        className="w-full h-auto object-cover rounded-xl"
-                                                    />
-                                                    <button
-                                                        onClick={() => handleDeleteSavedEvent(card._id)}
-                                                        className="absolute top-2 right-2 bg-gray-500 bg-opacity-50 p-2 rounded-full text-white">
-                                                        <GoBookmarkSlashFill />
-                                                    </button>
-
+                                                    <div className="w-full h-72 aspect-square">
+                                                        <img
+                                                            src={card?.event_id?.flyer}
+                                                            alt="event"
+                                                            className="w-full h-full object-cover rounded-xl"
+                                                        />
+                                                    </div>
+                                                    <div
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleBookmark(card?.event_id?._id);
+                                                        }}
+                                                        className="absolute top-2 right-2 bg-gray-500/50 p-2 rounded-full text-white border border-opacity-10 border-gray-50"
+                                                    >
+                                                        {savedEventIds.has(card?.event_id?._id) ? (
+                                                            <GoBookmarkSlash className="text-[#9b9b9b]" />
+                                                        ) : (
+                                                            <GoBookmark className="text-[#9b9b9b]" />
+                                                        )}
+                                                    </div>
                                                 </div>
 
                                                 <div className="flex items-center justify-between w-full mb-2 gap-2">

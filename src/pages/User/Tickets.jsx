@@ -165,9 +165,9 @@ const Tickets = () => {
                                 <Spin size="large" />
                             </div>
                         ) : (
-                            <div className="mt-6 md:mt-10 mb-10 px-4 md:px-8">
+                            <div className="mt-3 md:mt-5 mb-10 md:px-2">
                                 {book.length > 0 ? (
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-16 sm:mt-24 px-4 sm:px-8 md:px-16 lg:px-10 mb-10">
                                         {book.map((card) => (
                                             <button
                                                 key={card.id}
@@ -177,7 +177,7 @@ const Tickets = () => {
                                                         card.party_id.event_name.replace(/\s+/g, "-")
                                                     )
                                                 }
-                                                className="bg-[#3e3e3e] bg-opacity-15 px-4 py-4 rounded-xl shadow-lg text-center flex flex-col transition-transform duration-300 transform hover:scale-105"
+                                                className="bg-neutral-800 bg-opacity-15 px-4 py-3 rounded-2xl shadow-lg text-left flex flex-col transition-transform duration-300 transform hover:scale-105"
                                             >
                                                 <div className="flex items-center justify-between w-full mb-2 gap-2">
                                                     <div className="flex items-center min-w-0">
@@ -194,18 +194,12 @@ const Tickets = () => {
                                                 </div>
 
                                                 <div className="relative mb-4">
-                                                    <img
-                                                        src={card?.party_id?.flyer}
-                                                        alt="event"
-                                                        className="w-full h-auto object-cover rounded-xl"
-                                                    />
-                                                    <div className="absolute top-2 right-2 bg-gray-500 bg-opacity-50 p-2 rounded-full text-white">
-                                                        <CiShare2 />
-                                                    </div>
-                                                    <div className="absolute bottom-0 w-full text-white text-start px-2 py-1 rounded-b-xl striped-background">
-                                                        <span className="text-xs font-medium font-inter">
-                                                            {card?.tickets?.ticket_name}
-                                                        </span>
+                                                    <div className="aspect-w-2 aspect-h-3 w-full">
+                                                        <img
+                                                            src={card?.party_id?.flyer}
+                                                            alt="event"
+                                                            className="w-full h-72 object-cover rounded-xl"
+                                                        />
                                                     </div>
                                                 </div>
 
@@ -232,6 +226,7 @@ const Tickets = () => {
                                                         </p>
                                                     </div>
                                                 </div>
+
                                                 <div className="flex flex-col items-center mt-4">
                                                     <button
                                                         onClick={() => handleOpenQr(card)}
@@ -240,6 +235,7 @@ const Tickets = () => {
                                                         <FaQrcode className="mr-2" /> Show QR
                                                     </button>
                                                 </div>
+
                                                 <div className="flex flex-col items-center mt-2">
                                                     <button
                                                         onClick={() => downloadICSFile(card)}
@@ -256,6 +252,7 @@ const Tickets = () => {
                                         No upcoming tickets are available.
                                     </div>
                                 )}
+
                                 <QrTicket
                                     card={selectedCard}
                                     isOpen={isModalQrTicket}

@@ -23,6 +23,7 @@ const Info = () => {
     const [loading, setLoading] = useState(false)
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [remain, setRemain] = useState([])
 
     const id = localStorage.getItem('user_event_id') || {};
     const userId = localStorage.getItem('userID') || "";
@@ -75,13 +76,15 @@ const Info = () => {
             prevCounts.map((count, i) => {
                 if (i === index) {
                     const maxCount = event?.tickets[index]?.max_count;
-                    const updatedCount =
-                        count === null
-                            ? 1
-                            : maxCount
-                                ? Math.min(count + 1, maxCount)
-                                : count + 1;
-
+                    const currentCount = count === null ? 0 : count;
+                    const hasValidMaxCount = maxCount !== "undefined" &&
+                        maxCount !== undefined &&
+                        maxCount !== null &&
+                        maxCount !== "" &&
+                        !isNaN(Number(maxCount));
+                    const updatedCount = hasValidMaxCount
+                        ? Math.min(currentCount + 1, Number(maxCount))
+                        : currentCount + 1;
                     setSelectedTicket({
                         ...event?.tickets[index],
                         count: updatedCount,
@@ -89,7 +92,7 @@ const Info = () => {
 
                     return updatedCount;
                 }
-                return null;
+                return count;
             })
         );
     };
@@ -215,6 +218,24 @@ const Info = () => {
         );
     };
 
+    const fetchRemainEvent = async () => {
+        if (id) {
+            try {
+                const response = await axios.get(`${url}/remain-tickets/${id}`);
+                setRemain(response.data);
+            } catch (error) {
+                console.error("Error fetching remain events:", error);
+            }
+        } else {
+            console.log("not found")
+        }
+    }
+
+    useEffect(() => {
+        fetchRemainEvent()
+    }, [id])
+
+
     return (
         <>
             {loading
@@ -244,12 +265,16 @@ const Info = () => {
                                             <span className="text-red-400 border border-[#292929] px-3 py-2 rounded-full font-inter text-sm">♫ <span className='text-white'>{event.category}</span></span>
                                         </div>
                                         <h1 className="text-3xl font-bold font-inter">{event.event_name}</h1>
-                                        <div className="flex items-center space-x-2 text-gray-400">
-                                            <IoLocationOutline size={14} />
-                                            <span className='font-inter text-sm'>{event.venue_name}</span>
-                                            <span>•</span>
-                                            <Calendar size={16} />
-                                            <span className='font-inter text-sm'>{formatDate(event.start_date)}</span>
+                                        <div className="flex flex-col sm:flex-row items-start sm:items-center sm sm:space-x-2 text-gray-400 space-y-2 sm:space-y-0">
+                                            <div className="flex items-center space-x-2 text-gray-400">
+                                                <IoLocationOutline size={14} />
+                                                <span className="font-inter text-sm">{event.venue_name}</span>
+                                            </div>
+                                            <span className="hidden sm:inline">•</span>
+                                            <div className="flex items-center space-x-2 text-gray-400">
+                                                <Calendar size={16} />
+                                                <span className="font-inter text-sm">{formatDate(event.start_date)}</span>
+                                            </div>
                                         </div>
                                     </div>
                                     <button onClick={() => handleDetail(event?.organizer_id?._id, event?.organizer_id?.url.replace(/\s+/g, "-"))} className="flex mt-5 items-center justify-between bg-[#141414] shadow-md rounded-2xl p-2 w-full max-w-xl">
@@ -413,63 +438,75 @@ const Info = () => {
                                             </div>
                                         </div>
                                     )}
-                                    {event?.tickets?.map((ticket, index) => (
-                                        <div key={ticket.id || index} className="bg-[#141414] rounded-2xl p-4 mb-4">
-                                            <div className="rounded-lg">
-                                                <div className="flex items-center mb-4">
-                                                    <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                                                    <span className="text-sm text-gray-400 ml-2 font-inter">{ticket.ticket_name}</span>
-                                                </div>
-                                                <div className="mb-4">
-                                                    <div className="h-[1px] bg-gradient-to-r from-transparent via-gray-500 to-transparent"></div>
-                                                </div>
-                                                <div>
-                                                    {
-                                                        event.event_type === 'ticket' ? (
-                                                            <>
-                                                                <div className="text-2xl font-medium mt-1 mb-1 font-inter">
-                                                                    {ticketCounts[index] === null
-                                                                        ? `$${ticket.price}`
-                                                                        : `$${ticket.price} x ${ticketCounts[index]}`}
-                                                                </div>
-                                                                {renderDescription(ticket.ticket_description, ticket.id || index)}
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                <div className="text-2xl font-medium mt-1 mb-1 font-inter">
-                                                                    {ticketCounts[index] === null
-                                                                        ? `Free`
-                                                                        : `Free x ${ticketCounts[index]}`}
-                                                                </div>
-                                                                {renderDescription(ticket.ticket_description, ticket.id || index)}
-                                                            </>
-                                                        )
-                                                    }
-                                                </div>
-                                                <div className="flex items-center mt-4 bg-primary px-1 py-1 rounded-full w-max">
-                                                    <button
-                                                        onClick={() => handleDecrement(index)}
-                                                        className={`p-3 font-inter bg-[#141414] text-white rounded-full ${ticketCounts[index] === null
-                                                            ? 'cursor-not-allowed opacity-50'
-                                                            : 'hover:bg-gray-500 hover:bg-opacity-30'}`}
-                                                        disabled={ticketCounts[index] === null}
-                                                    >
-                                                        <MinusIcon size={16} />
-                                                    </button>
+                                    {event?.tickets?.map((ticket, index) => {
+                                        const remainingTicket = remain.find(r => r.ticket_id === ticket.ticket_id);
+                                        return (
+                                            <div key={ticket.id || index} className="bg-[#141414] rounded-2xl p-4 mb-4">
+                                                <div className="rounded-lg">
+                                                    <div className="flex items-center justify-between mb-4">
+                                                        <div className="flex items-center">
+                                                            <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                                                            <span className="text-sm text-gray-400 ml-2 font-inter">{ticket.ticket_name}</span>
+                                                        </div>
+                                                        {remainingTicket && remainingTicket.remaining_tickets === 0 ? (
+                                                            <span className="text-sm text-red-500 font-semibold font-inter">Sold Out!</span>
+                                                        ) : null}
+                                                    </div>
+                                                    <div className="mb-4">
+                                                        <div className="h-[1px] bg-gradient-to-r from-transparent via-gray-500 to-transparent"></div>
+                                                    </div>
+                                                    <div>
+                                                        {
+                                                            event.event_type === 'ticket' ? (
+                                                                <>
+                                                                    <div className="text-2xl font-medium mt-1 mb-1 font-inter">
+                                                                        {ticketCounts[index] === null
+                                                                            ? `$${ticket.price}`
+                                                                            : `$${ticket.price} x ${ticketCounts[index]}`}
+                                                                    </div>
+                                                                    {renderDescription(ticket.ticket_description, ticket.id || index)}
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <div className="text-2xl font-medium mt-1 mb-1 font-inter">
+                                                                        {ticketCounts[index] === null
+                                                                            ? `Free`
+                                                                            : `Free x ${ticketCounts[index]}`}
+                                                                    </div>
+                                                                    {renderDescription(ticket.ticket_description, ticket.id || index)}
+                                                                </>
+                                                            )
+                                                        }
+                                                    </div>
+                                                    {remainingTicket && remainingTicket.remaining_tickets === 0 ? (
+                                                        ""
+                                                    ) : (
+                                                        <div className="flex items-center mt-4 bg-primary px-1 py-1 rounded-full w-max">
+                                                            <button
+                                                                onClick={() => handleDecrement(index)}
+                                                                className={`p-3 font-inter bg-[#141414] text-white rounded-full ${ticketCounts[index] === null
+                                                                    ? 'cursor-not-allowed opacity-50'
+                                                                    : 'hover:bg-gray-500 hover:bg-opacity-30'}`}
+                                                                disabled={ticketCounts[index] === null}
+                                                            >
+                                                                <MinusIcon size={16} />
+                                                            </button>
 
-                                                    <span className="mx-4 font-inter">
-                                                        {ticketCounts[index] === null ? 'Choose tickets' : `${ticketCounts[index]} tickets`}
-                                                    </span>
-                                                    <button
-                                                        onClick={() => handleIncrement(index)}
-                                                        className="p-3 bg-[#141414] text-white rounded-full hover:bg-gray-500 hover:bg-opacity-30"
-                                                    >
-                                                        <PlusIcon size={16} />
-                                                    </button>
+                                                            <span className="mx-4 font-inter">
+                                                                {ticketCounts[index] === null ? 'Choose tickets' : `${ticketCounts[index]} tickets`}
+                                                            </span>
+                                                            <button
+                                                                onClick={() => handleIncrement(index)}
+                                                                className="p-3 bg-[#141414] text-white rounded-full hover:bg-gray-500 hover:bg-opacity-30"
+                                                            >
+                                                                <PlusIcon size={16} />
+                                                            </button>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        )
+                                    })}
                                 </div>
                             </div>
                         </div>

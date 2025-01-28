@@ -199,11 +199,11 @@ const Creater = () => {
                                                     <div className="flex justify-between items-center mb-2">
                                                         <div className="flex items-center">
                                                             <div className="w-8 h-8 rounded-full flex justify-center items-center">
-                                                                <FaArtstation className="text-white" size={15} />
+                                                                <FaArtstation className="text-purple-800" size={15} />
                                                             </div>
-                                                            <h2 className="text-white text-xs">{card.category}</h2>
+                                                            <h2 className="text-white/50 text-xs uppercase font-inter ml-2 truncate">{card.category}</h2>
                                                         </div>
-                                                        <p className="text-white text-xs">{formatDate(card.start_date)}</p>
+                                                        <p className="text-white/50 text-xs font-inter flex-shrink-0">{formatDate(card.start_date)}</p>
                                                     </div>
 
                                                     <div className="relative mb-4">
@@ -212,9 +212,9 @@ const Creater = () => {
                                                             alt="event"
                                                             className="w-full h-72 object-cover rounded-xl"
                                                         />
-                                                        <div className="absolute top-2 right-2 bg-gray-500/50 p-2 rounded-full text-white border border-opacity-10 border-gray-50">
+                                                        {/* <div className="absolute top-2 right-2 bg-gray-500/50 p-2 rounded-full text-white border border-opacity-10 border-gray-50">
                                                             <FaBookmark className='text-[#9b9b9b]' />
-                                                        </div>
+                                                        </div> */}
                                                     </div>
 
                                                     <h2 className="text-white text-sm text-start font-semibold">{card.event_name}</h2>
@@ -247,38 +247,41 @@ const Creater = () => {
                                     //     <p className="text-center">No past events for this creator.</p>
                                     // </div>
                                     <div className="h-full overflow-y-auto bg-primary hide-scrollbar">
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 mb-10">
-                                            {filteredPastEvents.map(card => (
-                                                <div key={card._id} className="bg-[#3e3e3e] bg-opacity-15 px-3 py-2 rounded-2xl shadow-lg text-center flex flex-col transition-transform duration-300 transform hover:scale-95">
-                                                    <div className="flex justify-between items-center mb-2">
-                                                        <div className="flex items-center">
-                                                            <div className="w-8 h-8 rounded-full flex justify-center items-center">
-                                                                <FaArtstation className="text-white" size={15} />
+                                        {/* Check if there are any events */}
+                                        {filteredPastEvents.length === 0 ? (
+                                            <div>
+                                                <h2 className="text-xl font-bold mb-1 text-center">No Past Events</h2>
+                                                <p className="text-center">No past events for this creator.</p>
+                                            </div>
+                                        ) : (
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 mb-10">
+                                                {filteredPastEvents.map(card => (
+                                                    <div key={card._id} className="bg-[#3e3e3e] bg-opacity-15 px-3 py-2 rounded-2xl shadow-lg text-center flex flex-col transition-transform duration-300 transform hover:scale-95">
+                                                        <div className="flex justify-between items-center mb-2">
+                                                            <div className="flex items-center">
+                                                                <div className="w-8 h-8 rounded-full flex justify-center items-center">
+                                                                    <FaArtstation className="text-purple-800" size={15} />
+                                                                </div>
+                                                                <h2 className="text-white/50 text-xs uppercase font-inter ml-2 truncate">{card.category}</h2>
                                                             </div>
-                                                            <h2 className="text-white text-xs">{card.category}</h2>
+                                                            <p className="text-white/50 text-xs font-inter flex-shrink-0">{formatDate(card.start_date)}</p>
                                                         </div>
-                                                        <p className="text-white text-xs">{formatDate(card.start_date)}</p>
-                                                    </div>
 
-                                                    <div className="relative mb-4">
-                                                        <img
-                                                            src={card.flyer}
-                                                            alt="event"
-                                                            className="w-full h-72 object-cover rounded-xl"
-                                                        />
-                                                        <div className="absolute top-2 right-2 bg-gray-500 bg-opacity-50 p-2 rounded-full text-white">
-                                                            <FaBookmark />
+                                                        <div className="relative mb-4">
+                                                            <img
+                                                                src={card.flyer}
+                                                                alt="event"
+                                                                className="w-full h-72 object-cover rounded-xl"
+                                                            />
                                                         </div>
-                                                    </div>
 
-                                                    <h2 className="text-white text-sm text-start font-semibold">{card.event_name}</h2>
-                                                    <div className="flex justify-between items-center">
-                                                        <div className="flex items-center">
-                                                            <FaLocationDot className="text-[#a2a2a2] mr-1" />
-                                                            <span className="text-[#878787] text-sm">{card.venue_name}</span>
-                                                        </div>
-                                                        {
-                                                            card.event_type === 'ticket' ? (
+                                                        <h2 className="text-white text-sm text-start font-semibold">{card.event_name}</h2>
+                                                        <div className="flex justify-between items-center">
+                                                            <div className="flex items-center">
+                                                                <FaLocationDot className="text-[#a2a2a2] mr-1" />
+                                                                <span className="text-[#878787] text-sm">{card.venue_name}</span>
+                                                            </div>
+                                                            {card.event_type === 'ticket' ? (
                                                                 <p className="text-white font-medium text-xl">
                                                                     <span className="text-gray-500 text-xl">$</span>{card.ticket_start_price}+
                                                                 </p>
@@ -286,12 +289,12 @@ const Creater = () => {
                                                                 <p className="text-white font-medium text-xl">
                                                                     Free
                                                                 </p>
-                                                            )
-                                                        }
+                                                            )}
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            ))}
-                                        </div>
+                                                ))}
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                             </div>

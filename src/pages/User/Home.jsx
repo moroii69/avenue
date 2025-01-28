@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import image1 from "../../assets/home-explore.png"
 import DateModal from '../../components/modals/DateModal';
 import { FiCheck } from 'react-icons/fi';
+import { GoBookmarkSlash, GoBookmark } from "react-icons/go"
 
 const Home = () => {
   const [isModalPriceOpen, setIsModalPriceOpen] = useState(false);
@@ -26,6 +27,8 @@ const Home = () => {
   const [endDate, setEndDate] = useState();
   const [showFreeOnly, setShowFreeOnly] = useState(false);
   const [userId, setUserId] = useState(null);
+  const [savedEvents, setSavedEvents] = useState([]);
+  const [savedEventIds, setSavedEventIds] = useState(new Set());
 
   const cards = [
     // { id: 1, icon: <MdWindow size={20} color='#898989' />, text: 'Type' },
@@ -145,27 +148,30 @@ const Home = () => {
 
   function getDateOnly(date) {
     if (!date) return null;
+
     if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(date)) {
       date += ":00";
     }
+
     const d = new Date(date);
     if (isNaN(d.getTime())) {
       console.error("Invalid date:", date);
       return null;
     }
 
+    d.setHours(0, 0, 0, 0);
     return d.toISOString().split('T')[0];
   }
 
   const filteredEvents = events.filter((event) => {
-    const eventDate = getDateOnly(event.start_date);
+    const eventDate = getDateOnly(event.start_date);  // Ensure this returns a comparable date format
     const startDateOnly = startDate ? getDateOnly(startDate) : null;
     const endDateOnly = endDate ? getDateOnly(endDate) : null;
 
     const minPrice = sliderValue ? sliderValue[0] : null;
     const maxPrice = sliderValue ? sliderValue[1] : null;
 
-    const currentDate = getDateOnly(new Date());
+    const currentDate = getDateOnly(new Date());  // Compare dates properly (string or timestamp)
 
     const isFutureEvent = eventDate >= currentDate;
 
@@ -175,14 +181,26 @@ const Home = () => {
 
     const isWithinDateRange = (() => {
       if (startDateOnly && endDateOnly) {
+        // If both start and end dates are selected, check if eventDate is within this range
         return eventDate >= startDateOnly && eventDate <= endDateOnly;
       } else if (startDateOnly && !endDateOnly) {
+        // If only the start date is selected, check if eventDate matches it exactly
         return eventDate === startDateOnly;
       }
+      // If no start or end date, allow all dates
       return true;
     })();
 
     const isFreeEvent = showFreeOnly ? event.event_type === "rsvp" : true;
+
+    console.log({
+      eventDate,
+      currentDate,
+      isFutureEvent,
+      isWithinPriceRange,
+      isWithinDateRange,
+      isFreeEvent,
+    });
 
     return (
       event.explore === "YES" &&
@@ -191,7 +209,8 @@ const Home = () => {
       isFreeEvent &&
       isFutureEvent
     );
-  })
+  });
+
 
   const handleReset = () => {
     setSliderValue([0, 100]);
@@ -207,17 +226,61 @@ const Home = () => {
 
   const handleBookmark = async (eventId) => {
     try {
-      const response = await axios.post(`${url}/saved/add-saved`, {
-        event_id: eventId,
-        user_id: userId
-      });
-      if (response.status === 201) {
-        console.log("Event saved successfully:", response.data);
+      if (savedEventIds.has(eventId)) {
+        const response = await axios.delete(`${url}/saved/delete-saved/${eventId}`, {
+          data: { user_id: userId },
+        });
+
+        if (response.status === 200) {
+          console.log("Event unsaved successfully:", response.data);
+          setSavedEventIds((prevState) => {
+            const newSavedEventIds = new Set(prevState);
+            newSavedEventIds.delete(eventId);
+            return newSavedEventIds;
+          });
+        }
+      } else {
+        const response = await axios.post(`${url}/saved/add-saved`, {
+          event_id: eventId,
+          user_id: userId,
+        });
+
+        if (response.status === 201) {
+          console.log("Event saved successfully:", response.data);
+          setSavedEventIds((prevState) => {
+            const newSavedEventIds = new Set(prevState);
+            newSavedEventIds.add(eventId);
+            return newSavedEventIds;
+          });
+        }
       }
     } catch (error) {
-      console.error("Error saving the event:", error);
+      console.error("Error updating bookmark status:", error);
     }
   };
+
+  const fetchSavedEvents = async () => {
+    try {
+      const response = await axios.get(`${url}/saved/get-saved-id/${userId}`);
+
+      if (response.status === 200 && response.data.data) {
+        console.log("Fetched saved events:", response.data.data);
+        const savedIds = new Set(
+          response.data.data.map((event) => event.event_id._id)
+        );
+        setSavedEventIds(savedIds);
+      } else {
+        console.error("No saved events found in the database.");
+        setSavedEventIds(new Set());
+      }
+    } catch (error) {
+      console.error("Error fetching saved events:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchSavedEvents()
+  }, [userId])
 
   return (
     <div className="font-manrope flex flex-col items-center justify-center text-center mt-28 bg-primary px-4">
@@ -294,76 +357,86 @@ const Home = () => {
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-16 sm:mt-24 px-4 sm:px-8 md:px-16 lg:px-10 bg-primary mb-10">
-        {filteredEvents.map((card) => (
-          <button
-            onClick={() => handleDetail(card._id, card.event_name.replace(/\s+/g, "-"))}
-            key={card.id}
-            className="bg-neutral-800 bg-opacity-15 px-4 py-3 rounded-2xl shadow-lg text-left flex flex-col transition-transform duration-300 transform hover:scale-105"
-          >
-            <div className="flex items-center justify-between w-full mb-2 gap-2">
-              <div className="flex items-center min-w-0">
-                <div className="w-8 h-8 rounded-full flex justify-center items-center flex-shrink-0">
-                  <FaArtstation className="text-purple-800" size={15} />
-                </div>
-                <h2 className="text-white/50 text-xs uppercase font-inter ml-2 truncate">
-                  {card.category}
-                </h2>
-              </div>
-              <p className="text-white/50 text-xs font-inter flex-shrink-0">
-                {formatDate(card.start_date)}
-              </p>
-            </div>
-            <div className="relative mb-4">
-              <div className="aspect-w-2 aspect-h-3 w-full">
-                <img
-                  src={card.flyer}
-                  alt="event"
-                  className="w-72 h-72 object-cover rounded-xl"
-                />
-              </div>
-              <div
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleBookmark(card._id);
-                }}
-                className="absolute top-2 right-2 bg-gray-500/50 p-2 rounded-full text-white border border-opacity-10 border-gray-50">
-                <FaBookmark className='text-[#9b9b9b]' />
-              </div>
-            </div>
+        {filteredEvents.map((card) => {
+          const isEventSaved = savedEventIds.has(card._id);
 
-            <div className="flex items-center justify-between w-full mb-2 gap-2">
-              <div className="min-w-0 flex-1">
-                <h2 className="text-white text-sm font-semibold font-inter mb-2 truncate">
-                  {card.event_name}
-                </h2>
-                <div className="flex items-center mt-1">
-                  <FaLocationDot className="text-neutral-400 mr-1 flex-shrink-0" size={12} />
-                  <span className="text-white/50 text-sm font-inter truncate">
-                    {card.venue_name}
-                  </span>
+          return (
+            <button
+              onClick={() => handleDetail(card._id, card.event_name.replace(/\s+/g, "-"))}
+              key={card.id}
+              className="bg-neutral-800 bg-opacity-15 px-4 py-3 rounded-2xl shadow-lg text-left flex flex-col transition-transform duration-300 transform hover:scale-105"
+            >
+              <div className="flex items-center justify-between w-full mb-2 gap-2">
+                <div className="flex items-center min-w-0">
+                  <div className="w-8 h-8 rounded-full flex justify-center items-center flex-shrink-0">
+                    <FaArtstation className="text-purple-800" size={15} />
+                  </div>
+                  <h2 className="text-white/50 text-xs uppercase font-inter ml-2 truncate">
+                    {card.category}
+                  </h2>
+                </div>
+                <p className="text-white/50 text-xs font-inter flex-shrink-0">
+                  {formatDate(card.start_date)}
+                </p>
+              </div>
+              <div className="relative mb-4">
+                <div className="aspect-w-2 aspect-h-3 w-full">
+                  <img
+                    src={card.flyer}
+                    alt="event"
+                    className="w-72 h-72 object-cover rounded-xl"
+                  />
+                </div>
+                <div
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleBookmark(card._id);
+                  }}
+                  className="absolute top-2 right-2 bg-gray-500/50 p-2 rounded-full text-white border border-opacity-10 border-gray-50"
+                >
+                  {savedEventIds.has(card._id) ? (
+                    <GoBookmarkSlash className="text-[#9b9b9b]" />
+                  ) : (
+                    <GoBookmark className="text-[#9b9b9b]" />
+                  )}
+                </div>
+
+              </div>
+
+              <div className="flex items-center justify-between w-full mb-2 gap-2">
+                <div className="min-w-0 flex-1">
+                  <h2 className="text-white text-sm font-semibold font-inter mb-2 truncate">
+                    {card.event_name}
+                  </h2>
+                  <div className="flex items-center mt-1">
+                    <FaLocationDot className="text-neutral-400 mr-1 flex-shrink-0" size={12} />
+                    <span className="text-white/50 text-sm font-inter truncate">
+                      {card.venue_name}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex-shrink-0">
+                  {
+                    card.event_type === 'ticket' ? (
+                      <p className="text-white font-medium whitespace-nowrap">
+                        <span className="text-gray-500 text-2xl font-inter">$</span>
+                        <span className="text-2xl font-semibold font-inter">
+                          {card.ticket_start_price}+
+                        </span>
+                      </p>
+                    ) : (
+                      <p className="text-white font-medium whitespace-nowrap">
+                        <span className="text-2xl font-semibold font-inter">
+                          Free
+                        </span>
+                      </p>
+                    )
+                  }
                 </div>
               </div>
-              <div className="flex-shrink-0">
-                {
-                  card.event_type === 'ticket' ? (
-                    <p className="text-white font-medium whitespace-nowrap">
-                      <span className="text-gray-500 text-2xl font-inter">$</span>
-                      <span className="text-2xl font-semibold font-inter">
-                        {card.ticket_start_price}+
-                      </span>
-                    </p>
-                  ) : (
-                    <p className="text-white font-medium whitespace-nowrap">
-                      <span className="text-2xl font-semibold font-inter">
-                        Free
-                      </span>
-                    </p>
-                  )
-                }
-              </div>
-            </div>
-          </button>
-        ))}
+            </button>
+          );
+        })}
       </div>
 
       {/* <div className="mt-5">
