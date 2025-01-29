@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import LoginModal from '../modals/LoginModal';
-import { useLocation, useParams } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { FaBookmark, FaRegCalendarAlt } from 'react-icons/fa';
 import { FaTicketAlt, FaUser, FaSignOutAlt } from "react-icons/fa";
 import LogoutModal from '../modals/LogoutModal';
@@ -12,6 +12,7 @@ import { RiAccountPinCircleLine } from 'react-icons/ri';
 
 const Header = () => {
   const { name, id } = useParams();
+  const navigate = useNavigate();
   const location = useLocation();
   const [activeButton, setActiveButton] = useState('Explore');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -35,22 +36,22 @@ const Header = () => {
     } else if (location.pathname === '/type') {
       setActiveButton('Create');
     }
-  }, []);
+  }, [location.pathname]);
 
   const handleExplore = () => {
     setActiveButton('Explore');
-    window.location.href = "/"
-  }
+    navigate("/"); 
+  };
 
   const handleCreate = () => {
     setActiveButton('Create');
-    window.location.href = "/type"
-  }
+    navigate("/type"); 
+  };
 
   return (
-    <nav className={`${location.pathname === '/' ? "bg-primary" : "bg-[#000000]"} text-white flex items-center justify-between px-6 py-3`}>
+    <nav className={`${location.pathname === '/' ? "bg-primary" : "bg-[#000000]"} text-white flex items-center justify-between px-[20px] sm:px-[32px] py-[18px]`}>
       <a href="/" className="flex items-center space-x-2 text-lg font-bold">
-        <img src={logo} alt="logo" className="w-14 sm:w-20" />
+        <img src={logo} alt="logo" className="w-28 sm:w-32 sm:h-auto" />
       </a>
 
       {location.pathname.startsWith('/info') ? (
@@ -95,25 +96,27 @@ const Header = () => {
           <div></div>
         </>
       ) : (
-        <div className="flex space-x-3 bg-[#4e4e4e] bg-opacity-50 rounded-full py-1 px-1">
-          <button
-            onClick={handleExplore}
-            className={`px-2 py-1 sm:py-2 sm:px-4 text-xs sm:text-sm font-inter rounded-full sm:font-bold font-semibold transition ${activeButton === 'Explore'
-              ? 'bg-[#F0F0F0] bg-opacity-10 text-white'
-              : 'text-[#b0b0b0] hover:bg-[#F0F0F0] hover:bg-opacity-10'
-              }`}
-          >
-            Explore
-          </button>
-          <button
-            onClick={handleCreate}
-            className={`px-2 py-1 sm:py-2 sm:px-4 text-xs sm:text-sm font-inter rounded-full font-bold transition ${activeButton === 'Create'
-              ? 'bg-[#F0F0F0] bg-opacity-10 text-white'
-              : 'text-[#b0b0b0] hover:bg-[#F0F0F0] hover:bg-opacity-10'
-              }`}
-          >
-            Create
-          </button>
+        <div className="flex justify-center items-center w-full">
+          <div className="flex bg-[#fff] bg-opacity-10 rounded-full py-1 px-1">
+            <button
+              onClick={handleExplore}
+              className={`tracking-tighter px-2 py-1 sm:py-2.5 sm:px-4 text-xs sm:text-[16px] font-inter rounded-full sm:font-medium font-semibold transition ${activeButton === 'Explore'
+                ? 'bg-[#F0F0F0] bg-opacity-10 text-white'
+                : 'text-[#ffffff] hover:bg-[#F0F0F0] hover:bg-opacity-10 text-opacity-60'
+                }`}
+            >
+              Explore
+            </button>
+            <button
+              onClick={handleCreate}
+              className={`tracking-tighter px-2 py-1 sm:py-2.5 sm:px-4 text-xs sm:text-[16px] font-inter rounded-full sm:font-medium transition ${activeButton === 'Create'
+                ? 'bg-[#F0F0F0] bg-opacity-10 text-white'
+                : 'text-[#ffffff] hover:bg-[#F0F0F0] hover:bg-opacity-10 text-opacity-60'
+                }`}
+            >
+              Create
+            </button>
+          </div>
         </div>
       )}
 
@@ -162,11 +165,12 @@ const Header = () => {
                 <div className="flex space-x-4 items-center">
                   <div className="relative inline-block text-left">
                     <button
-                      className="bg-white font-inter text-sm text-black px-4 py-1 sm:py-2 rounded-full font-medium hover:bg-gray-200 transition-all shadow-sm focus:outline-none"
+                      className="h-[32px] sm:h-[44px] tracking-tighter border border-[#fff] border-opacity-10 font-inter text-xs sm:text-[16px] text-white px-4 py-1 sm:py-2 sm:px-5 rounded-full font-medium hover:bg-gray-200 hover:bg-opacity-15 transition-all shadow-sm focus:outline-none"
                       onClick={() => setIsOpen((prev) => !prev)}
                     >
                       Profile
                     </button>
+
                     {isOpen && (
                       <div
                         className="absolute right-0 mt-2 w-56 bg-[#1a1a1a] rounded-lg shadow-xl z-50"
@@ -221,9 +225,9 @@ const Header = () => {
                 <div className="flex space-x-4">
                   <button
                     onClick={() => setIsModalOpen(true)}
-                    className="bg-white text-xs text-black px-5 py-2 rounded-full font-bold hover:bg-gray-200 transition"
+                    className="h-[32px] sm:h-[44px] tracking-tighter border border-[#fff] border-opacity-10 font-inter text-xs sm:text-[16px] text-white px-4 py-1 sm:py-2 sm:px-5 rounded-full font-medium hover:bg-gray-200 hover:bg-opacity-15 transition-all shadow-sm focus:outline-none"
                   >
-                    Log in
+                    Login
                   </button>
                   <LoginModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
                 </div>

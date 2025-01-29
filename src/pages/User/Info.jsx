@@ -160,22 +160,27 @@ const Info = () => {
     };
 
     const fetchEvent = async () => {
-        setLoading(true)
+        setLoading(true);
+    
+        const encodedName = encodeURIComponent(name);
+    
         try {
-            const response = await axios.get(`${url}/event/get-event-by-id/${id}`);
+            const response = await axios.get(`${url}/event/get-event-by-name/${encodedName}`);
+            localStorage.setItem('user_event_id', response.data?._id);
+            localStorage.setItem('user_event_name', response.data?.event_name);
             setEvent(response.data);
-            setOrganizer(response.data?.organizer_id?._id)
+            setOrganizer(response.data?.organizer_id?._id);
         } catch (error) {
             console.error('Error fetching events:', error);
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
     };
-
+    
     useEffect(() => {
         fetchEvent();
-    }, []);
-
+    }, [name]);
+    
     const handleDetail = (id, creater) => {
         localStorage.setItem('user_organizer_id', id);
         localStorage.setItem('user_organizer_name', creater);

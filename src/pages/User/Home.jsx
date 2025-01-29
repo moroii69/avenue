@@ -284,43 +284,46 @@ const Home = () => {
 
   return (
     <div className="font-manrope flex flex-col items-center justify-center text-center mt-28 bg-primary px-4">
-      <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold text-white tracking-tighter">
+      <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[76px] font-semibold text-white tracking-tighter">
         Find
         <img
           src={image1}
           alt="event icon"
-          className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-32 lg:h-32 inline-block align-middle mx-3"
+          className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-40 lg:h-40 inline-block align-middle mx-1 -mt-2 sm:-mt-6"
         />
         events
       </h1>
 
-      <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-medium text-white mb-4 tracking-tighter -mt-4 sm:-mt-6 lg:-mt-8">
+      <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[76px] font-medium text-white mb-4 tracking-tighter -mt-4 sm:-mt-6 lg:-mt-8">
         in <span className="text-[#8a8686] underline decoration-[#2e2e2e] decoration-4">your</span> area
       </h1>
-      <p className="text-xs sm:text-sm md:text-base font-geist text-[#b4b4b4] text-opacity-60 max-w-lg mx-auto mt-4">
+      <p className="text-xs sm:text-sm md:text-base font-geist text-[#fff] text-opacity-50 max-w-lg mx-auto mt-4">
         Avenue streamlines event discovery,
       </p>
-      <p className="text-xs sm:text-sm md:text-base text-[#b4b4b4] text-opacity-60 max-w-lg mx-auto">
+      <p className="text-xs sm:text-sm md:text-base font-geist text-[#fff] text-opacity-50 max-w-lg mx-auto">
         creation, ticketing, and management.
       </p>
 
-      <div className="flex flex-wrap justify-center mt-16 gap-1 bg-black px-1 py-1 rounded-3xl border border-[#1c1c1c] border-opacity-70">
+      <div className="flex flex-wrap justify-center mt-12 gap-1 bg-black px-1 py-1 rounded-[1.25rem] border border-[#fff] border-opacity-10">
         {cards.map((card) => (
           <button
             onClick={card.onClick}
             key={card.id}
-            className="bg-[#141414] bg-opacity-70 px-5 md:px-10 sm:px-8 py-4 rounded-3xl shadow-lg text-center flex flex-col items-center transition-transform duration-300 transform hover:scale-90 relative"
+            className="bg-[#141414] bg-opacity-70 px-5 md:px-6 w-[96px] h-[70px] md:py-3 sm:px-8 py-4 rounded-2xl shadow-lg text-center flex flex-col items-center transition-transform duration-300 transform hover:scale-90 relative"
           >
-            <div className="mb-2 text-white flex justify-center">{card.icon}</div>
-            <div className="flex items-center justify-between">
-              <p className="text-lg text-white font-medium font-inter">{card.text}</p>
-              {card.isActive && (
-                <div className='p-0.5 bg-[#34b2da] bg-opacity-15 rounded-md mt-1 ml-1 text-[#34b2da]'>
-                  <FiCheck className="h-4 w-4" />
-                </div>
-              )}
+            <div className=''>
+              <div className="mb-1.5 text-white flex justify-center">{card.icon}</div>
+              <div className="flex items-center justify-between">
+                <p className="text-md text-white font-medium font-inter text-base leading-[20px]">{card.text}</p>
+                {card.isActive && (
+                  <div className='p-0.5 bg-[#34b2da] bg-opacity-15 rounded-md mt-1 ml-1 text-[#34b2da]'>
+                    <FiCheck className="h-4 w-4" />
+                  </div>
+                )}
+              </div>
             </div>
           </button>
+
         ))}
         {sliderValue[0] !== 0 || sliderValue[1] !== 100 || startDate || endDate || showFreeOnly ? (
           <button
