@@ -93,14 +93,15 @@ const Creater = () => {
         const upcomingEvents = events.filter(event => {
             const eventDate = new Date(event.start_date);
             eventDate.setHours(0, 0, 0, 0);
-            return eventDate >= currentDate;
+            return eventDate >= currentDate && event.explore === "YES";
         });
         setFilteredEvents(upcomingEvents);
+
 
         const pastEvents = events.filter(event => {
             const eventDate = new Date(event.start_date);
             eventDate.setHours(0, 0, 0, 0);
-            return eventDate < currentDate;
+            return eventDate < currentDate && event.explore === "YES";
         });
         setFilteredPastEvents(pastEvents);
 
@@ -144,7 +145,7 @@ const Creater = () => {
                             <div className="flex justify-center items-center space-x-14">
                                 <div className="flex flex-col items-center">
                                     <span className="text-xs font-bold text-white">Live</span>
-                                    <span className="text-xl font-semibold text-white">{events.length}</span>
+                                    <span className="text-xl font-semibold text-white">{events.filter(event => event.explore === "YES").length}</span>
                                 </div>
 
                                 <div className="w-[2px] bg-[#222222] h-10"></div>
