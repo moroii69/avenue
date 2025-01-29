@@ -61,6 +61,9 @@ const Ticket = () => {
     const selectedTicketId = localStorage.getItem('selectedTicketId') || {};
     const selectedTicketName = localStorage.getItem('selectedTicketName') || {};
     const eventId = localStorage.getItem('user_event_id') || {};
+    const max_count = localStorage.getItem('max_count') || {};
+    const remaining_tickets = localStorage.getItem('remaining_tickets') || {};
+    const [remain, setRemain] = useState([])
 
     const stripe = useStripe();
     const elements = useElements();
@@ -284,6 +287,23 @@ const Ticket = () => {
             });
         }
     }, [stripe, calculateTotal]);
+
+    const fetchRemainEvent = async () => {
+        if (eventId) {
+            try {
+                const response = await axios.get(`${url}/remain-tickets/${eventId}`);
+                setRemain(response.data);
+            } catch (error) {
+                console.error("Error fetching remain events:", error);
+            }
+        } else {
+            console.log("not found")
+        }
+    }
+
+    useEffect(() => {
+        fetchRemainEvent()
+    }, [eventId])
 
     return (
         <>
@@ -543,7 +563,7 @@ const Ticket = () => {
                             </div>
 
                             {step === 2 && (
-                                <div className="max-w-xs flex-1 space-y-2 items-center">
+                                <div className="max-w-xs flex-1 space-y-2 justify-center items-center">
                                     <div className="bg-[#292929] bg-opacity-25 rounded-xl p-4">
                                         <div className='flex justify-between mb-4'>
                                             <h2 className="text-xs font-medium font-inter text-gray-400 uppercase">{event.category}</h2>
@@ -604,8 +624,13 @@ const Ticket = () => {
                                                     <span className="text-white font-medium">{counts}</span>
                                                     <button
                                                         onClick={() => {
+                                                            const maxCount = localStorage.getItem('max_count');
+                                                            const remainingTickets = localStorage.getItem('remaining_tickets');
+
                                                             setCount((prev) => {
-                                                                const newCount = prev + 1;
+                                                                const maxLimit = maxCount && !isNaN(maxCount) ? parseInt(maxCount, 10) : (remainingTickets && !isNaN(remainingTickets) ? parseInt(remainingTickets, 10) : Infinity);
+                                                                const newCount = Math.min(prev + 1, maxLimit);
+
                                                                 localStorage.setItem('count', newCount);
                                                                 return newCount;
                                                             });
@@ -614,7 +639,40 @@ const Ticket = () => {
                                                     >
                                                         +
                                                     </button>
+
                                                 </div>
+
+                                            </div>
+                                            <div className='flex flex-row justify-between mt-7'>
+                                                <p className='font-inter text-gray-400 text-sm'>Ticket</p>
+                                                <p className='font-inter text-white text-sm'>${(counts * selectedTicketPrice).toFixed(2)}</p>
+                                            </div>
+                                            <div className='flex flex-row justify-between mt-1'>
+                                                <p className='font-inter text-gray-400 text-sm'>Platform fee</p>
+                                                <p className='font-inter text-white text-sm'>
+                                                    {
+                                                        event.tax !== 'undefined' && typeof event.tax === 'number' ? (
+                                                            <>
+                                                                <span className="text-white">
+                                                                    ${
+                                                                        ((((count * selectedTicketPrice) + ((count * selectedTicketPrice) * (event.tax / 100))) * 0.09) + 0.89).toFixed(2)
+                                                                    }
+                                                                </span>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <span className="text-white">
+                                                                    ${((count * selectedTicketPrice * 0.09) + 0.89).toFixed(2)}
+                                                                </span>
+                                                            </>
+                                                        )
+                                                    }
+                                                </p>
+                                            </div>
+                                            <div className="border-t border-gray-600 my-3" />
+                                            <div className='flex flex-row justify-between mt-1'>
+                                                <p className='font-inter text-gray-400 text-sm'>Total</p>
+                                                <p className='font-inter text-white text-sm'>${calculateTotal()}</p>
                                             </div>
                                         </div>
                                     </div>

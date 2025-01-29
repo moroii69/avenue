@@ -75,24 +75,34 @@ const Info = () => {
         setTicketCounts((prevCounts) =>
             prevCounts.map((count, i) => {
                 if (i === index) {
+                    const remainingTicket = remain.find(r => r.ticket_name === event?.tickets[index]?.ticket_name);
                     const maxCount = event?.tickets[index]?.max_count;
                     const currentCount = count === null ? 0 : count;
+
                     const hasValidMaxCount = maxCount !== "undefined" &&
                         maxCount !== undefined &&
                         maxCount !== null &&
                         maxCount !== "" &&
                         !isNaN(Number(maxCount));
-                    const updatedCount = hasValidMaxCount
-                        ? Math.min(currentCount + 1, Number(maxCount))
-                        : currentCount + 1;
+
+                    let limit;
+                    if (hasValidMaxCount) {
+                        limit = Number(maxCount);
+                    } else if (remainingTicket) {
+                        limit = remainingTicket.remaining_tickets;
+                    } else {
+                        limit = currentCount + 1;
+                    }
+
+                    const updatedCount = Math.min(currentCount + 1, limit);
+
                     setSelectedTicket({
                         ...event?.tickets[index],
                         count: updatedCount,
                     });
-
                     return updatedCount;
                 }
-                return count;
+                return null;
             })
         );
     };
@@ -102,7 +112,6 @@ const Info = () => {
             prevCounts.map((count, i) => {
                 if (i === index) {
                     const updatedCount = count === 1 ? null : count - 1;
-
                     if (updatedCount === null) {
                         setSelectedTicket(null);
                     } else {
@@ -111,10 +120,9 @@ const Info = () => {
                             count: updatedCount,
                         });
                     }
-
                     return updatedCount;
                 }
-                return count;
+                return null;
             })
         );
     };
@@ -124,11 +132,15 @@ const Info = () => {
     }, [selectedTicket]);
 
     const handleCheckout = () => {
+        const selectedRemainingTickets = remain.find(r => r.ticket_name === selectedTicket.ticket_name)?.remaining_tickets || null;
+
         localStorage.setItem('selectedTicketPrice', selectedTicket.price);
         localStorage.setItem('count', selectedTicket.count);
         localStorage.setItem('selectedTicketId', selectedTicket._id);
         localStorage.setItem('selectedTicketName', selectedTicket.ticket_name);
         localStorage.setItem('user_organizer_id', event?.organizer_id?._id)
+        localStorage.setItem('max_count', selectedTicket.max_count)
+        localStorage.setItem('remaining_tickets', selectedRemainingTickets);
         navigate("/ticket");
     };
 
@@ -429,7 +441,9 @@ const Info = () => {
                                         </div>
                                     )}
                                     {event?.tickets?.map((ticket, index) => {
-                                        const remainingTicket = remain.find(r => r.ticket_id === ticket.ticket_id);
+                                        const remainingTicket = remain.find(r => r.ticket_name === ticket.ticket_name);
+                                        const isSoldOut = remainingTicket && remainingTicket.remaining_tickets <= 0;
+
                                         return (
                                             <div key={ticket.id || index} className="bg-[#141414] rounded-2xl p-4 mb-4">
                                                 <div className="rounded-lg">
@@ -438,7 +452,7 @@ const Info = () => {
                                                             <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
                                                             <span className="text-sm text-gray-400 ml-2 font-inter">{ticket.ticket_name}</span>
                                                         </div>
-                                                        {remainingTicket && remainingTicket.remaining_tickets === 0 ? (
+                                                        {isSoldOut ? (
                                                             <span className="text-sm text-red-500 font-semibold font-inter">Sold Out!</span>
                                                         ) : null}
                                                     </div>
@@ -446,42 +460,38 @@ const Info = () => {
                                                         <div className="h-[1px] bg-gradient-to-r from-transparent via-gray-500 to-transparent"></div>
                                                     </div>
                                                     <div>
-                                                        {
-                                                            event.event_type === 'ticket' ? (
-                                                                <>
-                                                                    <div className="text-2xl font-medium mt-1 mb-1 font-inter">
-                                                                        {ticketCounts[index] === null
-                                                                            ? `$${ticket.price}`
-                                                                            : `$${ticket.price} x ${ticketCounts[index]}`}
-                                                                    </div>
-                                                                    {renderDescription(ticket.ticket_description, ticket.id || index)}
-                                                                </>
-                                                            ) : (
-                                                                <>
-                                                                    <div className="text-2xl font-medium mt-1 mb-1 font-inter">
-                                                                        {ticketCounts[index] === null
-                                                                            ? `Free`
-                                                                            : `Free x ${ticketCounts[index]}`}
-                                                                    </div>
-                                                                    {renderDescription(ticket.ticket_description, ticket.id || index)}
-                                                                </>
-                                                            )
-                                                        }
+                                                        {event.event_type === 'ticket' ? (
+                                                            <>
+                                                                <div className="text-2xl font-medium mt-1 mb-1 font-inter">
+                                                                    {ticketCounts[index] === null
+                                                                        ? `$${ticket.price}`
+                                                                        : `$${ticket.price} x ${ticketCounts[index]}`}
+                                                                </div>
+                                                                {renderDescription(ticket.ticket_description, ticket.id || index)}
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <div className="text-2xl font-medium mt-1 mb-1 font-inter">
+                                                                    {ticketCounts[index] === null
+                                                                        ? `Free`
+                                                                        : `Free x ${ticketCounts[index]}`}
+                                                                </div>
+                                                                {renderDescription(ticket.ticket_description, ticket.id || index)}
+                                                            </>
+                                                        )}
                                                     </div>
-                                                    {remainingTicket && remainingTicket.remaining_tickets === 0 ? (
-                                                        ""
-                                                    ) : (
+                                                    {!isSoldOut && (
                                                         <div className="flex items-center mt-4 bg-primary px-1 py-1 rounded-full w-max">
                                                             <button
                                                                 onClick={() => handleDecrement(index)}
                                                                 className={`p-3 font-inter bg-[#141414] text-white rounded-full ${ticketCounts[index] === null
                                                                     ? 'cursor-not-allowed opacity-50'
-                                                                    : 'hover:bg-gray-500 hover:bg-opacity-30'}`}
+                                                                    : 'hover:bg-gray-500 hover:bg-opacity-30'
+                                                                    }`}
                                                                 disabled={ticketCounts[index] === null}
                                                             >
                                                                 <MinusIcon size={16} />
                                                             </button>
-
                                                             <span className="mx-4 font-inter">
                                                                 {ticketCounts[index] === null ? 'Choose tickets' : `${ticketCounts[index]} tickets`}
                                                             </span>
@@ -495,7 +505,7 @@ const Info = () => {
                                                     )}
                                                 </div>
                                             </div>
-                                        )
+                                        );
                                     })}
                                 </div>
                             </div>
