@@ -504,7 +504,7 @@ const Ticket = () => {
                                                                         </form>
 
                                                                         {/* Apple Pay */}
-                                                                        <div className="mt-8">
+                                                                        {/* <div className="mt-8">
                                                                             {paymentRequest && paymentRequest.canMakePayment() ? (
                                                                                 <PaymentRequestButtonElement
                                                                                     options={{ paymentRequest }}
@@ -524,7 +524,7 @@ const Ticket = () => {
                                                                                     Apple Pay is not available on this device.
                                                                                 </p>
                                                                             )}
-                                                                        </div>
+                                                                        </div> */}
                                                                     </>
                                                                 )
                                                             }
