@@ -291,7 +291,7 @@ const Home = () => {
           alt="event icon"
           className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-40 lg:h-40 inline-block align-middle mx-1 -mt-2 sm:-mt-6"
         />
-        events
+        event
       </h1>
 
       <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[76px] font-medium text-white mb-4 tracking-tighter -mt-4 sm:-mt-6 lg:-mt-8">
