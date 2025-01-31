@@ -20,8 +20,14 @@ const Ticket = () => {
     const location = useLocation();
     const [payId, setPayId] = useState('');
     const [book, setBook] = useState({});
+    const [error, setError] = useState(false);
 
     const handleNext = () => {
+        if (!formData.firstName || !formData.email) {
+            setError(true)
+            return;
+        }
+        setError(false);
         if (step === 1) {
             handleFinish();
         } else if (step === 2) {
@@ -355,6 +361,13 @@ const Ticket = () => {
                                             <p className="text-sm">
                                                 {step === 1 && (
                                                     <div className="mt-8">
+                                                        {
+                                                            error && (
+                                                                <>
+                                                                    <p className='text-red-500 mb-3 font-inter'>Please enter full name & email to proceed!</p>       
+                                                                </>
+                                                            )
+                                                        }
                                                         {userIds ? (
                                                             <div className="mb-5 mx-3">
                                                                 <label className="block text-white text-sm mb-2 text-start font-inter">Full name</label>
@@ -364,7 +377,8 @@ const Ticket = () => {
                                                                     value={formData.firstName}
                                                                     onChange={handleChange}
                                                                     className="w-full font-inter bg-primary border border-[#1c1c1c] rounded-full px-4 py-3 text-white placeholder-zinc-400 focus:outline-none"
-                                                                    placeholder="Ali Memmedganiev"
+                                                                    placeholder="eg. Ali Memmedganiev"
+                                                                    required
                                                                 />
                                                             </div>
                                                         ) : (
@@ -388,7 +402,8 @@ const Ticket = () => {
                                                                         value={formData.email}
                                                                         onChange={handleChange}
                                                                         className="w-full font-inter bg-primary border border-[#1c1c1c] rounded-full px-4 py-3 text-white placeholder-zinc-400 focus:outline-none"
-                                                                        placeholder="alimemmedganiev@gmail.com"
+                                                                        placeholder="eg. alimemmedganiev@gmail.com"
+                                                                        required
                                                                     />
                                                                 </div>
                                                                 <div className="mx-3">
