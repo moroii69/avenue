@@ -12,18 +12,21 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
     const [success, setSuccess] = useState(false);
     const [countdown, setCountdown] = useState(null);
     const [loading, setLoading] = useState(false);
-
+    const countdownRef = useRef(null);
 
     const handleChange = (index, value) => {
         if (value.length > 1) return;
+
         const newCode = [...code];
         newCode[index] = value;
         setCode(newCode);
 
-        if (newCode.every((digit) => digit !== '')) {
+        // Only verify when all digits are filled
+        if (newCode.every(digit => digit !== '')) {
             handleVerify(newCode);
         }
 
+        // Auto-focus next input
         if (value && index < 5) {
             inputRefs.current[index + 1].current.focus();
         }
@@ -35,23 +38,23 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
         }
     };
 
-    const numberWithCode = "+1" + phoneNumber;
-    const countdownRef = useRef(null);
-
     const handleVerify = async (updatedCode) => {
         const otp = updatedCode.join('');
-        if (otp.length < 6) {
-            return;
-        }
+        if (otp.length < 6) return;
+
         setLoading(true);
         setError(null);
+
         try {
             const response = await axios.post(`${url}/auth/verify-otp`, {
-                phone: numberWithCode,
+                phone: "+1" + phoneNumber,
                 otp
             });
+
             if (response.data.success) {
                 const { userID, authToken, user, organizer } = response.data;
+
+                // Store user data
                 if (userID && authToken) {
                     localStorage.setItem('userID', userID);
                     localStorage.setItem('authToken', authToken);
@@ -62,20 +65,24 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
                         localStorage.setItem('organizerId', organizer._id);
                         localStorage.setItem('accountId', organizer.stripeAccountId);
                     }
+
                     setSuccess(true);
                     setError(null);
                     setLoading(false);
-
                     setCountdown(3);
+
+                    // Clear any existing interval
                     if (countdownRef.current) {
                         clearInterval(countdownRef.current);
                     }
 
+                    // Start countdown and reload
                     countdownRef.current = setInterval(() => {
-                        setCountdown((prev) => {
-                            if (prev === 1) {
+                        setCountdown(prev => {
+                            if (prev <= 1) {
                                 clearInterval(countdownRef.current);
                                 window.location.reload();
+                                return 0;
                             }
                             return prev - 1;
                         });
@@ -85,7 +92,7 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
                     setLoading(false);
                 }
             } else {
-                setError(`Invalid OTP`);
+                setError('Invalid OTP');
                 setLoading(false);
             }
         } catch (error) {
@@ -94,11 +101,22 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
             setLoading(false);
         }
     };
+
+    // Focus first input on open
     useEffect(() => {
         if (isOpen) {
             inputRefs.current[0].current.focus();
         }
     }, [isOpen]);
+
+    // Cleanup interval on unmount
+    useEffect(() => {
+        return () => {
+            if (countdownRef.current) {
+                clearInterval(countdownRef.current);
+            }
+        };
+    }, []);
 
     if (!isOpen) return null;
 
@@ -117,7 +135,9 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
                         <X size={20} />
                     </button>
                     <Globe className="w-8 h-8 text-cyan-400 mb-4" />
-                    <h2 className="text-xl font-semibold text-white mb-2 font-inter">Enter confirmation code</h2>
+                    <h2 className="text-xl font-semibold text-white mb-2 font-inter">
+                        Enter confirmation code
+                    </h2>
                     <p className="text-gray-400 text-sm text-center mb-6 font-inter">
                         Please enter verification code we've<br />
                         sent on {phoneNumber}
@@ -128,6 +148,8 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
                                 key={index}
                                 ref={inputRefs.current[index]}
                                 type="text"
+                                inputMode="numeric"
+                                pattern="[0-9]*"
                                 maxLength={1}
                                 value={digit}
                                 onChange={(e) => handleChange(index, e.target.value)}
@@ -136,13 +158,11 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
                             />
                         ))}
                     </div>
-                    {loading && <Spin size="default" className="mb-4 text-cyan-400" />}
+                    {loading && <div className="mb-4 text-cyan-400">Loading...</div>}
                     {success && (
-                        <>
-                            <div className="text-green-300 font-inter text-xs bg-green-800 px-16 py-2 bg-opacity-30 border border-green-950 rounded-xl whitespace-nowrap">
-                                <p>Logged in successfully! ({countdown})</p>
-                            </div>
-                        </>
+                        <div className="text-green-300 font-inter text-xs bg-green-800 px-16 py-2 bg-opacity-30 border border-green-950 rounded-xl whitespace-nowrap">
+                            <p>Logged in successfully! ({countdown})</p>
+                        </div>
                     )}
                     {error && (
                         <div className="text-red-300 font-inter text-xs bg-red-800 px-16 py-2 bg-opacity-30 border border-red-950 rounded-xl">
