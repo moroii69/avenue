@@ -36,6 +36,7 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
     };
 
     const numberWithCode = "+1" + phoneNumber;
+    const countdownRef = useRef(null);
 
     const handleVerify = async (updatedCode) => {
         const otp = updatedCode.join('');
@@ -61,15 +62,19 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
                         localStorage.setItem('organizerId', organizer._id);
                         localStorage.setItem('accountId', organizer.stripeAccountId);
                     }
-                    setSuccess(true)
+                    setSuccess(true);
                     setError(null);
                     setLoading(false);
 
                     setCountdown(3);
-                    const timer = setInterval(() => {
+                    if (countdownRef.current) {
+                        clearInterval(countdownRef.current);
+                    }
+
+                    countdownRef.current = setInterval(() => {
                         setCountdown((prev) => {
                             if (prev === 1) {
-                                clearInterval(timer);
+                                clearInterval(countdownRef.current);
                                 window.location.reload();
                             }
                             return prev - 1;
@@ -89,7 +94,6 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
             setLoading(false);
         }
     };
-
     useEffect(() => {
         if (isOpen) {
             inputRefs.current[0].current.focus();
