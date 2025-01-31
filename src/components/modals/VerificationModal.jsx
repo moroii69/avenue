@@ -3,6 +3,7 @@ import { X, Globe } from 'lucide-react';
 import { Modal } from 'antd';
 import url from '../../constants/url';
 import axios from 'axios';
+import { Spin } from "antd";
 
 const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
     const [code, setCode] = useState(['', '', '', '', '', '']);
@@ -10,6 +11,7 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(false);
     const [countdown, setCountdown] = useState(null);
+    const [loading, setLoading] = useState(false);
 
 
     const handleChange = (index, value) => {
@@ -40,6 +42,8 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
         if (otp.length < 6) {
             return;
         }
+        setLoading(true);
+        setError(null);
         try {
             const response = await axios.post(`${url}/auth/verify-otp`, {
                 phone: numberWithCode,
@@ -59,6 +63,7 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
                     }
                     setSuccess(true)
                     setError(null);
+                    setLoading(false);
 
                     setCountdown(3);
                     const timer = setInterval(() => {
@@ -72,13 +77,16 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
                     }, 1000);
                 } else {
                     setError('Invalid OTP');
+                    setLoading(false);
                 }
             } else {
                 setError(`Invalid OTP`);
+                setLoading(false);
             }
         } catch (error) {
             console.error('Verification failed:', error);
             setError('Invalid OTP');
+            setLoading(false);
         }
     };
 
@@ -124,6 +132,7 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
                             />
                         ))}
                     </div>
+                    {loading && <Spin size="default" className="mb-4 text-cyan-400" />}
                     {success && (
                         <>
                             <div className="text-green-300 font-inter text-xs bg-green-800 px-16 py-2 bg-opacity-30 border border-green-950 rounded-xl whitespace-nowrap">
