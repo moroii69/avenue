@@ -24,10 +24,10 @@ const Ticket = () => {
 
     const handleNext = () => {
         if (!formData.firstName || !formData.email) {
-            //alert("Please enter your full name and email before proceeding.");
             setError(true)
             return;
         }
+        setError(false);
         if (step === 1) {
             handleFinish();
         } else if (step === 2) {
