@@ -383,9 +383,13 @@ const Ticket = () => {
                                                             </div>
                                                         ) : (
                                                             <>
-                                                                <div className="mx-3">
-                                                                    <p className='font-inter text-white'>Please login to continue booking</p> 
+                                                                {/* <div className="mx-3">
+                                                                    <button onClick={() => setIsModalOpen(true)} className="font-inter w-full bg-white text-black font-medium py-3 px-4 rounded-full hover:bg-gray-100 transition-colors">
+                                                                        Login
+                                                                    </button>
                                                                 </div>
+                                                                <LoginModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} /> */}
+                                                                <p className='font-inter text-white'>Please login to continue booking</p>
                                                             </>
                                                         )}
 
