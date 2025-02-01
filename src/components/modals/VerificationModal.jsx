@@ -54,8 +54,8 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
             if (response.data.success) {
                 const { userID, authToken, user, organizer } = response.data;
 
-                // Store user data
                 if (userID && authToken) {
+                    // Store user data
                     localStorage.setItem('userID', userID);
                     localStorage.setItem('authToken', authToken);
                     if (user?.firstName) {
@@ -69,32 +69,23 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
                     setSuccess(true);
                     setError(null);
                     setLoading(false);
-                    setCountdown(3);
 
-                    // Clear any existing interval
-                    if (countdownRef.current) {
-                        clearInterval(countdownRef.current);
-                    }
+                    // Implement a more reliable countdown and refresh
+                    let timeLeft = 3;
+                    setCountdown(timeLeft);
 
-                    // Start countdown and reload
-                    countdownRef.current = setInterval(() => {
-                        setCountdown(prev => {
-                            if (prev <= 1) {
-                                clearInterval(countdownRef.current);
-                                window.location.reload();
-                                return 0;
-                            }
-                            return prev - 1;
-                        });
-                    }, 1000);
-                } else {
-                    setError('Invalid OTP');
-                    setLoading(false);
+                    const timer = setTimeout(() => {
+                        window.location.reload();
+                    }, 3000);
+
+                    // Clean up timer if component unmounts
+                    return () => clearTimeout(timer);
                 }
-            } else {
-                setError('Invalid OTP');
-                setLoading(false);
             }
+
+            setError('Invalid OTP');
+            setLoading(false);
+
         } catch (error) {
             console.error('Verification failed:', error);
             setError('Invalid OTP');
