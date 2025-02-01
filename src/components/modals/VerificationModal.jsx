@@ -10,9 +10,9 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
     const inputRefs = useRef([...Array(6)].map(() => React.createRef()));
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(false);
-    const [countdown, setCountdown] = useState(null);
+    const [countdown, setCountdown] = useState(3);
     const [loading, setLoading] = useState(false);
-    const countdownRef = useRef(null);
+    const timerRef = useRef(null);
 
     const handleChange = (index, value) => {
         if (value.length > 1) return;
@@ -70,22 +70,33 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
                     setError(null);
                     setLoading(false);
 
-                    // Implement a more reliable countdown and refresh
+                    // Start countdown
                     let timeLeft = 3;
                     setCountdown(timeLeft);
 
-                    const timer = setTimeout(() => {
-                        window.location.reload();
-                    }, 3000);
+                    // Clear any existing timer
+                    if (timerRef.current) {
+                        clearInterval(timerRef.current);
+                    }
 
-                    // Clean up timer if component unmounts
-                    return () => clearTimeout(timer);
+                    // Set up countdown interval
+                    timerRef.current = setInterval(() => {
+                        timeLeft -= 1;
+                        setCountdown(timeLeft);
+
+                        if (timeLeft <= 0) {
+                            clearInterval(timerRef.current);
+                            window.location.reload();
+                        }
+                    }, 1000);
+                } else {
+                    setError('Invalid OTP');
+                    setLoading(false);
                 }
+            } else {
+                setError('Invalid OTP');
+                setLoading(false);
             }
-
-            setError('Invalid OTP');
-            setLoading(false);
-
         } catch (error) {
             console.error('Verification failed:', error);
             setError('Invalid OTP');
@@ -100,11 +111,11 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
         }
     }, [isOpen]);
 
-    // Cleanup interval on unmount
+    // Cleanup timers on unmount
     useEffect(() => {
         return () => {
-            if (countdownRef.current) {
-                clearInterval(countdownRef.current);
+            if (timerRef.current) {
+                clearInterval(timerRef.current);
             }
         };
     }, []);
