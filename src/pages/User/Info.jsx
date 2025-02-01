@@ -86,7 +86,9 @@ const Info = () => {
                         !isNaN(Number(maxCount));
 
                     let limit;
-                    if (hasValidMaxCount) {
+                    if (hasValidMaxCount && remainingTicket) {
+                        limit = Math.min(Number(maxCount), remainingTicket.remaining_tickets);
+                    } else if (hasValidMaxCount) {
                         limit = Number(maxCount);
                     } else if (remainingTicket) {
                         limit = remainingTicket.remaining_tickets;
@@ -161,9 +163,9 @@ const Info = () => {
 
     const fetchEvent = async () => {
         setLoading(true);
-    
+
         const encodedName = encodeURIComponent(name);
-    
+
         try {
             const response = await axios.get(`${url}/event/get-event-by-name/${encodedName}`);
             localStorage.setItem('user_event_id', response.data?._id);
@@ -176,11 +178,11 @@ const Info = () => {
             setLoading(false);
         }
     };
-    
+
     useEffect(() => {
         fetchEvent();
     }, [name]);
-    
+
     const handleDetail = (id, creater) => {
         localStorage.setItem('user_organizer_id', id);
         localStorage.setItem('user_organizer_name', creater);
@@ -388,7 +390,13 @@ const Info = () => {
                                         <p className='mt-10 text-gray-400 text-xs font-inter font-semibold'>LOCATION</p>
                                     </div>
                                     <div>
-                                        <a href={`${event.map_link || '#'}`} target={event.map_link ? '_blank' : ""} className='mt-4 text-white text-lg font-inter hover:underline'>{event.venue_name}</a>
+                                        <a
+                                            href={event.map_link && event.map_link !== 'undefined' ? event.map_link : ''}
+                                            target={event.map_link && event.map_link !== 'undefined' ? '_blank' : ''}
+                                            className='mt-4 text-white text-lg font-inter hover:underline'
+                                        >
+                                            {event.venue_name}
+                                        </a>
                                     </div>
                                     <div>
                                         <p className=' text-gray-500 text-xs mt-1'>{event.address}</p>

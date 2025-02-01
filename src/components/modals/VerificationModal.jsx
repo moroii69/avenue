@@ -21,12 +21,10 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
         newCode[index] = value;
         setCode(newCode);
 
-        // Only verify when all digits are filled
         if (newCode.every(digit => digit !== '')) {
             handleVerify(newCode);
         }
 
-        // Auto-focus next input
         if (value && index < 5) {
             inputRefs.current[index + 1].current.focus();
         }
@@ -55,7 +53,6 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
                 const { userID, authToken, user, organizer } = response.data;
 
                 if (userID && authToken) {
-                    // Store user data
                     localStorage.setItem('userID', userID);
                     localStorage.setItem('authToken', authToken);
                     if (user?.firstName) {
@@ -70,16 +67,13 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
                     setError(null);
                     setLoading(false);
 
-                    // Start countdown
                     let timeLeft = 3;
                     setCountdown(timeLeft);
 
-                    // Clear any existing timer
                     if (timerRef.current) {
                         clearInterval(timerRef.current);
                     }
 
-                    // Set up countdown interval
                     timerRef.current = setInterval(() => {
                         timeLeft -= 1;
                         setCountdown(timeLeft);
@@ -104,14 +98,12 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
         }
     };
 
-    // Focus first input on open
     useEffect(() => {
         if (isOpen) {
             inputRefs.current[0].current.focus();
         }
     }, [isOpen]);
 
-    // Cleanup timers on unmount
     useEffect(() => {
         return () => {
             if (timerRef.current) {
@@ -160,7 +152,11 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
                             />
                         ))}
                     </div>
-                    {loading && <div className="mb-4 text-cyan-400">Loading...</div>}
+                    {loading && (
+                        <div className='text-center mt-3'>
+                            <Spin size="default" />
+                        </div>
+                    )}
                     {success && (
                         <div className="text-green-300 font-inter text-xs bg-green-800 px-16 py-2 bg-opacity-30 border border-green-950 rounded-xl whitespace-nowrap">
                             <p>Logged in successfully! ({countdown})</p>
