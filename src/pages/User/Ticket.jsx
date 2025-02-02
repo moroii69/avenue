@@ -24,7 +24,7 @@ const Ticket = () => {
 
     const handleNext = () => {
         if (!formData.firstName || !formData.email) {
-            setError(true)
+            setError(true);
             return;
         }
         setError(false);
@@ -504,13 +504,13 @@ const Ticket = () => {
                                                                                         },
                                                                                     });
 
-                                                                                    console.log(result.paymentIntent)
+                                                                                    console.log(result.paymentIntent);
 
                                                                                     if (result.error) {
                                                                                         setPaymentError(result.error.message);
                                                                                     } else if (result.paymentIntent.status === "succeeded") {
                                                                                         console.log("Payment succeeded, updating step...");
-                                                                                        setStep((prev) => Math.min(prev + 1, 3));
+                                                                                        setStep((prev) => Math.min(prev + 1, 3)); // Transition to step 3 after success
                                                                                     } else {
                                                                                         console.log("Unexpected payment status:", result.paymentIntent.status);
                                                                                     }
@@ -543,28 +543,6 @@ const Ticket = () => {
                                                                             </div>
                                                                         </form>
 
-                                                                        {/* Apple Pay */}
-                                                                        {/* <div className="mt-8">
-                                                                            {paymentRequest && paymentRequest.canMakePayment() ? (
-                                                                                <PaymentRequestButtonElement
-                                                                                    options={{ paymentRequest }}
-                                                                                    onClick={async () => {
-                                                                                        try {
-                                                                                            const paymentResult = await paymentRequest.show();
-                                                                                            if (paymentResult.complete === "success") {
-                                                                                                setStep((prev) => Math.min(prev + 1, 3));
-                                                                                            }
-                                                                                        } catch (error) {
-                                                                                            console.error("Apple Pay Error:", error);
-                                                                                        }
-                                                                                    }}
-                                                                                />
-                                                                            ) : (
-                                                                                <p className="text-gray-500 text-sm">
-                                                                                    Apple Pay is not available on this device.
-                                                                                </p>
-                                                                            )}
-                                                                        </div> */}
                                                                     </>
                                                                 )
                                                             }
