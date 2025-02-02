@@ -504,10 +504,15 @@ const Ticket = () => {
                                                                                         },
                                                                                     });
 
+                                                                                    console.log(result.paymentIntent)
+
                                                                                     if (result.error) {
                                                                                         setPaymentError(result.error.message);
                                                                                     } else if (result.paymentIntent.status === "succeeded") {
+                                                                                        console.log("Payment succeeded, updating step...");
                                                                                         setStep((prev) => Math.min(prev + 1, 3));
+                                                                                    } else {
+                                                                                        console.log("Unexpected payment status:", result.paymentIntent.status);
                                                                                     }
                                                                                 } catch (error) {
                                                                                     setPaymentError(error.message);
