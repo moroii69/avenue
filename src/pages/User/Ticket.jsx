@@ -239,7 +239,20 @@ const Ticket = () => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
+
+        if (name === 'firstName') {
+            const nameParts = value.split(' ');
+            const firstName = nameParts[0];
+            const lastName = nameParts.slice(1).join(' ');
+
+            setFormData(prev => ({
+                ...prev,
+                firstName: firstName,
+                lastName: lastName || ''
+            }));
+        } else {
+            setFormData(prev => ({ ...prev, [name]: value }));
+        }
     };
 
     const handleFinish = async () => {
@@ -364,7 +377,7 @@ const Ticket = () => {
                                                         {
                                                             error && (
                                                                 <>
-                                                                    <p className='text-red-500 mb-3 font-inter'>Please enter full name & email to proceed!</p>       
+                                                                    <p className='text-red-500 mb-3 font-inter'>Please enter full name & email to proceed!</p>
                                                                 </>
                                                             )
                                                         }
@@ -374,7 +387,7 @@ const Ticket = () => {
                                                                 <input
                                                                     type="text"
                                                                     name="firstName"
-                                                                    value={formData.firstName}
+                                                                    value={`${formData.firstName} ${formData.lastName}`.trim()}
                                                                     onChange={handleChange}
                                                                     className="w-full font-inter bg-primary border border-[#1c1c1c] rounded-full px-4 py-3 text-white placeholder-zinc-400 focus:outline-none"
                                                                     placeholder="eg. Ali Memmedganiev"
@@ -448,6 +461,11 @@ const Ticket = () => {
                                                                                 event.preventDefault();
 
                                                                                 if (!stripe || !elements) {
+                                                                                    return;
+                                                                                }
+                                                                                const cardElement = elements.getElement(CardElement);
+                                                                                if (!cardElement._complete) {
+                                                                                    setPaymentError("Please enter your card details");
                                                                                     return;
                                                                                 }
 

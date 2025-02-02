@@ -13,6 +13,7 @@ const Profile = () => {
     const [userId, setUserId] = useState(null);
     const [user, setUser] = useState({});
     const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
     const [loading, setLoading] = useState(false);
@@ -151,7 +152,9 @@ const Profile = () => {
         let formData = new FormData();
 
         if (field === "firstName") {
-            formData.append("firstName", firstName);
+            const nameParts = firstName.split(' ').filter(part => part !== '');
+            formData.append("firstName", nameParts[0] || '');
+            formData.append("lastName", nameParts.slice(1).join(' '));
         } else if (field === "email") {
             formData.append("email", email);
         } else if (field === "phone") {
@@ -215,6 +218,11 @@ const Profile = () => {
             setImage(URL.createObjectURL(file));
             setShowButtons(true);
         }
+    };
+
+    const handleNameChange = (e) => {
+        const fullName = e.target.value;
+        setFirstName(fullName);
     };
 
     return (
@@ -335,7 +343,7 @@ const Profile = () => {
                                             <input
                                                 type="text"
                                                 value={firstName}
-                                                onChange={(e) => setFirstName(e.target.value)}
+                                                onChange={handleNameChange}
                                                 onFocus={() => setFirstNameState((prev) => ({ ...prev, isFocused: true }))}
                                                 onBlur={() => setFirstNameState((prev) => ({ ...prev, isFocused: false }))}
                                                 className="bg-primary border text-sm font-inter border-zinc-800 rounded-full px-5 py-2.5 pr-20 focus:outline-none w-full"
