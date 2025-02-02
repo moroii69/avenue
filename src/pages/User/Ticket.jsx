@@ -119,7 +119,7 @@ const Ticket = () => {
                 .then((response) => {
                     const userData = response.data;
                     setFormData({
-                        firstName: userData.firstName,
+                        firstName: `${userData.firstName} ${userData.lastName}`.trim(),
                         lastName: userData.lastName,
                         email: userData.email
                     })
@@ -241,14 +241,9 @@ const Ticket = () => {
         const { name, value } = e.target;
 
         if (name === 'firstName') {
-            const nameParts = value.split(' ');
-            const firstName = nameParts[0];
-            const lastName = nameParts.slice(1).join(' ');
-
             setFormData(prev => ({
                 ...prev,
-                firstName: firstName,
-                lastName: lastName || ''
+                firstName: value,
             }));
         } else {
             setFormData(prev => ({ ...prev, [name]: value }));
@@ -257,19 +252,25 @@ const Ticket = () => {
 
     const handleFinish = async () => {
         try {
+            // Ensure firstName and lastName are properly split
+            const nameParts = formData.firstName.trim().split(' ');
+            const firstName = nameParts[0] || '';
+            const lastName = nameParts.slice(1).join(' ') || '';
+
             const basicInfoResponse = await axios.post(`${url}/auth/basic-info/${userId}`, {
-                firstName: formData.firstName,
-                lastName: formData.lastName,
+                firstName,
+                lastName,
                 email: formData.email,
             });
+
             if (basicInfoResponse.data.success) {
-                localStorage.setItem('userName', formData.firstName);
+                localStorage.setItem('userName', firstName);
             }
         } catch (error) {
             console.error("API Error:", error);
             alert("Error", "An error occurred. Please try again.");
         }
-    }
+    };
 
     const fetchBook = async () => {
         setLoading(true);
@@ -387,7 +388,7 @@ const Ticket = () => {
                                                                 <input
                                                                     type="text"
                                                                     name="firstName"
-                                                                    value={`${formData.firstName} ${formData.lastName}`.trim()}
+                                                                    value={formData.firstName} // Keep it simple
                                                                     onChange={handleChange}
                                                                     className="w-full font-inter bg-primary border border-[#1c1c1c] rounded-full px-4 py-3 text-white placeholder-zinc-400 focus:outline-none"
                                                                     placeholder="eg. Ali Memmedganiev"
