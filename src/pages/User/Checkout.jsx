@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { loadStripe } from "@stripe/stripe-js";
 import {
   Elements,
   PaymentElement,
@@ -8,23 +7,20 @@ import {
 } from "@stripe/react-stripe-js";
 import { stripePromise } from "../../constants/stripePromise";
 
-// Configure the appearance for a dark (night) theme
 const appearance = {
-  theme: 'night', // Use "night" if supported; otherwise, custom variables override defaults.
+  theme: "night",
   variables: {
-    colorPrimary: "#ffffff", // primary text/icon color
-    colorBackground: "#1F2937", // dark background (Tailwind gray-800)
-    colorText: "#ffffff", // text color
-    colorIcon: "#ffffff",
-    fontFamily: "sans-serif",
-    spacingUnit: "2px",
-  },
-  rules: {
-    // Add any additional custom CSS rules if needed
+    colorPrimary: "#ffffff",
+    colorBackground: "#0F0F0F",
+    colorText: "#e0e0e0",
+    colorIcon: "#e0e0e0",
+    borderRadius: "25px",
+    spacingUnit: "5px",
+    fontFamily: "Arial, sans-serif",
   },
 };
 
-const CheckoutForm = ({ clientSecret }) => {
+const CheckoutForm = ({ clientSecret, setStep }) => {
   const stripe = useStripe();
   const elements = useElements();
   const [loading, setLoading] = useState(false);
@@ -42,47 +38,73 @@ const CheckoutForm = ({ clientSecret }) => {
       return;
     }
 
-    const { error, paymentIntent } = await stripe.confirmPayment({
-      elements,
-      confirmParams: {
-        return_url: "https://dev.d2v6xgiqdulhai.amplifyapp.com/",
-      },
-    });
+    try {
+      const { error, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        redirect: 'if_required'
+      });
 
-    if (error) {
-      setErrorMsg(error.message || "Payment failed. Please try again.");
-      setLoading(false);
-    } else if (paymentIntent && paymentIntent.status === "succeeded") {
-      setSuccess(true);
+      console.log("Error:", error);
+      console.log("Payment Intent:", paymentIntent);
+
+      if (error) {
+        setErrorMsg(error.message || "Payment failed. Please try again.");
+      } else if (paymentIntent && paymentIntent.status === "succeeded") {
+        setSuccess(true);
+        setStep(3);
+      }
+    } catch (err) {
+      console.error("Unexpected error:", err);
+      setErrorMsg("An unexpected error occurred. Please try again.");
+    } finally {
       setLoading(false);
     }
   };
 
+
+
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="max-w-md mx-auto p-4 bg-gray-800 text-white rounded shadow-md"
-    >
-      <PaymentElement />
-      {errorMsg && <div className="text-red-400 mt-2">{errorMsg}</div>}
-      {success && <div className="text-green-400 mt-2">Payment successful!</div>}
-      <button
-        disabled={!stripe || loading}
-        type="submit"
-        className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded"
+    <div className="flex items-center justify-center bg-primary mt-10">
+      <form
+        onSubmit={handleSubmit}
+        className="w-full max-w-md bg-primary rounded-lg shadow-lg text-white"
       >
-        {loading ? "Processing..." : "Pay"}
-      </button>
-    </form>
+        <div className="space-y-1">
+          <PaymentElement />
+        </div>
+        {errorMsg && (
+          <div className="mt-3 p-2 bg-red-600 text-white rounded-lg text-center font-inte">
+            {errorMsg}
+          </div>
+        )}
+        {success && (
+          <div className="mt-3 p-2 bg-green-600 text-white rounded-lg text-center font-inter">
+            ✅ Payment Successful!
+          </div>
+        )}
+        <button
+          disabled={!stripe || loading}
+          type="submit"
+          className={`mt-6 font-inter w-full ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-white hover:bg-gray-200"
+            } text-black font-semibold py-3 rounded-full shadow-md transition duration-200`}
+        >
+          {loading ? "Processing..." : "Pay"}
+        </button>
+      </form>
+    </div>
   );
 };
 
-const Checkout = ({ clientSecret }) => {
+const Checkout = ({ clientSecret, setStep }) => {
   if (!clientSecret)
-    return <div className="text-white text-center">Loading payment details...</div>;
+    return (
+      <div className="text-white text-center min-h-screen flex items-center justify-center">
+        <p>Loading payment details...</p>
+      </div>
+    );
   return (
     <Elements stripe={stripePromise} options={{ clientSecret, appearance }}>
-      <CheckoutForm clientSecret={clientSecret} />
+      <CheckoutForm clientSecret={clientSecret} setStep={setStep} />
     </Elements>
   );
 };

@@ -34,8 +34,11 @@ const Ticket = () => {
         } else if (step === 2) {
             handlePayment();
         }
-        if (step < 3) setStep(step + 1);
+        if (step < 3) {
+            setStep(step + 1);
+        }
     };
+
 
     const handlePrev = () => {
         if (step > 1) setStep(step - 1);
@@ -49,8 +52,6 @@ const Ticket = () => {
     const [organizerId, setOrganizerId] = useState(null);
 
     const [paymentRequest, setPaymentRequest] = useState(null);
-    //const [paymentProcessing, setPaymentProcessing] = useState(false);
-    //const [paymentError, setPaymentError] = useState(null);
 
     const [details, setDetails] = useState(false)
     const [basicModal, setBasicModal] = useState(false)
@@ -428,7 +429,7 @@ const Ticket = () => {
                                                                 <input
                                                                     type="text"
                                                                     name="firstName"
-                                                                    value={formData.firstName} // Keep it simple
+                                                                    value={formData.firstName}
                                                                     onChange={handleChange}
                                                                     className="w-full font-inter bg-primary border border-[#1c1c1c] rounded-full px-4 py-3 text-white placeholder-zinc-400 focus:outline-none"
                                                                     placeholder="eg. Ali Memmedganiev"
@@ -437,13 +438,13 @@ const Ticket = () => {
                                                             </div>
                                                         ) : (
                                                             <>
-                                                                {/* <div className="mx-3">
+                                                                <div className="mx-3">
                                                                     <button onClick={() => setIsModalOpen(true)} className="font-inter w-full bg-white text-black font-medium py-3 px-4 rounded-full hover:bg-gray-100 transition-colors">
                                                                         Login
                                                                     </button>
-                                                                </div> */}
-                                                                <p className='font-inter text-white'>Please login to continue booking</p>
-                                                                {/* <LoginModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} /> */}
+                                                                </div>
+                                                                {/* <p className='font-inter text-white'>Please login to continue booking</p> */}
+                                                                <LoginModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
                                                             </>
                                                         )}
 
@@ -486,25 +487,19 @@ const Ticket = () => {
                                                                     )}
                                                                 </p>
                                                             </div>
-                                                            {
-                                                                event.event_type === 'rsvp' ? (
-                                                                    <>
-                                                                        <button
-                                                                            onClick={handleRSVPAdd}
-                                                                            className={`w-full mt-4 font-inter py-3 rounded-full font-medium bg-white`}
-                                                                        >
-                                                                            Book now
-                                                                        </button>
-                                                                    </>
-                                                                ) : (
-                                                                    <>
-                                                                        <Checkout clientSecret={clientSecret} />
-                                                                    </>
-                                                                )
-                                                            }
+                                                            {event.event_type === 'rsvp' ? (
+                                                                <button
+                                                                    onClick={handleRSVPAdd}
+                                                                    className={`w-full mt-4 font-inter py-3 rounded-full font-medium bg-white`}
+                                                                >
+                                                                    Book now
+                                                                </button>
+                                                            ) : (
+                                                                <Checkout clientSecret={clientSecret} setStep={setStep} />
+                                                            )}
                                                             <div className="flex justify-center items-center mt-2">
                                                                 <FiLock className="text-[#606060] mr-2 h-4 w-4" />
-                                                                <p className="font-inter text-[#606060] text-xs">your data is encrypted</p>
+                                                                <p className="font-inter text-[#606060] text-xs">Your data is encrypted</p>
                                                             </div>
                                                         </div>
                                                     </div>
