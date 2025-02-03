@@ -11,6 +11,7 @@ import url from "../../constants/url";
 import { Button, Modal, Space } from 'antd';
 import { Spin } from 'antd';
 import LoginModal from '../../components/modals/LoginModal';
+import Checkout from './Checkout';
 
 const Ticket = () => {
     const [step, setStep] = useState(1);
@@ -18,13 +19,13 @@ const Ticket = () => {
         return parseInt(localStorage.getItem('count')) || 1;
     });
     const location = useLocation();
-    const [payId, setPayId] = useState('');
+    //const [payId, setPayId] = useState('');
     const [book, setBook] = useState({});
     const [error, setError] = useState(false);
 
     const handleNext = () => {
         if (!formData.firstName || !formData.email) {
-            setError(true)
+            setError(true);
             return;
         }
         setError(false);
@@ -33,8 +34,11 @@ const Ticket = () => {
         } else if (step === 2) {
             handlePayment();
         }
-        if (step < 3) setStep(step + 1);
+        if (step < 3) {
+            setStep(step + 1);
+        }
     };
+
 
     const handlePrev = () => {
         if (step > 1) setStep(step - 1);
@@ -48,8 +52,6 @@ const Ticket = () => {
     const [organizerId, setOrganizerId] = useState(null);
 
     const [paymentRequest, setPaymentRequest] = useState(null);
-    //const [paymentProcessing, setPaymentProcessing] = useState(false);
-    //const [paymentError, setPaymentError] = useState(null);
 
     const [details, setDetails] = useState(false)
     const [basicModal, setBasicModal] = useState(false)
@@ -79,8 +81,11 @@ const Ticket = () => {
     const [type, setType] = useState('');
 
     const [loading, setLoading] = useState(false);
+    const [clientSecret, setClientSecret] = useState(null);
+    const [errorMsg, setErrorMsg] = useState(null);
 
     const userIds = localStorage.getItem('userID') || "";
+    const payId = localStorage.getItem('payId') || "";
 
 
     const handleApply = () => {
@@ -119,7 +124,7 @@ const Ticket = () => {
                 .then((response) => {
                     const userData = response.data;
                     setFormData({
-                        firstName: userData.firstName,
+                        firstName: `${userData.firstName} ${userData.lastName}`.trim(),
                         lastName: userData.lastName,
                         email: userData.email
                     })
@@ -239,24 +244,38 @@ const Ticket = () => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
+
+        if (name === 'firstName') {
+            setFormData(prev => ({
+                ...prev,
+                firstName: value,
+            }));
+        } else {
+            setFormData(prev => ({ ...prev, [name]: value }));
+        }
     };
 
     const handleFinish = async () => {
         try {
+            // Ensure firstName and lastName are properly split
+            const nameParts = formData.firstName.trim().split(' ');
+            const firstName = nameParts[0] || '';
+            const lastName = nameParts.slice(1).join(' ') || '';
+
             const basicInfoResponse = await axios.post(`${url}/auth/basic-info/${userId}`, {
-                firstName: formData.firstName,
-                lastName: formData.lastName,
+                firstName,
+                lastName,
                 email: formData.email,
             });
+
             if (basicInfoResponse.data.success) {
-                localStorage.setItem('userName', formData.firstName);
+                localStorage.setItem('userName', firstName);
             }
         } catch (error) {
             console.error("API Error:", error);
             alert("Error", "An error occurred. Please try again.");
         }
-    }
+    };
 
     const fetchBook = async () => {
         setLoading(true);
@@ -311,6 +330,41 @@ const Ticket = () => {
         fetchRemainEvent()
     }, [eventId])
 
+    useEffect(() => {
+        fetch(`${url}/create-intent`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                amount: Math.round(parseFloat(calculateTotal()) * 100),
+                organizerId: organizerId,
+                userId: userId,
+                eventId: eventId,
+                date: Date.now(),
+                status: "pending",
+                count: counts,
+                ticketId: selectedTicketId,
+                tickets: ticket,
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                email: formData.email,
+                tax: Number(event.tax) !== 0,
+            }),
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.clientSecret) {
+                    setClientSecret(data.clientSecret);
+                } else if (data.error) {
+                    setErrorMsg(data.error);
+                }
+                setLoading(false);
+            })
+            .catch((error) => {
+                setErrorMsg("Failed to load payment details.");
+                setLoading(false);
+            });
+    }, [amount, organizerId, userId, eventId, count]);
+
     return (
         <>
             {
@@ -364,7 +418,7 @@ const Ticket = () => {
                                                         {
                                                             error && (
                                                                 <>
-                                                                    <p className='text-red-500 mb-3 font-inter'>Please enter full name & email to proceed!</p>       
+                                                                    <p className='text-red-500 mb-3 font-inter'>Please enter full name & email to proceed!</p>
                                                                 </>
                                                             )
                                                         }
@@ -388,8 +442,7 @@ const Ticket = () => {
                                                                         Login
                                                                     </button>
                                                                 </div>
-                                                                <LoginModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} /> */}
-                                                                <p className='font-inter text-white'>Please login to continue booking</p>
+                                                                <LoginModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
                                                             </>
                                                         )}
 
@@ -432,121 +485,35 @@ const Ticket = () => {
                                                                     )}
                                                                 </p>
                                                             </div>
-                                                            {
-                                                                event.event_type === 'rsvp' ? (
-                                                                    <>
-                                                                        <button
-                                                                            onClick={handleRSVPAdd}
-                                                                            className={`w-full mt-4 font-inter py-3 rounded-full font-medium bg-white`}
-                                                                        >
-                                                                            Book now
-                                                                        </button>
-                                                                    </>
-                                                                ) : (
-                                                                    <>
-                                                                        <form
-                                                                            onSubmit={async (event) => {
-                                                                                event.preventDefault();
-
-                                                                                if (!stripe || !elements) {
-                                                                                    return;
-                                                                                }
-
-                                                                                setPaymentProcessing(true);
-                                                                                setPaymentError(null);
-
-                                                                                try {
-                                                                                    const response = await axios.post(`${url}/create-payment-intent`, {
-                                                                                        amount: Math.round(parseFloat(calculateTotal()) * 100),
-                                                                                        organizerId: organizerId,
-                                                                                        userId: userId,
-                                                                                        eventId: eventId,
-                                                                                        date: Date.now(),
-                                                                                        status: "pending",
-                                                                                        count: counts,
-                                                                                        ticketId: selectedTicketId,
-                                                                                        tickets: ticket,
-                                                                                        firstName: formData.firstName,
-                                                                                        lastName: formData.lastName,
-                                                                                        email: formData.email,
-                                                                                        tax: Number(event.tax) !== 0,
-                                                                                    });
-
-                                                                                    const { clientSecret, paymentId } = response.data;
-                                                                                    setPayId(paymentId);
-
-                                                                                    const result = await stripe.confirmCardPayment(clientSecret, {
-                                                                                        payment_method: {
-                                                                                            card: elements.getElement(CardElement),
-                                                                                            billing_details: {
-                                                                                                name: `${formData.firstName} ${formData.lastName}`,
-                                                                                                email: formData.email,
-                                                                                            },
-                                                                                        },
-                                                                                    });
-
-                                                                                    if (result.error) {
-                                                                                        setPaymentError(result.error.message);
-                                                                                    } else if (result.paymentIntent.status === "succeeded") {
-                                                                                        setStep((prev) => Math.min(prev + 1, 3));
-                                                                                    }
-                                                                                } catch (error) {
-                                                                                    setPaymentError(error.message);
-                                                                                } finally {
-                                                                                    setPaymentProcessing(false);
-                                                                                }
-                                                                            }}
-                                                                            className="w-full max-w-md mt-4"
-                                                                        >
-                                                                            {/* Card Payment */}
-                                                                            <div className="rounded-lg">
-                                                                                <div className="bg-[#1a1a1a] p-3 rounded">
-                                                                                    <CardElement options={cardElementOptions} />
-                                                                                </div>
-
-                                                                                {paymentError && (
-                                                                                    <div className="text-red-500 mt-2 text-sm">{paymentError}</div>
-                                                                                )}
-
-                                                                                <button
-                                                                                    type="submit"
-                                                                                    disabled={!stripe || paymentProcessing}
-                                                                                    className={`w-full mt-4 font-inter py-3 rounded-full font-medium ${paymentProcessing ? "bg-gray-600 cursor-not-allowed" : "bg-white hover:bg-slate-100"
-                                                                                        } text-black`}
-                                                                                >
-                                                                                    {paymentProcessing ? 'Processing...' : `Pay $${calculateTotal()}`}
-                                                                                </button>
-                                                                            </div>
-                                                                        </form>
-
-                                                                        {/* Apple Pay */}
-                                                                        {/* <div className="mt-8">
-                                                                            {paymentRequest && paymentRequest.canMakePayment() ? (
-                                                                                <PaymentRequestButtonElement
-                                                                                    options={{ paymentRequest }}
-                                                                                    onClick={async () => {
-                                                                                        try {
-                                                                                            const paymentResult = await paymentRequest.show();
-                                                                                            if (paymentResult.complete === "success") {
-                                                                                                setStep((prev) => Math.min(prev + 1, 3));
-                                                                                            }
-                                                                                        } catch (error) {
-                                                                                            console.error("Apple Pay Error:", error);
-                                                                                        }
-                                                                                    }}
-                                                                                />
-                                                                            ) : (
-                                                                                <p className="text-gray-500 text-sm">
-                                                                                    Apple Pay is not available on this device.
-                                                                                </p>
-                                                                            )}
-                                                                        </div> */}
-                                                                    </>
-                                                                )
-                                                            }
+                                                            {event.event_type === 'rsvp' ? (
+                                                                <button
+                                                                    onClick={handleRSVPAdd}
+                                                                    className={`w-full mt-4 font-inter py-3 rounded-full font-medium bg-white`}
+                                                                >
+                                                                    Book now
+                                                                </button>
+                                                            ) : (
+                                                                <Checkout
+                                                                    clientSecret={clientSecret}
+                                                                    setStep={setStep}
+                                                                    amount={Math.round(parseFloat(calculateTotal()) * 100)}
+                                                                    organizerId={organizerId}
+                                                                    userId={userId}
+                                                                    eventId={eventId}
+                                                                    date={Date.now()}
+                                                                    status={"pending"}
+                                                                    count={counts}
+                                                                    ticketId={selectedTicketId}
+                                                                    tickets={ticket}
+                                                                    firstName={formData.firstName}
+                                                                    lastName={formData.lastName}
+                                                                    email={formData.email}
+                                                                    tax={Number(event.tax) !== 0}
+                                                                />
+                                                            )}
                                                             <div className="flex justify-center items-center mt-2">
                                                                 <FiLock className="text-[#606060] mr-2 h-4 w-4" />
-                                                                <p className="font-inter text-[#606060] text-xs">your data is encrypted</p>
+                                                                <p className="font-inter text-[#606060] text-xs">Your data is encrypted</p>
                                                             </div>
                                                         </div>
                                                     </div>

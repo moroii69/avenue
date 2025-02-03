@@ -1,3 +1,3 @@
 import { loadStripe } from "@stripe/stripe-js";
 
-export const stripePromise = loadStripe("pk_live_51QgJMCJ5DtaLPeLIx4N2b0pYgbPnv2TElyHxjnnCBtMdW5MQtnKVZ3FA7YjeI6cIHGUeHKqTApjSVlh5bmxLNocu00seuW8H1Y");
+export const stripePromise = loadStripe("pk_test_51QMZhOJj6RpdaCAQu9YbCJwlBN0aYlIhuOOrH3LFrGNeUZrqtQzDRojo8WRuOTdh5lG4T1kXZlI7AcAN1qq2zQ5H00EaXkdSUu");
