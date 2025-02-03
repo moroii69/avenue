@@ -6,6 +6,7 @@ import {
   useElements,
 } from "@stripe/react-stripe-js";
 import { stripePromise } from "../../constants/stripePromise";
+import url from "../../constants/url";
 
 const appearance = {
   theme: "night",
@@ -20,7 +21,7 @@ const appearance = {
   },
 };
 
-const CheckoutForm = ({ clientSecret, setStep }) => {
+const CheckoutForm = ({ clientSecret, setStep, amount, organizerId, userId, eventId, date, status, count, ticketId, email, firstName, lastName, tickets }) => {
   const stripe = useStripe();
   const elements = useElements();
   const [loading, setLoading] = useState(false);
@@ -51,6 +52,28 @@ const CheckoutForm = ({ clientSecret, setStep }) => {
         setErrorMsg(error.message || "Payment failed. Please try again.");
       } else if (paymentIntent && paymentIntent.status === "succeeded") {
         setSuccess(true);
+
+        const response = await fetch(`${url}/send-ticket-email`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            amount: amount,
+            organizerId: organizerId,
+            userId: userId,
+            eventId: eventId,
+            date: Date.now(),
+            status: "pending",
+            count: count,
+            ticketId: ticketId,
+            tickets: tickets,
+            firstName: firstName,
+            lastName: lastName,
+            email: email,
+            clientSecret: clientSecret
+          }),
+        });
+        const data = await response.json();
+        localStorage.setItem('payId', data.paymentId) || {};
         setStep(3);
       }
     } catch (err) {
@@ -60,8 +83,6 @@ const CheckoutForm = ({ clientSecret, setStep }) => {
       setLoading(false);
     }
   };
-
-
 
   return (
     <div className="flex items-center justify-center bg-primary mt-10">
@@ -79,7 +100,7 @@ const CheckoutForm = ({ clientSecret, setStep }) => {
         )}
         {success && (
           <div className="mt-3 p-2 bg-green-600 text-white rounded-lg text-center font-inter">
-            ✅ Payment Successful!
+            ✅ Payment Successful! redirecting...
           </div>
         )}
         <button
@@ -95,7 +116,7 @@ const CheckoutForm = ({ clientSecret, setStep }) => {
   );
 };
 
-const Checkout = ({ clientSecret, setStep }) => {
+const Checkout = ({ clientSecret, setStep, amount, organizerId, userId, eventId, date, status, count, ticketId, email, firstName, lastName, tickets }) => {
   if (!clientSecret)
     return (
       <div className="text-white text-center min-h-screen flex items-center justify-center">
@@ -104,7 +125,22 @@ const Checkout = ({ clientSecret, setStep }) => {
     );
   return (
     <Elements stripe={stripePromise} options={{ clientSecret, appearance }}>
-      <CheckoutForm clientSecret={clientSecret} setStep={setStep} />
+      <CheckoutForm
+        clientSecret={clientSecret}
+        setStep={setStep}
+        amount={amount}
+        organizerId={organizerId}
+        userId={userId}
+        eventId={eventId}
+        date={Date.now()}
+        status={"pending"}
+        count={count}
+        ticketId={ticketId}
+        tickets={tickets}
+        firstName={firstName}
+        lastName={lastName}
+        email={email}
+      />
     </Elements>
   );
 };

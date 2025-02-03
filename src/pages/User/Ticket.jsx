@@ -19,7 +19,7 @@ const Ticket = () => {
         return parseInt(localStorage.getItem('count')) || 1;
     });
     const location = useLocation();
-    const [payId, setPayId] = useState('');
+    //const [payId, setPayId] = useState('');
     const [book, setBook] = useState({});
     const [error, setError] = useState(false);
 
@@ -85,6 +85,7 @@ const Ticket = () => {
     const [errorMsg, setErrorMsg] = useState(null);
 
     const userIds = localStorage.getItem('userID') || "";
+    const payId = localStorage.getItem('payId') || "";
 
 
     const handleApply = () => {
@@ -329,8 +330,6 @@ const Ticket = () => {
         fetchRemainEvent()
     }, [eventId])
 
-    console.log(organizerId, userId)
-
     useEffect(() => {
         fetch(`${url}/create-intent`, {
             method: "POST",
@@ -495,7 +494,23 @@ const Ticket = () => {
                                                                     Book now
                                                                 </button>
                                                             ) : (
-                                                                <Checkout clientSecret={clientSecret} setStep={setStep} />
+                                                                <Checkout
+                                                                    clientSecret={clientSecret}
+                                                                    setStep={setStep}
+                                                                    amount={Math.round(parseFloat(calculateTotal()) * 100)}
+                                                                    organizerId={organizerId}
+                                                                    userId={userId}
+                                                                    eventId={eventId}
+                                                                    date={Date.now()}
+                                                                    status={"pending"}
+                                                                    count={counts}
+                                                                    ticketId={selectedTicketId}
+                                                                    tickets={ticket}
+                                                                    firstName={formData.firstName}
+                                                                    lastName={formData.lastName}
+                                                                    email={formData.email}
+                                                                    tax={Number(event.tax) !== 0}
+                                                                />
                                                             )}
                                                             <div className="flex justify-center items-center mt-2">
                                                                 <FiLock className="text-[#606060] mr-2 h-4 w-4" />
