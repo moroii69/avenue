@@ -11,6 +11,7 @@ import url from "../../constants/url";
 import { Button, Modal, Space } from 'antd';
 import { Spin } from 'antd';
 import LoginModal from '../../components/modals/LoginModal';
+import Checkout from './Checkout';
 
 const Ticket = () => {
     const [step, setStep] = useState(1);
@@ -79,6 +80,8 @@ const Ticket = () => {
     const [type, setType] = useState('');
 
     const [loading, setLoading] = useState(false);
+    const [clientSecret, setClientSecret] = useState(null);
+    const [errorMsg, setErrorMsg] = useState(null);
 
     const userIds = localStorage.getItem('userID') || "";
 
@@ -325,6 +328,43 @@ const Ticket = () => {
         fetchRemainEvent()
     }, [eventId])
 
+    console.log(organizerId, userId)
+
+    useEffect(() => {
+        fetch(`${url}/create-intent`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                amount: Math.round(parseFloat(calculateTotal()) * 100),
+                organizerId: organizerId,
+                userId: userId,
+                eventId: eventId,
+                date: Date.now(),
+                status: "pending",
+                count: counts,
+                ticketId: selectedTicketId,
+                tickets: ticket,
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                email: formData.email,
+                tax: Number(event.tax) !== 0,
+            }),
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.clientSecret) {
+                    setClientSecret(data.clientSecret);
+                } else if (data.error) {
+                    setErrorMsg(data.error);
+                }
+                setLoading(false);
+            })
+            .catch((error) => {
+                setErrorMsg("Failed to load payment details.");
+                setLoading(false);
+            });
+    }, [amount, organizerId, userId, eventId, count]);
+
     return (
         <>
             {
@@ -458,91 +498,7 @@ const Ticket = () => {
                                                                     </>
                                                                 ) : (
                                                                     <>
-                                                                        <form
-                                                                            onSubmit={async (event) => {
-                                                                                event.preventDefault();
-
-                                                                                if (!stripe || !elements) {
-                                                                                    return;
-                                                                                }
-                                                                                const cardElement = elements.getElement(CardElement);
-                                                                                if (!cardElement._complete) {
-                                                                                    setPaymentError("Please enter your card details");
-                                                                                    return;
-                                                                                }
-
-                                                                                setPaymentProcessing(true);
-                                                                                setPaymentError(null);
-
-                                                                                try {
-                                                                                    const response = await axios.post(`${url}/create-payment-intent`, {
-                                                                                        amount: Math.round(parseFloat(calculateTotal()) * 100),
-                                                                                        organizerId: organizerId,
-                                                                                        userId: userId,
-                                                                                        eventId: eventId,
-                                                                                        date: Date.now(),
-                                                                                        status: "pending",
-                                                                                        count: counts,
-                                                                                        ticketId: selectedTicketId,
-                                                                                        tickets: ticket,
-                                                                                        firstName: formData.firstName,
-                                                                                        lastName: formData.lastName,
-                                                                                        email: formData.email,
-                                                                                        tax: Number(event.tax) !== 0,
-                                                                                    });
-
-                                                                                    const { clientSecret, paymentId } = response.data;
-                                                                                    setPayId(paymentId);
-
-                                                                                    const result = await stripe.confirmCardPayment(clientSecret, {
-                                                                                        payment_method: {
-                                                                                            card: elements.getElement(CardElement),
-                                                                                            billing_details: {
-                                                                                                name: `${formData.firstName} ${formData.lastName}`,
-                                                                                                email: formData.email,
-                                                                                            },
-                                                                                        },
-                                                                                    });
-
-                                                                                    console.log(result.paymentIntent);
-
-                                                                                    if (result.error) {
-                                                                                        setPaymentError(result.error.message);
-                                                                                    } else if (result.paymentIntent.status === "succeeded") {
-                                                                                        console.log("Payment succeeded, updating step...");
-                                                                                        setStep((prev) => Math.min(prev + 1, 3)); // Transition to step 3 after success
-                                                                                    } else {
-                                                                                        console.log("Unexpected payment status:", result.paymentIntent.status);
-                                                                                    }
-                                                                                } catch (error) {
-                                                                                    setPaymentError(error.message);
-                                                                                } finally {
-                                                                                    setPaymentProcessing(false);
-                                                                                }
-                                                                            }}
-                                                                            className="w-full max-w-md mt-4"
-                                                                        >
-                                                                            {/* Card Payment */}
-                                                                            <div className="rounded-lg">
-                                                                                <div className="bg-[#1a1a1a] p-3 rounded">
-                                                                                    <CardElement options={cardElementOptions} />
-                                                                                </div>
-
-                                                                                {paymentError && (
-                                                                                    <div className="text-red-500 mt-2 text-sm">{paymentError}</div>
-                                                                                )}
-
-                                                                                <button
-                                                                                    type="submit"
-                                                                                    disabled={!stripe || paymentProcessing}
-                                                                                    className={`w-full mt-4 font-inter py-3 rounded-full font-medium ${paymentProcessing ? "bg-gray-600 cursor-not-allowed" : "bg-white hover:bg-slate-100"
-                                                                                        } text-black`}
-                                                                                >
-                                                                                    {paymentProcessing ? 'Processing...' : `Pay $${calculateTotal()}`}
-                                                                                </button>
-                                                                            </div>
-                                                                        </form>
-
+                                                                        <Checkout clientSecret={clientSecret} />
                                                                     </>
                                                                 )
                                                             }

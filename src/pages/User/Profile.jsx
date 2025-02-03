@@ -57,7 +57,7 @@ const Profile = () => {
                 .then((response) => {
                     const userData = response.data;
                     setUser(userData)
-                    setFirstName(userData.firstName);
+                    setFirstName(userData.firstName + " " + userData.lastName);
                     setEmail(userData.email);
                     setPhoneNumber(userData.phoneNumber);
                     setProfileImage(userData.profile_image)
