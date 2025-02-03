@@ -45,7 +45,7 @@ const CheckoutForm = ({ clientSecret }) => {
     const { error, paymentIntent } = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        return_url: "http://localhost:5173/",
+        return_url: "https://dev.d2v6xgiqdulhai.amplifyapp.com/",
       },
     });
 
