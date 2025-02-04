@@ -330,41 +330,41 @@ const Ticket = () => {
         fetchRemainEvent()
     }, [eventId])
 
-    // useEffect(() => {
-    //     if (clientSecret) return;
-    //     fetch(`${url}/create-intent`, {
-    //         method: "POST",
-    //         headers: { "Content-Type": "application/json" },
-    //         body: JSON.stringify({
-    //             amount: Math.round(parseFloat(calculateTotal()) * 100),
-    //             organizerId: organizerId,
-    //             userId: userId,
-    //             eventId: eventId,
-    //             date: Date.now(),
-    //             status: "pending",
-    //             count: counts,
-    //             ticketId: selectedTicketId,
-    //             tickets: ticket,
-    //             firstName: formData.firstName,
-    //             lastName: formData.lastName,
-    //             email: formData.email,
-    //             tax: Number(event.tax) !== 0,
-    //         }),
-    //     })
-    //         .then((response) => response.json())
-    //         .then((data) => {
-    //             if (data.clientSecret) {
-    //                 setClientSecret(data.clientSecret);
-    //             } else if (data.error) {
-    //                 setErrorMsg(data.error);
-    //             }
-    //             setLoading(false);
-    //         })
-    //         .catch((error) => {
-    //             setErrorMsg("Failed to load payment details.");
-    //             setLoading(false);
-    //         });
-    // }, []);
+    useEffect(() => {
+        if (clientSecret) return;
+        fetch(`${url}/create-intent`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                amount: Math.round(parseFloat(calculateTotal()) * 100),
+                organizerId: organizerId,
+                userId: userId,
+                eventId: eventId,
+                date: Date.now(),
+                status: "pending",
+                count: counts,
+                ticketId: selectedTicketId,
+                tickets: ticket,
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                email: formData.email,
+                tax: Number(event.tax) !== 0,
+            }),
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.clientSecret) {
+                    setClientSecret(data.clientSecret);
+                } else if (data.error) {
+                    setErrorMsg(data.error);
+                }
+                setLoading(false);
+            })
+            .catch((error) => {
+                setErrorMsg("Failed to load payment details.");
+                setLoading(false);
+            });
+    }, []);
 
     return (
         <>
@@ -495,24 +495,23 @@ const Ticket = () => {
                                                                     Book now
                                                                 </button>
                                                             ) : (
-                                                                <></>
-                                                                // <Checkout
-                                                                //     clientSecret={clientSecret}
-                                                                //     setStep={setStep}
-                                                                //     amount={Math.round(parseFloat(calculateTotal()) * 100)}
-                                                                //     organizerId={organizerId}
-                                                                //     userId={userId}
-                                                                //     eventId={eventId}
-                                                                //     date={Date.now()}
-                                                                //     status={"pending"}
-                                                                //     count={counts}
-                                                                //     ticketId={selectedTicketId}
-                                                                //     tickets={ticket}
-                                                                //     firstName={formData.firstName}
-                                                                //     lastName={formData.lastName}
-                                                                //     email={formData.email}
-                                                                //     tax={Number(event.tax) !== 0}
-                                                                // />
+                                                                <Checkout
+                                                                    clientSecret={clientSecret}
+                                                                    setStep={setStep}
+                                                                    amount={Math.round(parseFloat(calculateTotal()) * 100)}
+                                                                    organizerId={organizerId}
+                                                                    userId={userId}
+                                                                    eventId={eventId}
+                                                                    date={Date.now()}
+                                                                    status={"pending"}
+                                                                    count={counts}
+                                                                    ticketId={selectedTicketId}
+                                                                    tickets={ticket}
+                                                                    firstName={formData.firstName}
+                                                                    lastName={formData.lastName}
+                                                                    email={formData.email}
+                                                                    tax={Number(event.tax) !== 0}
+                                                                />
                                                             )}
                                                             <div className="flex justify-center items-center mt-2">
                                                                 <FiLock className="text-[#606060] mr-2 h-4 w-4" />
