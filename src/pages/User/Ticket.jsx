@@ -333,6 +333,11 @@ const Ticket = () => {
 
     useEffect(() => {
         if (clientSecret) return;
+
+        const nameParts = formData.firstName.trim().split(' ');
+        const firstName = nameParts[0] || '';
+        const lastName = nameParts.slice(1).join(' ') || '';
+
         fetch(`${url}/create-intent`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -346,8 +351,8 @@ const Ticket = () => {
                 count: counts,
                 ticketId: selectedTicketId,
                 tickets: ticket,
-                firstName: formData.firstName,
-                lastName: formData.lastName,
+                firstName: firstName,
+                lastName: lastName,
                 email: formData.email,
                 tax: Number(event.tax) !== 0,
             }),
