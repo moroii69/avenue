@@ -51,16 +51,12 @@ function App() {
           <Route
             path="/checkout"
             element={
-              <Elements stripe={stripePromise}>
-                <Checkout />
-              </Elements>
+              <Checkout />
             } />
           <Route path="/qr-ticket/:id" element={<QrTicket />} />
           <Route path="/tickets" element={<Tickets />} />
           <Route path="/ticket" element={
-            <Elements stripe={stripePromise}>
-              <Ticket />
-            </Elements>} />
+            <Ticket />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/type" element={<Type />} />
           <Route path="/saved" element={<Saved />} />
