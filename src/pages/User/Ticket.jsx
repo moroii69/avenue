@@ -336,7 +336,7 @@ const Ticket = () => {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                amount: totalAmount,
+                amount: Math.round(parseFloat(calculateTotal()) * 100),
                 organizerId: organizerId,
                 userId: userId,
                 eventId: eventId,
