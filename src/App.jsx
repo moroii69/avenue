@@ -48,6 +48,13 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/info/:name" element={<Info />} />
           <Route path="/creater/:id" element={<Creater />} />
+          <Route
+            path="/checkout"
+            element={
+              <Elements stripe={stripePromise}>
+                <Checkout />
+              </Elements>
+            } />
           <Route path="/qr-ticket/:id" element={<QrTicket />} />
           <Route path="/tickets" element={<Tickets />} />
           <Route path="/ticket" element={
