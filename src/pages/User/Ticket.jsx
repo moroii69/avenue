@@ -1,5 +1,5 @@
 import { CircleUser } from 'lucide-react'
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { FaMapMarkerAlt, FaRegDotCircle } from "react-icons/fa";
 import { FaCheckCircle } from "react-icons/fa";
 import { FiLock } from 'react-icons/fi';
