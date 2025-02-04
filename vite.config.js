@@ -6,6 +6,8 @@ export default defineConfig({
   plugins: [react()],
   server: {
     headers: {
+      'Permissions-Policy': 'partitioned-cookies=()',
+      'Cross-Origin-Opener-Policy': 'same-origin',
       "Content-Security-Policy": "frame-ancestors 'self' https://pay.google.com/;",
     }
   },
