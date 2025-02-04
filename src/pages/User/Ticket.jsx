@@ -83,6 +83,7 @@ const Ticket = () => {
     const [loading, setLoading] = useState(false);
     const [clientSecret, setClientSecret] = useState(null);
     const [errorMsg, setErrorMsg] = useState(null);
+    const [currentDateTime, setCurrentDateTime] = useState("");
 
     const userIds = localStorage.getItem('userID') || "";
     const payId = localStorage.getItem('payId') || "";
@@ -366,6 +367,20 @@ const Ticket = () => {
             });
     }, [amount, organizerId, userId, eventId, count]);
 
+    useEffect(() => {
+        const now = new Date().toLocaleString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+            hour: "numeric",
+            minute: "2-digit",
+            second: "2-digit",
+            hour12: true,
+        });
+        console.log(now);
+        setCurrentDateTime(now);
+    }, []);
+
     return (
         <>
             {
@@ -502,7 +517,7 @@ const Ticket = () => {
                                                                     organizerId={organizerId}
                                                                     userId={userId}
                                                                     eventId={eventId}
-                                                                    date={Date.now()}
+                                                                    date={currentDateTime}
                                                                     status={"pending"}
                                                                     count={counts}
                                                                     ticketId={selectedTicketId}
