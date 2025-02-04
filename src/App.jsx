@@ -48,15 +48,12 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/info/:name" element={<Info />} />
           <Route path="/creater/:id" element={<Creater />} />
-          <Route
-            path="/checkout"
-            element={
-              <Checkout />
-            } />
           <Route path="/qr-ticket/:id" element={<QrTicket />} />
           <Route path="/tickets" element={<Tickets />} />
           <Route path="/ticket" element={
-            <Ticket />} />
+            <Elements stripe={stripePromise}>
+              <Ticket />
+            </Elements>} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/type" element={<Type />} />
           <Route path="/saved" element={<Saved />} />
