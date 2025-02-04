@@ -159,114 +159,249 @@ const Tickets = () => {
 
             {activeTab === "upcoming" ? (
                 <>
-                    {
-                        loading ? (
-                            <div className='text-center mt-10'>
-                                <Spin size="large" />
-                            </div>
-                        ) : (
-                            <div className="mt-3 md:mt-5 mb-10 md:px-2">
-                                {book.length > 0 ? (
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-16 sm:mt-24 px-4 sm:px-8 md:px-16 lg:px-10 mb-10">
-                                        {book.map((card) => (
-                                            <button
-                                                key={card.id}
-                                                onClick={() =>
-                                                    handleDetail(
-                                                        card._id,
-                                                        card.party_id.event_name.replace(/\s+/g, "-")
-                                                    )
-                                                }
-                                                className="bg-neutral-800 bg-opacity-15 px-4 py-3 rounded-2xl shadow-lg text-left flex flex-col transition-transform duration-300 transform hover:scale-105"
-                                            >
-                                                <div className="flex items-center justify-between w-full mb-2 gap-2">
-                                                    <div className="flex items-center min-w-0">
-                                                        <div className="w-8 h-8 rounded-full flex justify-center items-center flex-shrink-0">
-                                                            <FaArtstation className="text-purple-800" size={15} />
-                                                        </div>
-                                                        <h2 className="text-white/50 text-xs uppercase font-inter ml-2 truncate">
-                                                            {card?.party_id?.category}
-                                                        </h2>
-                                                    </div>
-                                                    <p className="text-white/50 text-xs font-inter flex-shrink-0">
-                                                        {formatDate(card?.party_id?.start_date)}
-                                                    </p>
-                                                </div>
+                    {loading ? (
+                        <div className='text-center mt-10'>
+                            <Spin size="large" />
+                        </div>
+                    ) : (
+                        <div className="mt-3 md:mt-5 mb-10 md:px-2">
+                            {(() => {
+                                const today = new Date();
+                                today.setHours(0, 0, 0, 0);
 
-                                                <div className="relative mb-4">
-                                                    <div className="aspect-w-2 aspect-h-3 w-full">
-                                                        <img
-                                                            src={card?.party_id?.flyer}
-                                                            alt="event"
-                                                            className="w-full h-72 object-cover rounded-xl"
-                                                        />
-                                                    </div>
-                                                </div>
-
-                                                <div className="flex items-center justify-between w-full mb-2 gap-2">
-                                                    <div className="min-w-0 flex-1">
-                                                        <div className="flex items-center mt-1">
-                                                            <span className="text-white text-lg font-inter truncate">
-                                                                {card?.party_id?.event_name}
-                                                            </span>
+                                const upcomingBooks = book.filter((card) => {
+                                    if (!card?.party_id?.start_date) return false;
+                                    const eventDate = new Date(card.party_id.start_date);
+                                    eventDate.setHours(0, 0, 0, 0);
+                                    return eventDate >= today;
+                                });
+                                if (upcomingBooks.length > 0) {
+                                    return (
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-16 sm:mt-24 px-4 sm:px-8 md:px-16 lg:px-10 mb-10">
+                                            {upcomingBooks.map((card) => (
+                                                <button
+                                                    key={card.id}
+                                                    onClick={() =>
+                                                        handleDetail(
+                                                            card._id,
+                                                            card.party_id.event_name.replace(/\s+/g, "-")
+                                                        )
+                                                    }
+                                                    className="bg-neutral-800 bg-opacity-15 px-4 py-3 rounded-2xl shadow-lg text-left flex flex-col transition-transform duration-300 transform hover:scale-105"
+                                                >
+                                                    <div className="flex items-center justify-between w-full mb-2 gap-2">
+                                                        <div className="flex items-center min-w-0">
+                                                            <div className="w-8 h-8 rounded-full flex justify-center items-center flex-shrink-0">
+                                                                <FaArtstation className="text-purple-800" size={15} />
+                                                            </div>
+                                                            <h2 className="text-white/50 text-xs uppercase font-inter ml-2 truncate">
+                                                                {card?.party_id?.category}
+                                                            </h2>
                                                         </div>
-                                                        <div className="flex items-center mt-1">
-                                                            <FaLocationDot className="text-neutral-400 mr-1 flex-shrink-0" size={12} />
-                                                            <span className="text-white/50 text-sm font-inter truncate">
-                                                                {card?.party_id?.venue_name}
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                    <div className="flex-shrink-0">
-                                                        <p className="text-white font-medium whitespace-nowrap">
-                                                            <span className="text-gray-500 text-2xl font-inter">$</span>
-                                                            <span className="text-2xl font-semibold font-inter">
-                                                                {card?.party_id?.ticket_start_price}+
-                                                            </span>
+                                                        <p className="text-white/50 text-xs font-inter flex-shrink-0">
+                                                            {formatDate(card?.party_id?.start_date)}
                                                         </p>
                                                     </div>
-                                                </div>
 
-                                                <div className="flex flex-col items-center mt-4">
-                                                    <button
-                                                        onClick={() => handleOpenQr(card)}
-                                                        className="flex text-xs font-inter md:text-sm items-center justify-center px-4 py-3 bg-white text-black rounded-full mb-3 w-full md:w-80 transition-transform duration-300 hover:scale-95"
-                                                    >
-                                                        <FaQrcode className="mr-2" /> Show QR
-                                                    </button>
-                                                </div>
+                                                    <div className="relative mb-4">
+                                                        <div className="w-full aspect-square">
+                                                            <img
+                                                                src={card?.party_id?.flyer}
+                                                                alt="event"
+                                                                className="object-cover rounded-xl w-full h-full"
+                                                            />
+                                                        </div>
+                                                    </div>
 
-                                                <div className="flex flex-col items-center mt-2">
-                                                    <button
-                                                        onClick={() => downloadICSFile(card)}
-                                                        className="flex text-xs font-inter items-center justify-center px-4 py-3 border border-gray-800 text-gray-400 rounded-full w-full md:w-80 transition-transform duration-300 hover:scale-95"
-                                                    >
-                                                        Add to Calendar
-                                                    </button>
-                                                </div>
-                                            </button>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="flex items-center justify-center h-[50vh] w-full text-center text-white font-inter">
-                                        No upcoming tickets are available.
-                                    </div>
-                                )}
 
-                                <QrTicket
-                                    card={selectedCard}
-                                    isOpen={isModalQrTicket}
-                                    onClose={() => setIsModalQrTicket(false)}
-                                />
-                            </div>
+                                                    <div className="flex items-center justify-between w-full mb-2 gap-2">
+                                                        <div className="min-w-0 flex-1">
+                                                            <div className="flex items-center mt-1">
+                                                                <span className="text-white text-lg font-inter truncate">
+                                                                    {card?.party_id?.event_name}
+                                                                </span>
+                                                            </div>
+                                                            <div className="flex items-center mt-1">
+                                                                <FaLocationDot className="text-neutral-400 mr-1 flex-shrink-0" size={12} />
+                                                                <span className="text-white/50 text-sm font-inter truncate">
+                                                                    {card?.party_id?.venue_name}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex-shrink-0">
+                                                            <p className="text-white font-medium whitespace-nowrap">
+                                                                <span className="text-gray-500 text-2xl font-inter">$</span>
+                                                                <span className="text-2xl font-semibold font-inter">
+                                                                    {card?.party_id?.ticket_start_price}+
+                                                                </span>
+                                                            </p>
+                                                        </div>
+                                                    </div>
 
-                        )
-                    }
+                                                    <div className="flex flex-col items-center mt-4">
+                                                        <button
+                                                            onClick={() => handleOpenQr(card)}
+                                                            className="flex text-xs font-inter md:text-sm items-center justify-center px-4 py-3 bg-white text-black rounded-full mb-3 w-full md:w-80 transition-transform duration-300 hover:scale-95"
+                                                        >
+                                                            <FaQrcode className="mr-2" /> Show QR
+                                                        </button>
+                                                    </div>
+
+                                                    <div className="flex flex-col items-center mt-2">
+                                                        <button
+                                                            onClick={() => downloadICSFile(card)}
+                                                            className="flex text-xs font-inter items-center justify-center px-4 py-3 border border-gray-800 text-gray-400 rounded-full w-full md:w-80 transition-transform duration-300 hover:scale-95"
+                                                        >
+                                                            Add to Calendar
+                                                        </button>
+                                                    </div>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    );
+                                } else {
+                                    return (
+                                        <div className="flex items-center justify-center h-[50vh] w-full text-center text-white font-inter">
+                                            No upcoming tickets are available.
+                                        </div>
+                                    );
+                                }
+                            })()}
+
+                            <QrTicket
+                                card={selectedCard}
+                                isOpen={isModalQrTicket}
+                                onClose={() => setIsModalQrTicket(false)}
+                            />
+                        </div>
+                    )}
                 </>
             ) : (
-                <div className="text-center font-inter mt-20 md:mt-52">
-                    <p>No tickets have expired</p>
-                </div>
+                <>
+                    {loading ? (
+                        <div className='text-center mt-10'>
+                            <Spin size="large" />
+                        </div>
+                    ) : (
+                        <div className="mt-3 md:mt-5 mb-10 md:px-2">
+                            {(() => {
+                                const today = new Date();
+                                today.setHours(0, 0, 0, 0);
+
+                                const expiredBooks = book.filter((card) => {
+                                    if (!card?.party_id?.start_date) return false;
+                                    const eventDate = new Date(card.party_id.start_date);
+                                    eventDate.setHours(0, 0, 0, 0);
+                                    return eventDate < today;
+                                });
+                                if (expiredBooks.length > 0) {
+                                    return (
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-16 sm:mt-24 px-4 sm:px-8 md:px-16 lg:px-10 mb-10">
+                                            {expiredBooks.map((card) => (
+                                                <button
+                                                    key={card.id}
+                                                    onClick={() =>
+                                                        handleDetail(
+                                                            card._id,
+                                                            card.party_id.event_name.replace(/\s+/g, "-")
+                                                        )
+                                                    }
+                                                    className="bg-neutral-800 bg-opacity-15 px-4 py-3 rounded-2xl shadow-lg text-left flex flex-col transition-transform duration-300 transform hover:scale-105"
+                                                >
+                                                    <div className="flex items-center justify-between w-full mb-2 gap-2">
+                                                        <div className="flex items-center min-w-0">
+                                                            <div className="w-8 h-8 rounded-full flex justify-center items-center flex-shrink-0">
+                                                                <FaArtstation className="text-purple-800" size={15} />
+                                                            </div>
+                                                            <h2 className="text-white/50 text-xs uppercase font-inter ml-2 truncate">
+                                                                {card?.party_id?.category}
+                                                            </h2>
+                                                        </div>
+                                                        <p className="text-white/50 text-xs font-inter flex-shrink-0">
+                                                            {formatDate(card?.party_id?.start_date)}
+                                                        </p>
+                                                    </div>
+
+                                                    <div className="relative mb-4">
+                                                        <div className="w-full aspect-square">
+                                                            <img
+                                                                src={card?.party_id?.flyer}
+                                                                alt="event"
+                                                                className="object-cover rounded-xl w-full h-full"
+                                                            />
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="flex items-center justify-between w-full mb-2 gap-2">
+                                                        <div className="min-w-0 flex-1">
+                                                            <div className="flex items-center mt-1">
+                                                                <span className="text-white text-lg font-inter truncate">
+                                                                    {card?.party_id?.event_name}
+                                                                </span>
+                                                            </div>
+                                                            <div className="flex items-center mt-1">
+                                                                <FaLocationDot className="text-neutral-400 mr-1 flex-shrink-0" size={12} />
+                                                                <span className="text-white/50 text-sm font-inter truncate">
+                                                                    {card?.party_id?.venue_name}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex-shrink-0">
+                                                            <p className="text-white font-medium whitespace-nowrap">
+                                                                <span className="text-gray-500 text-2xl font-inter">$</span>
+                                                                <span className="text-2xl font-semibold font-inter">
+                                                                    {card?.party_id?.ticket_start_price}+
+                                                                </span>
+                                                            </p>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* <div className="flex flex-col items-center mt-4">
+                                                        <button
+                                                            onClick={() => handleOpenQr(card)}
+                                                            className="flex text-xs font-inter md:text-sm items-center justify-center px-4 py-3 bg-white text-black rounded-full mb-3 w-full md:w-80 transition-transform duration-300 hover:scale-95"
+                                                        >
+                                                            <FaQrcode className="mr-2" /> Show QR
+                                                        </button>
+                                                    </div>
+
+                                                    <div className="flex flex-col items-center mt-2">
+                                                        <button
+                                                            onClick={() => downloadICSFile(card)}
+                                                            className="flex text-xs font-inter items-center justify-center px-4 py-3 border border-gray-800 text-gray-400 rounded-full w-full md:w-80 transition-transform duration-300 hover:scale-95"
+                                                        >
+                                                            Add to Calendar
+                                                        </button>
+                                                    </div> */}
+
+                                                    <div className="flex flex-col items-center mt-4">
+                                                        <button
+                                                            className="flex text-xs font-inter md:text-sm items-center justify-center px-4 py-3 bg-red-600 text-black rounded-full mb-3 w-full md:w-80 transition-transform duration-300 hover:scale-95"
+                                                        >
+                                                            Ticket expired
+                                                        </button>
+                                                    </div>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    );
+                                } else {
+                                    return (
+                                        <div className="flex items-center justify-center h-[50vh] w-full text-center text-white font-inter">
+                                            No expired tickets are available.
+                                        </div>
+                                    );
+                                }
+                            })()}
+
+                            <QrTicket
+                                card={selectedCard}
+                                isOpen={isModalQrTicket}
+                                onClose={() => setIsModalQrTicket(false)}
+                            />
+                        </div>
+                    )}
+                </>
             )
             }
         </div >

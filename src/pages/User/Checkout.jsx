@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Elements,
   PaymentElement,
@@ -7,6 +7,7 @@ import {
 } from "@stripe/react-stripe-js";
 import { stripePromise } from "../../constants/stripePromise";
 import url from "../../constants/url";
+
 
 const appearance = {
   theme: "night",
@@ -19,14 +20,31 @@ const appearance = {
     spacingUnit: "5px",
     fontFamily: "Arial, sans-serif",
   },
+  labels: 'floating'
 };
 
-const CheckoutForm = ({ clientSecret, setStep, amount, organizerId, userId, eventId, date, status, count, ticketId, email, firstName, lastName, tickets }) => {
+const CheckoutForm = ({
+  clientSecret,
+  setStep,
+  amount,
+  organizerId,
+  userId,
+  eventId,
+  date,
+  status,
+  count,
+  ticketId,
+  email,
+  firstName,
+  lastName,
+  tickets,
+}) => {
   const stripe = useStripe();
   const elements = useElements();
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [disabled, setDisabled] = useState(true);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -42,7 +60,7 @@ const CheckoutForm = ({ clientSecret, setStep, amount, organizerId, userId, even
     try {
       const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
-        redirect: 'if_required'
+        redirect: "if_required",
       });
 
       console.log("Error:", error);
@@ -52,6 +70,14 @@ const CheckoutForm = ({ clientSecret, setStep, amount, organizerId, userId, even
         setErrorMsg(error.message || "Payment failed. Please try again.");
       } else if (paymentIntent && paymentIntent.status === "succeeded") {
         setSuccess(true);
+
+        const paymentMethodType =
+          paymentIntent.charges &&
+            paymentIntent.charges.data &&
+            paymentIntent.charges.data.length > 0 &&
+            paymentIntent.charges.data[0].payment_method_details
+            ? paymentIntent.charges.data[0].payment_method_details.type
+            : null;
 
         const response = await fetch(`${url}/send-ticket-email`, {
           method: "POST",
@@ -69,11 +95,12 @@ const CheckoutForm = ({ clientSecret, setStep, amount, organizerId, userId, even
             firstName: firstName,
             lastName: lastName,
             email: email,
-            clientSecret: clientSecret
+            clientSecret: clientSecret,
+            paymentMethod: paymentMethodType
           }),
         });
         const data = await response.json();
-        localStorage.setItem('payId', data.paymentId) || {};
+        localStorage.setItem("payId", data.paymentId);
         setStep(3);
       }
     } catch (err) {
@@ -91,22 +118,26 @@ const CheckoutForm = ({ clientSecret, setStep, amount, organizerId, userId, even
         className="w-full max-w-md bg-primary rounded-lg shadow-lg text-white"
       >
         <div className="space-y-1">
-          <PaymentElement />
+          <PaymentElement
+            onChange={(e) => {
+              setDisabled(!e.complete);
+            }}
+          />
         </div>
         {errorMsg && (
-          <div className="mt-3 p-2 bg-red-600 text-white rounded-lg text-center font-inte">
+          <div className="mt-3 p-2 bg-red-600 text-white rounded-lg text-center font-inter">
             {errorMsg}
           </div>
         )}
         {success && (
           <div className="mt-3 p-2 bg-green-600 text-white rounded-lg text-center font-inter">
-            ✅ Payment Successful! redirecting...
+            ✅ Payment Successful! Redirecting...
           </div>
         )}
         <button
-          disabled={!stripe || loading}
+          disabled={!stripe || loading || disabled}
           type="submit"
-          className={`mt-6 font-inter w-full ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-white hover:bg-gray-200"
+          className={`mt-6 font-inter w-full ${loading || disabled ? "bg-gray-400 cursor-not-allowed" : "bg-white hover:bg-gray-200"
             } text-black font-semibold py-3 rounded-full shadow-md transition duration-200`}
         >
           {loading ? "Processing..." : "Pay"}
@@ -116,7 +147,8 @@ const CheckoutForm = ({ clientSecret, setStep, amount, organizerId, userId, even
   );
 };
 
-const Checkout = ({ clientSecret, setStep, amount, organizerId, userId, eventId, date, status, count, ticketId, email, firstName, lastName, tickets }) => {
+const Checkout = ({ clientSecret, setStep, amount, organizerId, userId, eventId, count, ticketId, email, firstName, lastName, tickets }) => {
+  const currentDate = useMemo(() => Date.now(), []);
   if (!clientSecret)
     return (
       <div className="text-white text-center min-h-screen flex items-center justify-center">
@@ -132,7 +164,7 @@ const Checkout = ({ clientSecret, setStep, amount, organizerId, userId, eventId,
         organizerId={organizerId}
         userId={userId}
         eventId={eventId}
-        date={Date.now()}
+        date={currentDate}
         status={"pending"}
         count={count}
         ticketId={ticketId}
@@ -144,5 +176,6 @@ const Checkout = ({ clientSecret, setStep, amount, organizerId, userId, eventId,
     </Elements>
   );
 };
+
 
 export default Checkout;
