@@ -21,11 +21,6 @@ const appearance = {
     fontFamily: "Arial, sans-serif",
   },
   labels: 'floating',
-  rules: {
-    '.Input': {
-      partitioned: true
-    }
-  }
 };
 
 const CheckoutForm = ({
