@@ -1,5 +1,5 @@
 import { CircleUser } from 'lucide-react'
-import React, { useEffect, useState, useMemo, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { FaMapMarkerAlt, FaRegDotCircle } from "react-icons/fa";
 import { FaCheckCircle } from "react-icons/fa";
 import { FiLock } from 'react-icons/fi';
@@ -182,7 +182,7 @@ const Ticket = () => {
         return `${dayOfWeek}, ${day} ${month} ${year} ${hours}:${minutes} ${ampm}`;
     };
 
-    const calculateTotal = useCallback(() => {
+    const calculateTotal = () => {
         const subtotal = counts * selectedTicketPrice;
         const taxValue = parseFloat(event.tax) || 0;
         const organizerTax = subtotal * (taxValue / 100);
@@ -197,7 +197,7 @@ const Ticket = () => {
             }
         }
         return total.toFixed(2);
-    }, [counts, selectedTicketPrice, event.tax, amount, type]);
+    };
 
     const handleRSVPAdd = async (event) => {
         event.preventDefault();
@@ -330,30 +330,19 @@ const Ticket = () => {
         fetchRemainEvent()
     }, [eventId])
 
-    const totalAmount = useMemo(() => {
-        return Math.round(parseFloat(calculateTotal()) * 100);
-    }, [calculateTotal]);
-
-
     useEffect(() => {
-        // Do nothing if clientSecret is already set
         if (clientSecret) return;
-        // Ensure that critical data is available (you can adjust this check as needed)
-        if (!organizerId || !userId || !eventId || !selectedTicketId || !event.tax) return;
-
-        // Send the request
-        setLoading(true);
         fetch(`${url}/create-intent`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                amount: totalAmount,
-                organizerId,
-                userId,
-                eventId,
+                amount: Math.round(parseFloat(calculateTotal()) * 100),
+                organizerId: organizerId,
+                userId: userId,
+                eventId: eventId,
                 date: Date.now(),
                 status: "pending",
-                count: counts, // ensure you use the correct variable name
+                count: counts,
                 ticketId: selectedTicketId,
                 tickets: ticket,
                 firstName: formData.firstName,
@@ -375,20 +364,7 @@ const Ticket = () => {
                 setErrorMsg("Failed to load payment details.");
                 setLoading(false);
             });
-    }, [
-        clientSecret,
-        totalAmount,
-        organizerId,
-        userId,
-        eventId,
-        counts,
-        selectedTicketId,
-        ticket,
-        formData.firstName,
-        formData.lastName,
-        formData.email,
-        event.tax,
-    ]);
+    }, []);
 
     return (
         <>
