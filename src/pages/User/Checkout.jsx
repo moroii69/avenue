@@ -46,6 +46,8 @@ const CheckoutForm = ({
   const [success, setSuccess] = useState(false);
   const [disabled, setDisabled] = useState(true);
 
+  console.log(date)
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     setLoading(true);
@@ -87,7 +89,7 @@ const CheckoutForm = ({
             organizerId: organizerId,
             userId: userId,
             eventId: eventId,
-            date: Date.now(),
+            date: date,
             status: "pending",
             count: count,
             ticketId: ticketId,
@@ -148,8 +150,7 @@ const CheckoutForm = ({
   );
 };
 
-const Checkout = ({ clientSecret, setStep, amount, organizerId, userId, eventId, count, ticketId, email, firstName, lastName, tickets }) => {
-  const currentDate = useMemo(() => Date.now(), []);
+const Checkout = ({ clientSecret, setStep, amount, organizerId, userId, eventId, date, count, ticketId, email, firstName, lastName, tickets }) => {
   if (!clientSecret)
     return (
       <div className="text-white text-center min-h-screen flex items-center justify-center">
@@ -165,7 +166,7 @@ const Checkout = ({ clientSecret, setStep, amount, organizerId, userId, eventId,
         organizerId={organizerId}
         userId={userId}
         eventId={eventId}
-        date={currentDate}
+        date={date}
         status={"pending"}
         count={count}
         ticketId={ticketId}

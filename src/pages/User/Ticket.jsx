@@ -377,7 +377,6 @@ const Ticket = () => {
             second: "2-digit",
             hour12: true,
         });
-        console.log(now);
         setCurrentDateTime(now);
     }, []);
 
