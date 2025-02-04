@@ -20,7 +20,12 @@ const appearance = {
     spacingUnit: "5px",
     fontFamily: "Arial, sans-serif",
   },
-  labels: 'floating'
+  labels: 'floating',
+  rules: {
+    '.Input': {
+      partitioned: true
+    }
+  }
 };
 
 const CheckoutForm = ({
