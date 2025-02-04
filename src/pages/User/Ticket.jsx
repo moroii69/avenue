@@ -330,12 +330,18 @@ const Ticket = () => {
         fetchRemainEvent()
     }, [eventId])
 
+    const totalAmount = useMemo(() => {
+        return Math.round(parseFloat(calculateTotal()) * 100);
+      }, [calculateTotal])
+      
+
     useEffect(() => {
+        if (clientSecret) return;
         fetch(`${url}/create-intent`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                amount: Math.round(parseFloat(calculateTotal()) * 100),
+                amount: totalAmount,
                 organizerId: organizerId,
                 userId: userId,
                 eventId: eventId,
@@ -363,7 +369,7 @@ const Ticket = () => {
                 setErrorMsg("Failed to load payment details.");
                 setLoading(false);
             });
-    }, [amount, organizerId, userId, eventId, count]);
+    }, [clientSecret, amount, organizerId, userId, eventId, count]);
 
     return (
         <>
