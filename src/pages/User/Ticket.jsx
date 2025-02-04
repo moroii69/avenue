@@ -549,7 +549,7 @@ const Ticket = () => {
                             </div>
 
                             {step === 2 && (
-                                <div className="max-w-xs mx-auto md:mx-0 flex-1 space-y-2 justify-center items-center">
+                                <div className="w-full max-w-xs mx-auto md:mx-0 flex-1 space-y-2 justify-center items-center">
                                     <div className="bg-[#292929] bg-opacity-25 rounded-xl p-4">
                                         <div className='flex justify-between mb-4'>
                                             <h2 className="text-xs font-medium font-inter text-gray-400 uppercase">{event.category}</h2>
