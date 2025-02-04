@@ -5,7 +5,7 @@ import { FaCheckCircle } from "react-icons/fa";
 import { FiLock } from 'react-icons/fi';
 import success from "../../assets/success.png"
 import { useLocation } from "react-router-dom";
-import { CardElement, useStripe, useElements, PaymentRequestButtonElement } from "@stripe/react-stripe-js";
+import { useStripe, useElements } from "@stripe/react-stripe-js";
 import axios from "axios";
 import url from "../../constants/url";
 import { Button, Modal, Space } from 'antd';
@@ -293,25 +293,25 @@ const Ticket = () => {
         fetchBook();
     }, [payId]);
 
-    useEffect(() => {
-        if (stripe) {
-            const pr = stripe.paymentRequest({
-                country: "US",
-                currency: "usd",
-                total: {
-                    label: "Total Amount",
-                    amount: Math.round(parseFloat(calculateTotal()) * 100),
-                },
-                requestPayerName: true,
-                requestPayerEmail: true,
-            });
-            pr.canMakePayment().then((result) => {
-                if (result) {
-                    setPaymentRequest(pr);
-                }
-            });
-        }
-    }, [stripe, calculateTotal]);
+    // useEffect(() => {
+    //     if (stripe) {
+    //         const pr = stripe.paymentRequest({
+    //             country: "US",
+    //             currency: "usd",
+    //             total: {
+    //                 label: "Total Amount",
+    //                 amount: Math.round(parseFloat(calculateTotal()) * 100),
+    //             },
+    //             requestPayerName: true,
+    //             requestPayerEmail: true,
+    //         });
+    //         pr.canMakePayment().then((result) => {
+    //             if (result) {
+    //                 setPaymentRequest(pr);
+    //             }
+    //         });
+    //     }
+    // }, [stripe, calculateTotal]);
 
     const fetchRemainEvent = async () => {
         if (eventId) {
