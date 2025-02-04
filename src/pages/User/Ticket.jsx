@@ -336,7 +336,7 @@ const Ticket = () => {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                amount: Math.round(parseFloat(calculateTotal()) * 100),
+                amount: totalAmount,
                 organizerId: organizerId,
                 userId: userId,
                 eventId: eventId,
@@ -364,7 +364,7 @@ const Ticket = () => {
                 setErrorMsg("Failed to load payment details.");
                 setLoading(false);
             });
-    }, []);
+    }, [amount, organizerId, userId, eventId, count]);
 
     return (
         <>
