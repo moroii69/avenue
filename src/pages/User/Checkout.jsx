@@ -73,7 +73,11 @@ const CheckoutForm = ({
       } else if (paymentIntent && paymentIntent.status === "succeeded") {
         setSuccess(true);
 
-        const paymentMethodType = paymentIntent?.charges?.data?.[0]?.payment_method_details?.type || null;
+        const paymentMethodType =
+          paymentIntent.payment_method_types &&
+            paymentIntent.payment_method_types.length > 0
+            ? paymentIntent.payment_method_types[0]
+            : null;
         console.log("Payment Method Type:", paymentMethodType);
 
         const response = await fetch(`${url}/send-ticket-email`, {
