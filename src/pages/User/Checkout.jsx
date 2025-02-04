@@ -115,6 +115,7 @@ const CheckoutForm = ({
     <div className="flex items-center justify-center bg-primary mt-10">
       <form
         onSubmit={handleSubmit}
+        name="paymentForm"
         className="w-full max-w-md bg-primary rounded-lg shadow-lg text-white"
       >
         <div className="space-y-1">

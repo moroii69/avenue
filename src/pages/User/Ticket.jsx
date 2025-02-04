@@ -412,7 +412,7 @@ const Ticket = () => {
                                             </div>
                                         </div>
                                         <div className="text-center">
-                                            <p className="text-sm">
+                                            <div className="text-sm">
                                                 {step === 1 && (
                                                     <div className="mt-8">
                                                         {
@@ -542,7 +542,7 @@ const Ticket = () => {
 
                                                     </>
                                                 )}
-                                            </p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

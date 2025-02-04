@@ -123,7 +123,7 @@ const Home = () => {
       const response = await axios.get(`${url}/event/get-event`);
       setEvents(response.data);
     } catch (error) {
-      console.error('Error fetching events:', error);
+      //console.error('Error fetching events:', error);
     }
   };
 
@@ -193,14 +193,14 @@ const Home = () => {
 
     const isFreeEvent = showFreeOnly ? event.event_type === "rsvp" : true;
 
-    console.log({
-      eventDate,
-      currentDate,
-      isFutureEvent,
-      isWithinPriceRange,
-      isWithinDateRange,
-      isFreeEvent,
-    });
+    // console.log({
+    //   eventDate,
+    //   currentDate,
+    //   isFutureEvent,
+    //   isWithinPriceRange,
+    //   isWithinDateRange,
+    //   isFreeEvent,
+    // });
 
     return (
       event.explore === "YES" &&
@@ -210,7 +210,6 @@ const Home = () => {
       isFutureEvent
     );
   });
-
 
   const handleReset = () => {
     setSliderValue([0, 100]);
@@ -232,7 +231,7 @@ const Home = () => {
         });
 
         if (response.status === 200) {
-          console.log("Event unsaved successfully:", response.data);
+          //console.log("Event unsaved successfully:", response.data);
           setSavedEventIds((prevState) => {
             const newSavedEventIds = new Set(prevState);
             newSavedEventIds.delete(eventId);
@@ -246,7 +245,7 @@ const Home = () => {
         });
 
         if (response.status === 201) {
-          console.log("Event saved successfully:", response.data);
+          //console.log("Event saved successfully:", response.data);
           setSavedEventIds((prevState) => {
             const newSavedEventIds = new Set(prevState);
             newSavedEventIds.add(eventId);
@@ -255,7 +254,7 @@ const Home = () => {
         }
       }
     } catch (error) {
-      console.error("Error updating bookmark status:", error);
+      //console.error("Error updating bookmark status:", error);
     }
   };
 
@@ -264,17 +263,17 @@ const Home = () => {
       const response = await axios.get(`${url}/saved/get-saved-id/${userId}`);
 
       if (response.status === 200 && response.data.data) {
-        console.log("Fetched saved events:", response.data.data);
+        //console.log("Fetched saved events:", response.data.data);
         const savedIds = new Set(
           response.data.data.map((event) => event.event_id._id)
         );
         setSavedEventIds(savedIds);
       } else {
-        console.error("No saved events found in the database.");
+        //console.error("No saved events found in the database.");
         setSavedEventIds(new Set());
       }
     } catch (error) {
-      console.error("Error fetching saved events:", error);
+      //console.error("Error fetching saved events:", error);
     }
   };
 
