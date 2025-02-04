@@ -8,6 +8,7 @@ import {
 import { stripePromise } from "../../constants/stripePromise";
 import url from "../../constants/url";
 
+
 const appearance = {
   theme: "night",
   variables: {
@@ -19,7 +20,7 @@ const appearance = {
     spacingUnit: "5px",
     fontFamily: "Arial, sans-serif",
   },
-  labels: "floating",
+  labels: 'floating',
 };
 
 const CheckoutForm = ({
@@ -62,10 +63,14 @@ const CheckoutForm = ({
         redirect: "if_required",
       });
 
+      console.log("Error:", error);
+      console.log("Payment Intent:", paymentIntent);
+
       if (error) {
         setErrorMsg(error.message || "Payment failed. Please try again.");
       } else if (paymentIntent && paymentIntent.status === "succeeded") {
         setSuccess(true);
+
         const paymentMethodType =
           paymentIntent.charges &&
             paymentIntent.charges.data &&
@@ -91,7 +96,7 @@ const CheckoutForm = ({
             lastName: lastName,
             email: email,
             clientSecret: clientSecret,
-            paymentMethod: paymentMethodType,
+            paymentMethod: paymentMethodType
           }),
         });
         const data = await response.json();
@@ -133,9 +138,7 @@ const CheckoutForm = ({
         <button
           disabled={!stripe || loading || disabled}
           type="submit"
-          className={`mt-6 font-inter w-full ${loading || disabled
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-white hover:bg-gray-200"
+          className={`mt-6 font-inter w-full ${loading || disabled ? "bg-gray-400 cursor-not-allowed" : "bg-white hover:bg-gray-200"
             } text-black font-semibold py-3 rounded-full shadow-md transition duration-200`}
         >
           {loading ? "Processing..." : "Pay"}
@@ -145,20 +148,7 @@ const CheckoutForm = ({
   );
 };
 
-const Checkout = ({
-  clientSecret,
-  setStep,
-  amount,
-  organizerId,
-  userId,
-  eventId,
-  count,
-  ticketId,
-  email,
-  firstName,
-  lastName,
-  tickets,
-}) => {
+const Checkout = ({ clientSecret, setStep, amount, organizerId, userId, eventId, count, ticketId, email, firstName, lastName, tickets }) => {
   const currentDate = useMemo(() => Date.now(), []);
   if (!clientSecret)
     return (
@@ -187,5 +177,6 @@ const Checkout = ({
     </Elements>
   );
 };
+
 
 export default Checkout;
