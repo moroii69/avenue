@@ -162,26 +162,26 @@ const Creater = () => {
                                                 <div className="flex justify-center items-center space-x-14">
                                                     <div className="flex flex-col items-center">
                                                         <span className="text-xs font-bold text-white">Live</span>
-                                                        <span className="text-xl font-semibold text-white">{events.filter(event => event.explore === "YES").length}</span>
+                                                        <span className="text-xl font-semibold text-white">{filteredEvents.length || 0}</span>
                                                     </div>
 
                                                     <div className="w-[2px] bg-[#222222] h-10"></div>
 
                                                     <div className="flex flex-col items-center">
                                                         <span className="text-xs font-bold text-white">Past</span>
-                                                        <span className="text-xl font-semibold text-white">0</span>
+                                                        <span className="text-xl font-semibold text-white">{filteredPastEvents.length || 0}</span>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div className="flex flex-col items-center space-y-4 mt-5">
                                                 <div className="flex space-x-3">
-                                                    <a
+                                                    {/* <a
                                                         href={organizer.twitter && organizer.twitter !== 'undefined' ? organizer.twitter : '#'}
                                                         onClick={(e) => { if (!organizer.twitter || organizer.twitter === 'undefined') e.preventDefault(); }}
                                                         className="card bg-primary border border-[#222222] text-white p-2 rounded-full shadow-lg flex items-center justify-center w-20 h-12"
                                                     >
                                                         <BsTwitterX size={14} />
-                                                    </a>
+                                                    </a> */}
 
                                                     <a
                                                         href={organizer.instagram && organizer.instagram !== 'undefined' ? organizer.instagram : '#'}
@@ -205,7 +205,6 @@ const Creater = () => {
                                         {/* Events Section */}
                                         <div className="w-full max-w-2xl">
                                             <div className="mx-auto">
-                                                {/* Tab buttons */}
                                                 <div className="flex border border-[#222222] p-1 rounded-full mb-6">
                                                     <button
                                                         onClick={() => setActiveTab("live")}
@@ -222,7 +221,6 @@ const Creater = () => {
                                                 </div>
 
                                                 <div className="mt-6">
-                                                    {/* Live Events Tab */}
                                                     {activeTab === "live" && (
                                                         <div className="h-full overflow-y-auto bg-primary hide-scrollbar">
                                                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 mb-10">
@@ -245,8 +243,9 @@ const Creater = () => {
                                                                                 className="w-full h-72 object-cover rounded-xl"
                                                                             />
                                                                             {/* <div className="absolute top-2 right-2 bg-gray-500/50 p-2 rounded-full text-white border border-opacity-10 border-gray-50">
-                                                            <FaBookmark className='text-[#9b9b9b]' />
-                                                        </div> */}
+                                                                                <FaBookmark className='text-[#9b9b9b]' />
+                                                                            </div> 
+                                                                            */}
                                                                         </div>
 
                                                                         <h2 className="text-white text-sm text-start font-semibold">{card.event_name}</h2>
@@ -274,12 +273,7 @@ const Creater = () => {
                                                     )}
                                                     {/* Past Events Tab */}
                                                     {activeTab === "past" && (
-                                                        // <div>
-                                                        //     <h2 className="text-xl font-bold mb-1 text-center">No Past Events</h2>
-                                                        //     <p className="text-center">No past events for this creator.</p>
-                                                        // </div>
                                                         <div className="h-full overflow-y-auto bg-primary hide-scrollbar">
-                                                            {/* Check if there are any events */}
                                                             {filteredPastEvents.length === 0 ? (
                                                                 <div>
                                                                     <h2 className="text-xl font-bold mb-1 text-center">No Past Events</h2>

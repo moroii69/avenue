@@ -113,7 +113,7 @@ const QrTicket = ({ isOpen, onClose, card }) => {
                         <div className="flex justify-between items-center bg-[#0b6694] bg-opacity-50 p-1 rounded-b-2xl px-4">
                             <div className="flex items-center">
                                 <div className="rounded-full py-1.5">
-                                    <span className="text-xs text-white font-medium font-inter">{card.tickets.ticket_name}</span>
+                                    <span className="text-xs text-white font-medium font-inter">{card.tickets.ticket_name} x {card.count}</span>
                                 </div>
                             </div>
                             <div className="text-white text-md font-bold font-inter">${card.amount / 100}</div>

@@ -314,7 +314,7 @@ const Info = () => {
                                             <div>
                                                 <h2 className="text-md font-bold text-gray-200 font-inter">{event?.organizer_id?.name}</h2>
                                                 <h2 className="text-xs text-gray-400 font-inter">
-                                                    {events.filter(event => event.explore === "YES").length} Live Events
+                                                    {events.filter(event => event.explore === "YES").length} Events
                                                 </h2>
                                             </div>
                                         </div>
