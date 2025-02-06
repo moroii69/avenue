@@ -332,11 +332,13 @@ const Ticket = () => {
     }, [eventId])
 
     useEffect(() => {
+        // Only run this effect when in step 2.
+        if (step !== 2) return;
         if (clientSecret) return;
 
-        const nameParts = formData.firstName.trim().split(' ');
-        const firstName = nameParts[0] || '';
-        const lastName = nameParts.slice(1).join(' ') || '';
+        const nameParts = formData.firstName.trim().split(" ");
+        const firstName = nameParts[0] || "";
+        const lastName = nameParts.slice(1).join(" ") || "";
 
         fetch(`${url}/create-intent`, {
             method: "POST",
@@ -370,7 +372,7 @@ const Ticket = () => {
                 setErrorMsg("Failed to load payment details.");
                 setLoading(false);
             });
-    }, [amount, organizerId, userId, eventId, count]);
+    }, [clientSecret, step, amount, organizerId, userId, eventId, counts, selectedTicketId, ticket, formData, event]);
 
     useEffect(() => {
         const now = new Date().toLocaleString("en-US", {

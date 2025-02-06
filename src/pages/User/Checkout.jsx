@@ -178,5 +178,4 @@ const Checkout = ({ clientSecret, setStep, amount, organizerId, userId, eventId,
   );
 };
 
-
 export default Checkout;
