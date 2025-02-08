@@ -77,7 +77,11 @@ const Info = () => {
                 if (i === index) {
                     const remainingTicket = remain.find(r => r.ticket_name === event?.tickets[index]?.ticket_name);
                     const maxCount = event?.tickets[index]?.max_count;
-                    const currentCount = count === null ? 0 : count;
+                    const currentCount = count === null
+                        ? (event?.tickets[index]?.min_count && !isNaN(Number(event.tickets[index].min_count))
+                            ? Number(event.tickets[index].min_count) - 1
+                            : 0)
+                        : count;
 
                     const hasValidMaxCount = maxCount !== "undefined" &&
                         maxCount !== undefined &&
@@ -113,7 +117,28 @@ const Info = () => {
         setTicketCounts((prevCounts) =>
             prevCounts.map((count, i) => {
                 if (i === index) {
-                    const updatedCount = count === 1 ? null : count - 1;
+                    const minCountRaw = event?.tickets[index]?.min_count;
+                    const hasValidMinCount =
+                        minCountRaw !== undefined &&
+                        minCountRaw !== null &&
+                        minCountRaw !== "" &&
+                        !isNaN(Number(minCountRaw));
+                    let updatedCount;
+
+                    if (hasValidMinCount) {
+                        const numericMinCount = Number(minCountRaw);
+                        if (count === numericMinCount) {
+                            updatedCount = null;
+                        } else {
+                            updatedCount = count - 1;
+                            if (updatedCount < numericMinCount) {
+                                updatedCount = null;
+                            }
+                        }
+                    } else {
+                        updatedCount = count === 1 ? null : count - 1;
+                    }
+
                     if (updatedCount === null) {
                         setSelectedTicket(null);
                     } else {
@@ -454,6 +479,18 @@ const Info = () => {
                                         </div>
                                     )}
                                     {event?.tickets?.map((ticket, index) => {
+                                        const today = new Date();
+                                        let shouldShow = true;
+
+                                        if (ticket.sale_start && ticket.sale_end) {
+                                            const saleStart = new Date(ticket.sale_start);
+                                            const saleEnd = new Date(ticket.sale_end);
+                                            if (today < saleStart || today > saleEnd) {
+                                                shouldShow = false;
+                                            }
+                                        }
+                                        if (!shouldShow) return null;
+
                                         const remainingTicket = remain.find(r => r.ticket_name === ticket.ticket_name);
                                         const isSoldOut = remainingTicket && remainingTicket.remaining_tickets <= 0;
 
@@ -463,10 +500,14 @@ const Info = () => {
                                                     <div className="flex items-center justify-between mb-4">
                                                         <div className="flex items-center">
                                                             <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                                                            <span className="text-sm text-gray-400 ml-2 font-inter">{ticket.ticket_name}</span>
+                                                            <span className="text-sm text-gray-400 ml-2 font-inter">
+                                                                {ticket.ticket_name}
+                                                            </span>
                                                         </div>
                                                         {isSoldOut ? (
-                                                            <span className="text-sm text-red-500 font-semibold font-inter">Sold Out!</span>
+                                                            <span className="text-sm text-red-500 font-semibold font-inter">
+                                                                Sold Out!
+                                                            </span>
                                                         ) : null}
                                                     </div>
                                                     <div className="mb-4">
@@ -506,7 +547,9 @@ const Info = () => {
                                                                 <MinusIcon size={16} />
                                                             </button>
                                                             <span className="mx-4 font-inter">
-                                                                {ticketCounts[index] === null ? 'Choose tickets' : `${ticketCounts[index]} tickets`}
+                                                                {ticketCounts[index] === null
+                                                                    ? 'Choose tickets'
+                                                                    : `${ticketCounts[index]} tickets`}
                                                             </span>
                                                             <button
                                                                 onClick={() => handleIncrement(index)}

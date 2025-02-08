@@ -84,6 +84,7 @@ const Ticket = () => {
     const [clientSecret, setClientSecret] = useState(null);
     const [errorMsg, setErrorMsg] = useState(null);
     const [currentDateTime, setCurrentDateTime] = useState("");
+    const [zeroLoading, setZeroLoading] = useState(false);
 
     const userIds = localStorage.getItem('userID') || "";
     const payId = localStorage.getItem('payId') || "";
@@ -334,6 +335,7 @@ const Ticket = () => {
     useEffect(() => {
         // Only run this effect when in step 2.
         if (step !== 2) return;
+        if (ticket.price === 0) return;
         if (clientSecret) return;
 
         const nameParts = formData.firstName.trim().split(" ");
@@ -386,6 +388,39 @@ const Ticket = () => {
         });
         setCurrentDateTime(now);
     }, []);
+
+    const handleZeroPay = async () => {
+        setZeroLoading(true)
+        try {
+            const response = await fetch(`${url}/send-ticket-email`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    amount: 0,
+                    organizerId: organizerId,
+                    userId: userId,
+                    eventId: eventId,
+                    date: currentDateTime,
+                    status: "pending",
+                    count: count,
+                    ticketId: selectedTicketId,
+                    tickets: ticket,
+                    firstName: formData.firstName,
+                    lastName: formData.lastName,
+                    email: formData.email,
+                    clientSecret: "",
+                    paymentMethod: "None"
+                }),
+            });
+            const data = await response.json();
+            localStorage.setItem("payId", data.paymentId);
+            setStep(3);
+        } catch (error) {
+            console.error("Unexpected error:", error);
+        } finally {
+            setZeroLoading(false)
+        }
+    }
 
     return (
         <>
@@ -450,10 +485,10 @@ const Ticket = () => {
                                                                 <input
                                                                     type="text"
                                                                     name="firstName"
-                                                                    value={formData.firstName}
+                                                                    value={formData.firstName === 'undefined' || formData.firstName === 'undefined undefined' ? "" : formData.firstName}
                                                                     onChange={handleChange}
                                                                     className="w-full font-inter bg-primary border border-[#1c1c1c] rounded-full px-4 py-3 text-white placeholder-zinc-400 focus:outline-none"
-                                                                    placeholder="eg. Ali Memmedganiev"
+                                                                    placeholder="John Doe"
                                                                     required
                                                                 />
                                                             </div>
@@ -479,7 +514,7 @@ const Ticket = () => {
                                                                         value={formData.email}
                                                                         onChange={handleChange}
                                                                         className="w-full font-inter bg-primary border border-[#1c1c1c] rounded-full px-4 py-3 text-white placeholder-zinc-400 focus:outline-none"
-                                                                        placeholder="eg. alimemmedganiev@gmail.com"
+                                                                        placeholder="johndoe@gmail.com"
                                                                         required
                                                                     />
                                                                 </div>
@@ -500,6 +535,8 @@ const Ticket = () => {
                                                                 <p className="text-2xl font-medium font-inter text-gray-50 mt-2">
                                                                     {event.event_type === 'rsvp' ? (
                                                                         "Free"
+                                                                    ) : ticket.price === 0 ? (
+                                                                        "$0.00"
                                                                     ) : (
                                                                         <>
                                                                             <span className="text-[#606060]">$</span>
@@ -516,23 +553,36 @@ const Ticket = () => {
                                                                     Book now
                                                                 </button>
                                                             ) : (
-                                                                <Checkout
-                                                                    clientSecret={clientSecret}
-                                                                    setStep={setStep}
-                                                                    amount={Math.round(parseFloat(calculateTotal()) * 100)}
-                                                                    organizerId={organizerId}
-                                                                    userId={userId}
-                                                                    eventId={eventId}
-                                                                    date={currentDateTime}
-                                                                    status={"pending"}
-                                                                    count={counts}
-                                                                    ticketId={selectedTicketId}
-                                                                    tickets={ticket}
-                                                                    firstName={formData.firstName}
-                                                                    lastName={formData.lastName}
-                                                                    email={formData.email}
-                                                                    tax={Number(event.tax) !== 0}
-                                                                />
+                                                                <>
+                                                                    {
+                                                                        ticket.price === 0 ? (
+                                                                            <button
+                                                                                disabled={zeroLoading}
+                                                                                onClick={handleZeroPay}
+                                                                                className={`w-full mt-4 font-inter py-3 ${zeroLoading ? "bg-gray-400 cursor-not-allowed" : "bg-white"} rounded-full font-medium `}>
+                                                                                {zeroLoading ? "Processing..." : "Pay"}
+                                                                            </button>
+                                                                        ) : (
+                                                                            <Checkout
+                                                                                clientSecret={clientSecret}
+                                                                                setStep={setStep}
+                                                                                amount={Math.round(parseFloat(calculateTotal()) * 100)}
+                                                                                organizerId={organizerId}
+                                                                                userId={userId}
+                                                                                eventId={eventId}
+                                                                                date={currentDateTime}
+                                                                                status={"pending"}
+                                                                                count={counts}
+                                                                                ticketId={selectedTicketId}
+                                                                                tickets={ticket}
+                                                                                firstName={formData.firstName}
+                                                                                lastName={formData.lastName}
+                                                                                email={formData.email}
+                                                                                tax={Number(event.tax) !== 0}
+                                                                            />
+                                                                        )
+                                                                    }
+                                                                </>
                                                             )}
                                                             <div className="flex justify-center items-center mt-2">
                                                                 <FiLock className="text-[#606060] mr-2 h-4 w-4" />
@@ -667,6 +717,8 @@ const Ticket = () => {
                                                                     }
                                                                 </span>
                                                             </>
+                                                        ) : ticket.price === 0 ? (
+                                                            "$0.00"
                                                         ) : (
                                                             <>
                                                                 <span className="text-white">
@@ -680,7 +732,13 @@ const Ticket = () => {
                                             <div className="border-t border-gray-600 my-3" />
                                             <div className='flex flex-row justify-between mt-1'>
                                                 <p className='font-inter text-gray-400 text-sm'>Total</p>
-                                                <p className='font-inter text-white text-sm'>${calculateTotal()}</p>
+                                                {
+                                                    ticket.price === 0 ? (
+                                                        <p className='font-inter text-white text-sm'>$0.00</p>
+                                                    ) : (
+                                                        <p className='font-inter text-white text-sm'>${calculateTotal()}</p>
+                                                    )
+                                                }
                                             </div>
                                         </div>
                                     </div>
