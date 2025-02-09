@@ -281,8 +281,8 @@ const Info = () => {
 
     const handleShare = async () => {
         const shareData = {
-            title: "Wow",
-            text: `Check out`,
+            title: event.event_name,
+            text: `Check out ${event.event_name}!`,
             url: window.location.href,
         };
 
