@@ -658,7 +658,7 @@ const Ticket = () => {
                                                                 </>
                                                             ) : (
                                                                 <>
-                                                                    <span className='text-[#7e7e7e]'>$</span>{(counts * selectedTicketPrice).toFixed(2)} x {counts}
+                                                                    <span className='text-[#7e7e7e]'>$</span>{(selectedTicketPrice)} x {counts}
                                                                 </>
                                                             )
                                                         }
