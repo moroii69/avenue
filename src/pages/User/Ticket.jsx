@@ -701,6 +701,21 @@ const Ticket = () => {
                                                     </button>
                                                 </div>
                                             </div>
+                                            <div className="flex items-center mb-4 mt-5">
+                                                <input
+                                                    type="text"
+                                                    value={promoCode}
+                                                    onChange={(e) => setPromoCode(e.target.value)}
+                                                    placeholder="Enter promo code"
+                                                    className="bg-transparent border text-sm border-[#292929] text-white p-1 px-2 rounded-l-md w-full focus:outline-none"
+                                                />
+                                                <button
+                                                    onClick={handleApply}
+                                                    className="bg-white border text-sm text-black font-semibold py-1 px-3 rounded-r-md hover:bg-gray-200"
+                                                >
+                                                    Apply
+                                                </button>
+                                            </div>
                                             <div className='flex flex-row justify-between mt-7'>
                                                 <p className='font-inter text-gray-400 text-sm'>Ticket</p>
                                                 <p className='font-inter text-white text-sm'>${(counts * selectedTicketPrice).toFixed(2)}</p>
@@ -729,6 +744,21 @@ const Ticket = () => {
                                                     }
                                                 </p>
                                             </div>
+                                            {
+                                                type && (
+                                                    <>
+                                                        <div className='flex flex-row justify-between mt-2'>
+                                                            <p className='font-inter text-gray-400 text-sm'>Discount</p>
+                                                            <p className='font-inter text-white text-sm'>- {" "}
+                                                                {
+                                                                    type === 'amount' ?
+                                                                        `$${amount}` : `${amount}%`
+                                                                }
+                                                            </p>
+                                                        </div>
+                                                    </>
+                                                )
+                                            }
                                             <div className="border-t border-gray-600 my-3" />
                                             <div className='flex flex-row justify-between mt-1'>
                                                 <p className='font-inter text-gray-400 text-sm'>Total</p>

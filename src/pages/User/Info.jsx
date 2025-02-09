@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Calendar, Locate, MinusIcon, Navigation, PlusIcon } from 'lucide-react';
-import { IoLocationOutline } from "react-icons/io5";
+import { Calendar, Locate, MinusIcon, Navigation, PlusIcon, Share2 } from 'lucide-react';
+import { IoLocationOutline, IoShareOutline } from "react-icons/io5";
 import axios from 'axios';
 import url from "../../constants/url"
 import { useNavigate, useParams } from 'react-router-dom';
@@ -279,6 +279,30 @@ const Info = () => {
         fetchRemainEvent()
     }, [id])
 
+    const handleShare = async () => {
+        const shareData = {
+            title: "Wow",
+            text: `Check out`,
+            url: window.location.href,
+        };
+
+        if (navigator.share) {
+            try {
+                await navigator.share(shareData);
+                console.log('Event shared successfully!');
+            } catch (error) {
+                console.error('Error sharing event:', error);
+            }
+        } else {
+            try {
+                await navigator.clipboard.writeText(shareData.url);
+                alert('Share link copied!');
+            } catch (error) {
+                console.error('Failed to copy the link:', error);
+                alert('Sharing is not supported on your device. Please copy the URL manually.');
+            }
+        }
+    };
 
     return (
         <>
@@ -308,7 +332,10 @@ const Info = () => {
                                         <div className="flex items-center space-x-2 mb-8">
                                             <span className="text-red-400 border border-[#292929] px-3 py-2 rounded-full font-inter text-sm">♫ <span className='text-white'>{event.category}</span></span>
                                         </div>
-                                        <h1 className="text-3xl font-bold font-inter">{event.event_name}</h1>
+                                        <div className='flex justify-between items-center'>
+                                            <h1 className="text-3xl font-bold font-inter">{event.event_name}</h1>
+                                            <IoShareOutline size={25} className='cursor-pointer' onClick={handleShare} />
+                                        </div>
                                         <div className="flex flex-col sm:flex-row items-start sm:items-center sm sm:space-x-2 text-gray-400 space-y-2 sm:space-y-0">
                                             <div className="flex items-center space-x-2 text-gray-400">
                                                 <IoLocationOutline size={14} />
