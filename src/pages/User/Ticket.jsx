@@ -91,13 +91,17 @@ const Ticket = () => {
 
 
     const handleApply = () => {
-        const matchedPromo = promos.find(promo => promo.code === promoCode);
+        const matchedPromo = promos.find(
+            promo => promo.code.toUpperCase() === promoCode.toUpperCase()
+        );
         if (matchedPromo) {
             setAmount(matchedPromo.amount);
             setType(matchedPromo.type);
-            console.log(`Promo code applied: ${promoCode}, Amount: ${matchedPromo.amount}, Type: ${matchedPromo.type}`);
+            console.log(
+                `Promo code applied: ${promoCode.toUpperCase()}, Amount: ${matchedPromo.amount}, Type: ${matchedPromo.type}`
+            );
         } else {
-            alert("Promo code not valid")
+            alert("Promo code not valid");
             console.log('Promo code not valid');
             setAmount(null);
             setType('');
@@ -189,7 +193,7 @@ const Ticket = () => {
         const taxValue = parseFloat(event.tax) || 0;
         const organizerTax = subtotal * (taxValue / 100);
         const platformFee = ((subtotal + organizerTax) * 0.09) + 0.89;
-        let total = subtotal + platformFee;
+        let total = subtotal;
         if (amount && type) {
             if (type === 'amount') {
                 total -= parseFloat(amount) || 0;
@@ -198,6 +202,7 @@ const Ticket = () => {
                 total -= discount;
             }
         }
+        total = total + platformFee;
         return total.toFixed(2);
     };
 
@@ -707,6 +712,7 @@ const Ticket = () => {
                                                     value={promoCode}
                                                     onChange={(e) => setPromoCode(e.target.value)}
                                                     placeholder="Enter promo code"
+                                                    style={{ textTransform: "uppercase" }}
                                                     className="bg-transparent border text-sm border-[#292929] text-white p-1 px-2 rounded-l-md w-full focus:outline-none"
                                                 />
                                                 <button
