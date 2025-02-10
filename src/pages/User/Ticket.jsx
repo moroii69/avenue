@@ -672,8 +672,14 @@ const Ticket = () => {
                                                 <div className="flex items-center space-x-2 border border-[#272727] rounded-full p-1">
                                                     <button
                                                         onClick={() => {
+                                                            const storedMin = localStorage.getItem('min_count');
+                                                            const min_count =
+                                                                !storedMin || storedMin === "undefined" || storedMin === ""
+                                                                    ? 1
+                                                                    : parseInt(storedMin, 10);
+
                                                             setCount((prev) => {
-                                                                const newCount = Math.max(prev - 1, 1);
+                                                                const newCount = Math.max(prev - 1, min_count);
                                                                 localStorage.setItem('count', newCount);
                                                                 return newCount;
                                                             });
@@ -682,6 +688,7 @@ const Ticket = () => {
                                                     >
                                                         -
                                                     </button>
+
                                                     <span className="text-white font-medium">{counts}</span>
                                                     <button
                                                         onClick={() => {

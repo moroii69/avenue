@@ -167,6 +167,7 @@ const Info = () => {
         localStorage.setItem('selectedTicketName', selectedTicket.ticket_name);
         localStorage.setItem('user_organizer_id', event?.organizer_id?._id)
         localStorage.setItem('max_count', selectedTicket.max_count)
+        localStorage.setItem('min_count', selectedTicket.min_count)
         localStorage.setItem('remaining_tickets', selectedRemainingTickets);
         navigate("/ticket");
     };
