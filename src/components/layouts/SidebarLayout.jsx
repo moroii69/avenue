@@ -1,0 +1,248 @@
+/* eslint-disable react/prop-types */
+import { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { FiMenu, FiX } from "react-icons/fi";
+import { SidebarContext } from "../../contexts/SidebarContext";
+
+const SidebarLayout = ({ children }) => {
+  const location = useLocation();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsSidebarOpen(window.innerWidth >= 768);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const menuItems = [
+    {
+      path: "/organizer/dashboard",
+      icon: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 16 16"
+          fill="none"
+          data-selected={
+            location.pathname === "/organizer/dashboard" ? "true" : "false"
+          }
+          className={`sidebar-icon fill-white data-[selected=false]:opacity-50 group-hover:opacity-100 data-[selected=true]:opacity-100`}
+        >
+          <path d="M3.5 2C3.10218 2 2.72064 2.15804 2.43934 2.43934C2.15804 2.72064 2 3.10218 2 3.5V5.5C2 5.89782 2.15804 6.27936 2.43934 6.56066C2.72064 6.84196 3.10218 7 3.5 7H5.5C5.89782 7 6.27936 6.84196 6.56066 6.56066C6.84196 6.27936 7 5.89782 7 5.5V3.5C7 3.10218 6.84196 2.72064 6.56066 2.43934C6.27936 2.15804 5.89782 2 5.5 2H3.5ZM3.5 9C3.10218 9 2.72064 9.15804 2.43934 9.43934C2.15804 9.72064 2 10.1022 2 10.5V12.5C2 12.8978 2.15804 13.2794 2.43934 13.5607C2.72064 13.842 3.10218 14 3.5 14H5.5C5.89782 14 6.27936 13.842 6.56066 13.5607C6.84196 13.2794 7 12.8978 7 12.5V10.5C7 10.1022 6.84196 9.72064 6.56066 9.43934C6.27936 9.15804 5.89782 9 5.5 9H3.5ZM9 3.5C9 3.10218 9.15804 2.72064 9.43934 2.43934C9.72064 2.15804 10.1022 2 10.5 2H12.5C12.8978 2 13.2794 2.15804 13.5607 2.43934C13.842 2.72064 14 3.10218 14 3.5V5.5C14 5.89782 13.842 6.27936 13.5607 6.56066C13.2794 6.84196 12.8978 7 12.5 7H10.5C10.1022 7 9.72064 6.84196 9.43934 6.56066C9.15804 6.27936 9 5.89782 9 5.5V3.5ZM10.5 9C10.1022 9 9.72064 9.15804 9.43934 9.43934C9.15804 9.72064 9 10.1022 9 10.5V12.5C9 12.8978 9.15804 13.2794 9.43934 13.5607C9.72064 13.842 10.1022 14 10.5 14H12.5C12.8978 14 13.2794 13.842 13.5607 13.5607C13.842 13.2794 14 12.8978 14 12.5V10.5C14 10.1022 13.842 9.72064 13.5607 9.43934C13.2794 9.15804 12.8978 9 12.5 9H10.5Z" />
+        </svg>
+      ),
+      label: "Dashboard",
+    },
+    {
+      path: "/organizer/profile",
+      icon: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 16 16"
+          data-selected={
+            location.pathname === "/organizer/profile" ? "true" : "false"
+          }
+          className={`sidebar-icon fill-white data-[selected=false]:opacity-50 group-hover:opacity-100 data-[selected=true]:opacity-100`}
+        >
+          <path
+            fillRule="evenodd"
+            clipRule="evenodd"
+            d="M15 8C15 9.85652 14.2625 11.637 12.9497 12.9497C11.637 14.2625 9.85652 15 8 15C6.14348 15 4.36301 14.2625 3.05025 12.9497C1.7375 11.637 1 9.85652 1 8C1 6.14348 1.7375 4.36301 3.05025 3.05025C4.36301 1.7375 6.14348 1 8 1C9.85652 1 11.637 1.7375 12.9497 3.05025C14.2625 4.36301 15 6.14348 15 8ZM10 6C10 6.53043 9.78929 7.03914 9.41421 7.41421C9.03914 7.78929 8.53043 8 8 8C7.46957 8 6.96086 7.78929 6.58579 7.41421C6.21071 7.03914 6 6.53043 6 6C6 5.46957 6.21071 4.96086 6.58579 4.58579C6.96086 4.21071 7.46957 4 8 4C8.53043 4 9.03914 4.21071 9.41421 4.58579C9.78929 4.96086 10 5.46957 10 6ZM8 9C6.175 9 4.578 9.977 3.705 11.437C4.21992 12.0814 4.87345 12.6016 5.61703 12.9587C6.3606 13.3159 7.1751 13.5009 8 13.5C8.82473 13.5007 9.63904 13.3157 10.3824 12.9585C11.1258 12.6014 11.7792 12.0813 12.294 11.437C11.8506 10.6937 11.2217 10.0783 10.469 9.65112C9.71628 9.22392 8.8655 8.99956 8 9Z"
+          />
+        </svg>
+      ),
+      label: "Profile",
+    },
+  ];
+
+  return (
+    <SidebarContext.Provider value={{ isSidebarOpen, toggleSidebar }}>
+      <div className="flex min-h-screen bg-[#111111]">
+        {/* Mobile Navigation */}
+        <div className="md:hidden">
+          {/* Mobile Header */}
+          <div className="fixed top-0 left-0 right-0 z-40 backdrop-blur-3xl border-b border-white/10 px-4 py-3 flex items-center justify-between">
+            <Link
+              to="/"
+              className="text-base font-bold flex items-center gap-2.5 text-white cursor-pointer"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+              >
+                <path
+                  d="M11.4476 14.0671C11.2063 14.6032 10.9064 15.1283 10.5469 15.5826C13.5301 14.5771 15.7261 11.8605 15.9679 8.59998H14.9059C13.61 8.59998 12.569 9.6344 12.3584 10.9131C12.1642 12.0918 11.8535 13.1651 11.4476 14.0671Z"
+                  fill="#34B2DA"
+                />
+                <path
+                  d="M9.09847 8.59998C10.4553 8.59998 11.5652 9.73192 11.316 11.0657C10.7747 13.9626 9.48934 15.9999 7.98984 15.9999C6.09247 15.9999 4.53794 12.7379 4.3999 8.59998H9.09847Z"
+                  fill="#34B2DA"
+                />
+                <path
+                  d="M12.3859 5.25936C12.5844 6.55002 13.6301 7.59924 14.936 7.59924H15.9802C15.8153 4.25014 13.5909 1.44261 10.5469 0.416626C10.9064 0.870919 11.2063 1.39598 11.4476 1.93211C11.8733 2.87812 12.1942 4.01254 12.3859 5.25936Z"
+                  fill="#34B2DA"
+                />
+                <path
+                  d="M11.3563 5.1582C11.5832 6.48521 10.4781 7.59987 9.13181 7.59987H4.39453C4.48829 3.3675 6.06222 0 7.99003 0C9.52789 0 10.8405 2.14285 11.3563 5.1582Z"
+                  fill="#34B2DA"
+                />
+                <path
+                  d="M3.39431 7.59924C3.43975 5.43596 3.85245 3.44355 4.53261 1.93211C4.77385 1.39598 5.07376 0.870919 5.43336 0.416626C2.38936 1.44261 0.164915 4.25014 0 7.59924H3.39431Z"
+                  fill="#34B2DA"
+                />
+                <path
+                  d="M0.012207 8.59998C0.253963 11.8605 2.45003 14.5771 5.43323 15.5826C5.07363 15.1283 4.77372 14.6032 4.53248 14.0671C3.87333 12.6024 3.46538 10.6859 3.39944 8.59998H0.012207Z"
+                  fill="#34B2DA"
+                />
+              </svg>
+              Avenue
+            </Link>
+            <button
+              onClick={toggleSidebar}
+              className="p-2 rounded-lg text-white hover:bg-[#333333] z-[999]"
+            >
+              {isSidebarOpen ? <FiX size={24} /> : <FiMenu size={24} />}
+            </button>
+          </div>
+
+          {/* Backdrop */}
+          {isSidebarOpen && (
+            <div
+              className="fixed inset-0 bg-black/50 z-30 transition-opacity duration-300 backdrop-blur-sm"
+              onClick={toggleSidebar}
+            />
+          )}
+
+          {/* Mobile Drawer Menu */}
+          <div
+            className={`fixed bottom-3 left-0 right-0 w-[95%] mx-auto overflow-hidden bg-[#1A1A1A] z-50 transition-transform duration-300 ease-out rounded-lg
+              ${isSidebarOpen ? "translate-y-0" : "translate-y-[110%]"}`}
+          >
+            {/* Drawer Handle */}
+            <div className="flex justify-center p-3 bg-white/5">
+              <div className="w-12 h-1.5 bg-neutral-500 rounded-full" />
+            </div>
+
+            <nav className="max-h-[70vh] overflow-y-auto flex-1 flex flex-col gap-3 p-3">
+              {menuItems.map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`menu-item group flex items-center text-sm hover:text-white font-medium gap-2 p-2 px-2.5 rounded-[10px] transition-colors ${
+                    location.pathname === item.path
+                      ? "selected bg-white/5 text-white"
+                      : "text-white/50"
+                  }`}
+                  onClick={() => setIsSidebarOpen(false)}
+                >
+                  {item.icon}
+                  <span>{item.label}</span>
+                </Link>
+              ))}
+              <button className="w-full px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors mt-4 mb-6">
+                Help
+              </button>
+            </nav>
+          </div>
+        </div>
+
+        {/* Desktop Sidebar */}
+        <div
+          className={`hidden md:flex fixed top-0 left-0 h-screen w-64 bg-[#1A1A1A] text-white flex-col z-40 transition-transform duration-300 ease-in-out 
+            ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
+        >
+          <div className="p-4">
+            <Link
+              to="/"
+              className="text-base font-bold flex items-center gap-2.5"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+              >
+                <path
+                  d="M11.4476 14.0671C11.2063 14.6032 10.9064 15.1283 10.5469 15.5826C13.5301 14.5771 15.7261 11.8605 15.9679 8.59998H14.9059C13.61 8.59998 12.569 9.6344 12.3584 10.9131C12.1642 12.0918 11.8535 13.1651 11.4476 14.0671Z"
+                  fill="#34B2DA"
+                />
+                <path
+                  d="M9.09847 8.59998C10.4553 8.59998 11.5652 9.73192 11.316 11.0657C10.7747 13.9626 9.48934 15.9999 7.98984 15.9999C6.09247 15.9999 4.53794 12.7379 4.3999 8.59998H9.09847Z"
+                  fill="#34B2DA"
+                />
+                <path
+                  d="M12.3859 5.25936C12.5844 6.55002 13.6301 7.59924 14.936 7.59924H15.9802C15.8153 4.25014 13.5909 1.44261 10.5469 0.416626C10.9064 0.870919 11.2063 1.39598 11.4476 1.93211C11.8733 2.87812 12.1942 4.01254 12.3859 5.25936Z"
+                  fill="#34B2DA"
+                />
+                <path
+                  d="M11.3563 5.1582C11.5832 6.48521 10.4781 7.59987 9.13181 7.59987H4.39453C4.48829 3.3675 6.06222 0 7.99003 0C9.52789 0 10.8405 2.14285 11.3563 5.1582Z"
+                  fill="#34B2DA"
+                />
+                <path
+                  d="M3.39431 7.59924C3.43975 5.43596 3.85245 3.44355 4.53261 1.93211C4.77385 1.39598 5.07376 0.870919 5.43336 0.416626C2.38936 1.44261 0.164915 4.25014 0 7.59924H3.39431Z"
+                  fill="#34B2DA"
+                />
+                <path
+                  d="M0.012207 8.59998C0.253963 11.8605 2.45003 14.5771 5.43323 15.5826C5.07363 15.1283 4.77372 14.6032 4.53248 14.0671C3.87333 12.6024 3.46538 10.6859 3.39944 8.59998H0.012207Z"
+                  fill="#34B2DA"
+                />
+              </svg>
+              Avenue
+            </Link>
+          </div>
+
+          <nav className="flex-1 flex flex-col gap-3 p-3">
+            {menuItems.map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                data-selected={
+                  location.pathname === item.path ? "true" : "false"
+                }
+                className={`menu-item group flex items-center text-sm hover:text-white font-medium gap-2 p-2 px-2.5 rounded-[10px] transition-colors ${
+                  location.pathname === item.path
+                    ? "selected bg-white/5 text-white"
+                    : "text-white/50"
+                }`}
+              >
+                <div>{item.icon}</div>
+                <span>{item.label}</span>
+              </Link>
+            ))}
+          </nav>
+
+          <div className="mt-auto pt-8">
+            <button className="w-full px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors">
+              Help
+            </button>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div
+          className={`flex-1 min-h-screen transition-all duration-300 ${
+            isSidebarOpen ? "md:pl-64" : ""
+          } pt-16 md:pt-0`}
+        >
+          {children}
+        </div>
+      </div>
+    </SidebarContext.Provider>
+  );
+};
+
+export default SidebarLayout;
