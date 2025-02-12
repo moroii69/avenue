@@ -62,6 +62,9 @@ const CheckoutForm = ({
     try {
       const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
+        confirmParams:{
+          return_url: 'https://avenue.tickets/ticket',
+        },
         redirect: "if_required",
       });
 

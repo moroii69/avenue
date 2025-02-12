@@ -10,6 +10,7 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
     const inputRefs = useRef([...Array(6)].map(() => React.createRef()));
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(false);
+    const [resentOTP, setResentOTP] = useState(false);
     const [countdown, setCountdown] = useState(3);
     const [loading, setLoading] = useState(false);
     const timerRef = useRef(null);
@@ -112,6 +113,19 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
         };
     }, []);
 
+    const handleSendOtp = async () => {
+        setLoading(true); 
+        try {
+          const response = await axios.post(`${url}/auth/send-otp`, { phone: "+1" + phoneNumber });
+          setLoading(false);
+          setResentOTP(true)
+        } catch (error) {
+          setLoading(false);
+          console.error(error);
+          alert('Failed to send OTP');
+        }
+      };
+
     if (!isOpen) return null;
 
     return (
@@ -162,12 +176,19 @@ const VerificationModal = ({ isOpen, onClose, phoneNumber }) => {
                             <p>Logged in successfully! ({countdown})</p>
                         </div>
                     )}
+                    {
+                        !success && resentOTP && (
+                            <div className="text-green-300 mt-3 font-inter text-xs bg-green-800 px-16 py-2 bg-opacity-30 border border-green-950 rounded-xl whitespace-nowrap">
+                            <p>OTP Sent Successfully</p>
+                        </div>
+                        )
+                    }
                     {error && (
                         <div className="text-red-300 font-inter text-xs bg-red-800 px-16 py-2 bg-opacity-30 border border-red-950 rounded-xl">
                             {error}
                         </div>
                     )}
-                    <button className="text-gray-200 text-sm underline mt-5 font-inter">
+                    <button onClick={handleSendOtp} className="text-gray-200 text-sm underline mt-5 font-inter">
                         Resend code
                     </button>
                 </div>
