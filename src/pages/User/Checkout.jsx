@@ -46,7 +46,6 @@ const CheckoutForm = ({
   const [success, setSuccess] = useState(false);
   const [disabled, setDisabled] = useState(true);
 
-  console.log(date)
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -63,7 +62,7 @@ const CheckoutForm = ({
       const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
         confirmParams:{
-          return_url: 'https://avenue.tickets/ticket',
+          return_url: 'https://avenue.tickets/ticket#step3',
         },
         redirect: "if_required",
       });

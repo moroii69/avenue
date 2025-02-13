@@ -24,6 +24,7 @@ const Ticket = () => {
     const [error, setError] = useState(false);
 
     const handleNext = () => {
+        // Validate for step 1 (user info)
         if (!formData.firstName || !formData.email) {
             setError(true);
             return;
@@ -39,10 +40,24 @@ const Ticket = () => {
         }
     };
 
-
     const handlePrev = () => {
         if (step > 1) setStep(step - 1);
     };
+
+    useEffect(() => {
+        window.location.hash = `step${step}`;
+    }, [step]);
+
+    // On component mount, read the hash (if present) to set the initial step.
+    useEffect(() => {
+        const hash = window.location.hash;
+        if (hash) {
+            const stepFromHash = parseInt(hash.replace('#step', ''), 10);
+            if (stepFromHash >= 1 && stepFromHash <= 3) {
+                setStep(stepFromHash);
+            }
+        }
+    }, []);
 
     const [event, setEvent] = useState({});
     const [paymentProcessing, setPaymentProcessing] = useState(false);
