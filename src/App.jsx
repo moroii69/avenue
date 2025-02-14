@@ -22,12 +22,18 @@ import Type from "./pages/Organizer/Type";
 import Ticket from "./pages/User/Ticket";
 import Saved from "./pages/User/Saved";
 import OrganizerProfile from "./pages/Organizer/OrganizerProfile";
+import OrganizerDashboard from "./pages/Organizer/OrganizerDashboard";
 
 function App() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const hideHeader = ["/login", "/qr-ticket", "/organizer/profile"];
+  const hideHeader = [
+    "/login",
+    "/qr-ticket",
+    "/organizer/profile",
+    "/organizer/dashboard",
+  ];
   const hideFooter = [
     "/login",
     "/info",
@@ -39,6 +45,7 @@ function App() {
     "/ticket",
     "/saved",
     "/organizer/profile",
+    "/organizer/dashboard",
   ];
 
   const shouldHideNavbarAndFooter = hideHeader.some((path) =>
@@ -89,6 +96,7 @@ function App() {
           <Route path="/type" element={<Type />} />
           <Route path="/saved" element={<Saved />} />
           <Route path="/organizer/profile" element={<OrganizerProfile />} />
+          <Route path="/organizer/dashboard" element={<OrganizerDashboard />} />
         </Routes>
         {!shouldHideFooter && <Footer />}
       </div>
