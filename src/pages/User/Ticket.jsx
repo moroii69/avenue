@@ -626,7 +626,7 @@ const Ticket = () => {
                                                             <img
                                                                 src={book.qrcode}
                                                                 alt="QR Code"
-                                                                className="w-1/2 h-1/2 rounded-lg object-cover filter invert sepia hue-rotate-90 saturate-150"
+                                                                className="w-1/2 h-1/2 rounded-lg object-cover"
                                                             />
                                                         </div>
 
