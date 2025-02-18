@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import SidebarLayout from "../../components/layouts/SidebarLayout";
 import SidebarToggle from "../../components/layouts/SidebarToggle";
-import { FaDollarSign, FaCalendarAlt, FaUserCog } from "react-icons/fa";
 
 // Sample data for upcoming events
 const upcomingEvents = [

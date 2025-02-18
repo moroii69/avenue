@@ -1,12 +1,6 @@
 import React, { useEffect, createContext, useContext, useState } from "react";
 
-interface DialogContextType {
-  isOpen: boolean;
-  onClose: () => void;
-  onOpen: () => void;
-}
-
-const DialogContext = createContext<DialogContextType | null>(null);
+const DialogContext = createContext(null);
 
 function useDialog() {
   const context = useContext(DialogContext);
@@ -16,14 +10,7 @@ function useDialog() {
   return context;
 }
 
-interface DialogProps {
-  children: React.ReactNode;
-  className?: string;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
-}
-
-export const Dialog: React.FC<DialogProps> = ({
+export const Dialog = ({
   children,
   className = "",
   open: controlledOpen,
@@ -49,7 +36,7 @@ export const Dialog: React.FC<DialogProps> = ({
 
   // Handle escape key press
   useEffect(() => {
-    const handleEscape = (event: KeyboardEvent) => {
+    const handleEscape = (event) => {
       if (event.key === "Escape") {
         onClose();
       }
@@ -90,13 +77,7 @@ export const Dialog: React.FC<DialogProps> = ({
   );
 };
 
-interface DialogTriggerProps {
-  children: React.ReactNode;
-  className?: string;
-  asChild?: boolean;
-}
-
-export const DialogTrigger: React.FC<DialogTriggerProps> = ({
+export const DialogTrigger = ({
   children,
   className = "",
   asChild = false,
@@ -104,11 +85,9 @@ export const DialogTrigger: React.FC<DialogTriggerProps> = ({
   const { onOpen } = useDialog();
 
   if (asChild) {
-    return React.cloneElement(children as React.ReactElement, {
+    return React.cloneElement(children, {
       onClick: onOpen,
-      className: `${
-        (children as React.ReactElement).props.className || ""
-      } ${className}`,
+      className: `${children.props.className || ""} ${className}`,
     });
   }
 
@@ -122,15 +101,7 @@ export const DialogTrigger: React.FC<DialogTriggerProps> = ({
   );
 };
 
-interface DialogTitleProps {
-  children: React.ReactNode;
-  className?: string;
-}
-
-export const DialogTitle: React.FC<DialogTitleProps> = ({
-  children,
-  className = "",
-}) => {
+export const DialogTitle = ({ children, className = "" }) => {
   return (
     <h2
       className={`text-white text-xl font-medium tracking-tight ${className}`}
@@ -140,34 +111,18 @@ export const DialogTitle: React.FC<DialogTitleProps> = ({
   );
 };
 
-interface DialogDescriptionProps {
-  children: React.ReactNode;
-  className?: string;
-}
-
-export const DialogDescription: React.FC<DialogDescriptionProps> = ({
-  children,
-  className = "",
-}) => {
+export const DialogDescription = ({ children, className = "" }) => {
   return <p className={`text-sm text-white/60 ${className}`}>{children}</p>;
 };
 
-interface DialogContentProps {
-  children: React.ReactNode;
-  className?: string;
-}
-
-export const DialogContent: React.FC<DialogContentProps> = ({
-  children,
-  className = "",
-}) => {
+export const DialogContent = ({ children, className = "" }) => {
   const { onClose } = useDialog();
 
   return (
     <div className={`flex flex-col gap-3 relative ${className}`}>
       <button
         onClick={onClose}
-        className="absolute right-0 top-0 text-white/60 hover:text-white border border-white/10 rounded-lg p-1 transition-colors"
+        className="absolute right-2 top-2 text-white/60 hover:text-white border border-white/10 rounded-lg p-1 transition-colors"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

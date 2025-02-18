@@ -24,7 +24,7 @@ import Saved from "./pages/User/Saved";
 import OrganizerProfile from "./pages/Organizer/OrganizerProfile";
 import OrganizerDashboard from "./pages/Organizer/OrganizerDashboard";
 import OrganizerEvents from "./pages/Organizer/OrganizerEvents";
-
+import OrganizerWallet from "./pages/Organizer/OrganizerWallet";
 function App() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -35,6 +35,7 @@ function App() {
     "/organizer/profile",
     "/organizer/dashboard",
     "/organizer/events",
+    "/organizer/wallet",
   ];
   const hideFooter = [
     "/login",
@@ -49,6 +50,7 @@ function App() {
     "/organizer/profile",
     "/organizer/dashboard",
     "/organizer/events",
+    "/organizer/wallet",
   ];
 
   const shouldHideNavbarAndFooter = hideHeader.some((path) =>
@@ -101,6 +103,7 @@ function App() {
           <Route path="/organizer/profile" element={<OrganizerProfile />} />
           <Route path="/organizer/dashboard" element={<OrganizerDashboard />} />
           <Route path="/organizer/events" element={<OrganizerEvents />} />
+          <Route path="/organizer/wallet" element={<OrganizerWallet />} />
         </Routes>
         {!shouldHideFooter && <Footer />}
       </div>

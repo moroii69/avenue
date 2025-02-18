@@ -114,14 +114,14 @@ const eventData = {
 
 export default function OrganizerEvents() {
   const [activeTab, setActiveTab] = useState("live");
-  const [selectedEvent, setSelectedEvent] = useState<any>(null);
+  const [selectedEvent, setSelectedEvent] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deactivateDialogOpen, setDeactivateDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
   console.log("selectedEvent", selectedEvent);
 
-  const filterEvents = (events: any[]) => {
+  const filterEvents = (events) => {
     if (!searchQuery) return events;
     return events.filter((event) =>
       Object.values(event).some((value) =>
@@ -542,8 +542,8 @@ export default function OrganizerEvents() {
                       fill="#34B2DA"
                     />
                   </svg>
-                  Drafts are your safe space. Events here won't be shown to the
-                  public until you publish them
+                  Drafts are your safe space. Events here won&apos;t be shown to
+                  the public until you publish them
                 </div>
               </div>
             </div>
@@ -950,8 +950,8 @@ export default function OrganizerEvents() {
         <DialogContent>
           <DialogTitle>Delete this event?</DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete "{selectedEvent?.name}"? This action
-            cannot be undone.
+            Are you sure you want to delete &quot;{selectedEvent?.name}
+            &quot;? This action cannot be undone.
           </DialogDescription>
           <div className="flex flex-col gap-3 mt-3">
             <button
@@ -979,7 +979,9 @@ export default function OrganizerEvents() {
         onOpenChange={setDeactivateDialogOpen}
       >
         <DialogContent>
-          <DialogTitle>Deactivate "{selectedEvent?.name}"?</DialogTitle>
+          <DialogTitle>
+            Deactivate &quot;{selectedEvent?.name}&quot;?
+          </DialogTitle>
           <DialogDescription>
             This event will no longer be visible to other users. You can always
             activate it again using events page.

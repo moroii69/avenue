@@ -1,22 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 
-interface DirectionAwareMenuProps {
-  children: React.ReactNode;
-}
-
-interface Position {
-  top?: number;
-  bottom?: number;
-  left?: number;
-  right?: number;
-}
-
-export function DirectionAwareMenu({ children }: DirectionAwareMenuProps) {
+export function DirectionAwareMenu({ children }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [position, setPosition] = useState<Position>({});
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState({});
+  const buttonRef = useRef(null);
+  const menuRef = useRef(null);
 
   const updatePosition = () => {
     if (!buttonRef.current || !menuRef.current) return;
@@ -32,7 +21,7 @@ export function DirectionAwareMenu({ children }: DirectionAwareMenuProps) {
     const spaceLeft = buttonRect.left;
     const spaceRight = windowWidth - buttonRect.right;
 
-    const newPosition: Position = {};
+    const newPosition = {};
 
     // Determine vertical position
     if (spaceBelow >= menuRect.height) {
@@ -62,12 +51,12 @@ export function DirectionAwareMenu({ children }: DirectionAwareMenuProps) {
   };
 
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
+    function handleClickOutside(event) {
       if (
         menuRef.current &&
         buttonRef.current &&
-        !menuRef.current.contains(event.target as Node) &&
-        !buttonRef.current.contains(event.target as Node)
+        !menuRef.current.contains(event.target) &&
+        !buttonRef.current.contains(event.target)
       ) {
         setIsOpen(false);
       }
@@ -108,7 +97,7 @@ export function DirectionAwareMenu({ children }: DirectionAwareMenuProps) {
   return (
     <>
       {trigger &&
-        React.cloneElement(trigger as React.ReactElement, {
+        React.cloneElement(trigger, {
           ref: buttonRef,
           onClick: handleToggle,
         })}
@@ -130,40 +119,25 @@ export function DirectionAwareMenu({ children }: DirectionAwareMenuProps) {
   );
 }
 
-interface MenuTriggerProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  children: React.ReactNode;
-  className?: string;
-}
-
-export const MenuTrigger = React.forwardRef<
-  HTMLButtonElement,
-  MenuTriggerProps
->(({ children, className, ...props }, ref) => {
-  return (
-    <button
-      ref={ref}
-      className={`text-gray-400 hover:text-white transition-colors ${
-        className || ""
-      }`}
-      {...props}
-    >
-      {children}
-    </button>
-  );
-});
+export const MenuTrigger = React.forwardRef(
+  ({ children, className, ...props }, ref) => {
+    return (
+      <button
+        ref={ref}
+        className={`text-gray-400 hover:text-white transition-colors ${
+          className || ""
+        }`}
+        {...props}
+      >
+        {children}
+      </button>
+    );
+  }
+);
 
 MenuTrigger.displayName = "MenuTrigger";
 
-export function MenuItem({
-  onClick,
-  children,
-  variant,
-}: {
-  onClick: () => void;
-  children: React.ReactNode;
-  variant?: "danger";
-}) {
+export function MenuItem({ onClick, children, variant }) {
   return (
     <button
       onClick={onClick}
