@@ -362,7 +362,7 @@ const OrganizerDashboard = () => {
               </svg>
               <h2 className="text-sm font-bold">Recent sales</h2>
             </div>
-            <div className="overflow-x-auto max-w-[1200px] w-full">
+            <div className="overflow-x-auto w-full">
               <table className="w-full text-sm">
                 <thead className="text-sm w-full">
                   <tr className="text-left text-white/60 [&>th]:font-medium [&>th]:min-w-[180px]">

@@ -23,6 +23,7 @@ import Ticket from "./pages/User/Ticket";
 import Saved from "./pages/User/Saved";
 import OrganizerProfile from "./pages/Organizer/OrganizerProfile";
 import OrganizerDashboard from "./pages/Organizer/OrganizerDashboard";
+import OrganizerEvents from "./pages/Organizer/OrganizerEvents";
 
 function App() {
   const location = useLocation();
@@ -33,6 +34,7 @@ function App() {
     "/qr-ticket",
     "/organizer/profile",
     "/organizer/dashboard",
+    "/organizer/events",
   ];
   const hideFooter = [
     "/login",
@@ -46,6 +48,7 @@ function App() {
     "/saved",
     "/organizer/profile",
     "/organizer/dashboard",
+    "/organizer/events",
   ];
 
   const shouldHideNavbarAndFooter = hideHeader.some((path) =>
@@ -97,6 +100,7 @@ function App() {
           <Route path="/saved" element={<Saved />} />
           <Route path="/organizer/profile" element={<OrganizerProfile />} />
           <Route path="/organizer/dashboard" element={<OrganizerDashboard />} />
+          <Route path="/organizer/events" element={<OrganizerEvents />} />
         </Routes>
         {!shouldHideFooter && <Footer />}
       </div>
