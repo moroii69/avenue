@@ -132,9 +132,14 @@ const Home = () => {
   }, []);
 
   const handleDetail = (id, name) => {
+    const cleanName = name
+      .replace(/[^a-zA-Z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .trim();
+
     localStorage.setItem('user_event_id', id);
     localStorage.setItem('user_event_name', name);
-    navigate(`/info/${name}`);
+    navigate(`/${encodeURIComponent(cleanName)}`);
   };
 
   const handleDateChange = (start, end) => {
@@ -282,8 +287,8 @@ const Home = () => {
   }, [userId])
 
   return (
-    <div className="font-manrope flex flex-col items-center justify-center text-center mt-28 bg-primary px-4">
-      <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[76px] font-semibold text-white tracking-tighter">
+    <div className="font-manrope flex flex-col items-center justify-center text-center mt-14 bg-primary px-4">
+      <h1 className="text-5xl sm:text-5xl md:text-6xl lg:text-[76px] font-semibold text-white tracking-tighter">
         Find
         <img
           src={image1}
@@ -293,7 +298,7 @@ const Home = () => {
         events
       </h1>
 
-      <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[76px] font-medium text-white mb-4 tracking-tighter -mt-4 sm:-mt-6 lg:-mt-8">
+      <h1 className="text-5xl sm:text-5xl md:text-6xl lg:text-[76px] font-medium text-white mb-4 tracking-tighter -mt-4 sm:-mt-6 lg:-mt-8">
         in <span className="text-[#8a8686] underline decoration-[#2e2e2e] decoration-4">your</span> area
       </h1>
       <p className="text-xs sm:text-sm md:text-base font-geist text-[#fff] text-opacity-50 max-w-lg mx-auto mt-4">
@@ -303,7 +308,7 @@ const Home = () => {
         creation, ticketing, and management.
       </p>
 
-      <div className="flex flex-wrap justify-center mt-12 gap-1 bg-black px-1 py-1 rounded-[1.25rem] border border-[#fff] border-opacity-10">
+      <div className="flex flex-wrap justify-center mt-8 gap-1 bg-black px-1 py-1 rounded-[1.25rem] border border-[#fff] border-opacity-10">
         {cards.map((card) => (
           <button
             onClick={card.onClick}
@@ -358,7 +363,7 @@ const Home = () => {
         onClose={() => setIsModalDate(false)}
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-16 sm:mt-24 px-4 sm:px-8 md:px-16 lg:px-10 bg-primary mb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-16 sm:mt-8 px-4 sm:px-8 md:px-16 lg:px-10 bg-primary mb-10">
         {filteredEvents.map((card) => {
           const isEventSaved = savedEventIds.has(card._id);
 
@@ -368,7 +373,7 @@ const Home = () => {
               key={card.id}
               className="bg-neutral-800 bg-opacity-15 px-4 py-3 rounded-2xl shadow-lg text-left flex flex-col transition-transform duration-300 transform hover:scale-105"
             >
-              <div className="flex items-center justify-between w-full mb-2 gap-2">
+              {/* <div className="flex items-center justify-between w-full mb-2 gap-2">
                 <div className="flex items-center min-w-0">
                   <div className="w-8 h-8 rounded-full flex justify-center items-center flex-shrink-0">
                     <FaArtstation className="text-purple-800" size={15} />
@@ -380,7 +385,7 @@ const Home = () => {
                 <p className="text-white/50 text-xs font-inter flex-shrink-0">
                   {formatDate(card.start_date)}
                 </p>
-              </div>
+              </div> */}
               <div className="relative mb-4">
                 <div className="aspect-w-2 aspect-h-3 w-full">
                   <img
@@ -403,6 +408,17 @@ const Home = () => {
                   )}
                 </div>
 
+              </div>
+
+              <div className="flex items-center justify-between w-full mb-2 gap-2">
+                <div className="flex items-center min-w-0">
+                  <h2 className="text-white/50 text-xs uppercase font-inter truncate">
+                    {card.category}
+                  </h2>
+                </div>
+                <p className="text-white/50 text-xs font-inter flex-shrink-0">
+                  {formatDate(card.start_date)}
+                </p>
               </div>
 
               <div className="flex items-center justify-between w-full mb-2 gap-2">

@@ -28,6 +28,17 @@ const Info = () => {
     const id = localStorage.getItem('user_event_id') || {};
     const userId = localStorage.getItem('userID') || "";
 
+    const scrollToTickets = (e) => {
+        e.preventDefault();
+        const ticketsSection = document.getElementById('tickets');
+        if (ticketsSection) {
+          ticketsSection.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      };
+
     const toggleDropdown = () => {
         setIsDropdownOpen((prev) => !prev);
     };
@@ -474,7 +485,7 @@ const Info = () => {
                                 </div>
 
                                 {/* Right Section (Tickets) */}
-                                <div className="lg:w-96 w-full">
+                                <div id="tickets" className="lg:w-96 w-full mb-14">
                                     {ticketCounts.some((count) => count > 0) && (
                                         <div className="bg-[#141414] rounded-2xl p-4 mb-4">
                                             <div className="mb-0">
@@ -592,6 +603,19 @@ const Info = () => {
                                         );
                                     })}
                                 </div>
+                            </div>
+                        </div>
+                        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-[#141414] border-t border-gray-800 p-4 z-50">
+                            <div className="flex justify-between items-center max-w-5xl mx-auto">
+                                <div className="flex flex-col">
+                                    <span className="text-gray-400 text-sm font-inter">Choose tickets</span>
+                                </div>
+                                <button
+                                    onClick={scrollToTickets}
+                                    className="bg-white text-black px-6 py-3 rounded-full font-inter text-sm hover:bg-gray-100 transition-colors"
+                                >
+                                    Buy Tickets
+                                </button>
                             </div>
                         </div>
                     </>

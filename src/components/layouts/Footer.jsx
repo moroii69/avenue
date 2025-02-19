@@ -8,6 +8,7 @@ import homeName from "../../assets/home-name.png"
 import logo from "../../assets/logo.png"
 import url from "../../constants/url"
 import axios from 'axios';
+import { FaXTwitter } from "react-icons/fa6";
 
 const Footer = () => {
     const [email, setEmail] = useState("");
@@ -141,7 +142,7 @@ const Footer = () => {
                                                 rel="noopener noreferrer"
                                                 className="flex items-center gap-2 hover:text-white transition-colors duration-200 font-inter"
                                             >
-                                                <BsTwitter color='#00dcea' /> Twitter
+                                                <FaXTwitter color='#00dcea' /> x
                                             </a>
                                         </li>
                                         <li>

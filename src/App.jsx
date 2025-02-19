@@ -46,7 +46,7 @@ function App() {
         {!shouldHideNavbarAndFooter && <Header />}
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/info/:name" element={<Info />} />
+          <Route path="/:name" element={<Info />} />
           <Route path="/creater/:id" element={<Creater />} />
           <Route
             path="/checkout"
