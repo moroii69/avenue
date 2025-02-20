@@ -146,12 +146,12 @@ export default function OrganizerEvents() {
 
         <Tabs className="flex flex-col gap-6 w-full">
           <div className="flex flex-col items-start justify-between w-full gap-4 md:flex-row">
-            <TabsList className="md:bg-white/5 md:px-1 md:rounded-full">
+            <TabsList className="md:bg-white/5 md:px-1 @4xl:rounded-full">
               <TabTrigger
                 value="live"
                 active={activeTab === "live"}
                 onClick={() => setActiveTab("live")}
-                className={`flex items-center gap-2 pl-2 pr-1 md:rounded-full hover:bg-white/5 ${
+                className={`flex items-center gap-2 pl-2 pr-1 @4xl:rounded-full hover:bg-white/5 ${
                   activeTab === "live" ? "bg-white/10" : ""
                 }`}
               >
@@ -180,7 +180,7 @@ export default function OrganizerEvents() {
                 value="drafts"
                 active={activeTab === "drafts"}
                 onClick={() => setActiveTab("drafts")}
-                className={`flex items-center gap-2 pl-2 pr-1 md:rounded-full hover:bg-white/5 ${
+                className={`flex items-center gap-2 pl-2 pr-1 @4xl:rounded-full hover:bg-white/5 ${
                   activeTab === "drafts" ? "bg-white/10" : ""
                 }`}
               >
@@ -213,7 +213,7 @@ export default function OrganizerEvents() {
                 value="deactivated"
                 active={activeTab === "deactivated"}
                 onClick={() => setActiveTab("deactivated")}
-                className={`flex items-center gap-2 pl-2 pr-1 md:rounded-full hover:bg-white/5 ${
+                className={`flex items-center gap-2 pl-2 pr-1 @4xl:rounded-full hover:bg-white/5 ${
                   activeTab === "deactivated" ? "bg-white/10" : ""
                 }`}
               >
@@ -239,7 +239,7 @@ export default function OrganizerEvents() {
               </TabTrigger>
             </TabsList>
 
-            <div className="relative w-fit flex justify-end">
+            <div className="relative w-full @4xl:w-fit flex justify-end">
               <input
                 type="text"
                 placeholder="Search events..."
@@ -443,7 +443,7 @@ export default function OrganizerEvents() {
                               <MenuItem
                                 onClick={() => handleViewEvent(event.id)}
                               >
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
                                   <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     width="16"
@@ -474,7 +474,7 @@ export default function OrganizerEvents() {
                                   setDeactivateDialogOpen(true);
                                 }}
                               >
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
                                   <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     width="16"
@@ -593,7 +593,7 @@ export default function OrganizerEvents() {
                               <MenuItem
                                 onClick={() => handleViewEvent(event.id)}
                               >
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
                                   <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     width="16"
@@ -624,7 +624,7 @@ export default function OrganizerEvents() {
                                   setDeleteDialogOpen(true);
                                 }}
                               >
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
                                   <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     width="16"
@@ -876,7 +876,7 @@ export default function OrganizerEvents() {
                               <MenuItem
                                 onClick={() => handleViewEvent(event.id)}
                               >
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
                                   <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     width="16"
@@ -907,7 +907,7 @@ export default function OrganizerEvents() {
                                   setDeactivateDialogOpen(true);
                                 }}
                               >
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
                                   <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     width="16"

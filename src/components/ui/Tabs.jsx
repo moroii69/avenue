@@ -101,7 +101,7 @@ export function TabTrigger({
 }) {
   return (
     <button
-      className={`w-full rounded-lg mx-auto md:h-8 flex items-center justify-start md:w-fit text-sm text-left ${className}`}
+      className={`w-full @4xl:w-fit rounded-lg mx-auto md:h-8 flex items-center justify-start text-sm text-left ${className}`}
       onClick={() => {
         onClick?.();
         onSelect?.();

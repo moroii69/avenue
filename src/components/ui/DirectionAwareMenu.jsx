@@ -109,7 +109,7 @@ export function DirectionAwareMenu({ children }) {
               position: "fixed",
               ...position,
             }}
-            className="z-10 bg-[#151515] border border-white/10 rounded-lg shadow-lg py-1 min-w-[180px]"
+            className="z-10 bg-[#151515] border border-white/10 rounded-xl shadow-lg min-w-[180px]"
           >
             {menuItems}
           </div>,
@@ -141,7 +141,7 @@ export function MenuItem({ onClick, children, variant }) {
   return (
     <button
       onClick={onClick}
-      className={`w-[95%] mx-auto text-sm tracking-wide p-2 py-1.5 rounded-md flex items-center gap-2 text-left hover:bg-white/5 transition-colors
+      className={`w-full mx-auto text-sm tracking-wide p-1 rounded-lg flex items-center gap-2 text-left
         ${variant === "danger" ? "text-red-500" : "text-white"}`}
     >
       {children}
@@ -150,5 +150,5 @@ export function MenuItem({ onClick, children, variant }) {
 }
 
 export function MenuSeparator() {
-  return <div className="my-1 border-t border-white/10" />;
+  return <div className="border-t border-white/10" />;
 }

@@ -443,14 +443,14 @@ export default function EventDetails() {
         <div className="mt-8">
           <Tabs>
             <TabsList className="rounded-none relative w-full">
-              <div className="hidden md:block absolute bottom-1 left-0 w-screen h-px bg-white/10"></div>
+              <div className="hidden @4xl:block absolute bottom-1 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
               {TABS.map((tab) => (
                 <TabTrigger
                   key={tab.id}
                   value={tab.id}
                   active={activeTab === tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 hover:bg-white/[0.03] md:hover:bg-transparent p-2 md:border-b-2 md:rounded-none ${
+                  className={`flex items-center gap-2 hover:bg-white/[0.03] @4xl:hover:bg-transparent p-2 @4xl:border-b-2 @4xl:rounded-none ${
                     activeTab === tab.id ? "border-white" : "border-transparent"
                   }`}
                 >
