@@ -527,15 +527,7 @@ export default function OrganizeMembers() {
                     <td className="py-4 pl-4">
                       <div className="flex items-center gap-2">
                         {statusIcons[member.status]}
-                        <span
-                          className={
-                            member.status === "active"
-                              ? "text-emerald-500"
-                              : "text-white/50"
-                          }
-                        >
-                          {member.status === "active" ? "Active" : "Inactive"}
-                        </span>
+                        <span>{member.status}</span>
                       </div>
                     </td>
                     <td className="py-4 pl-4">
@@ -1103,7 +1095,7 @@ export default function OrganizeMembers() {
               Select events for {selectedMember?.name}
             </DialogDescription>
           </div>
-          <div className="flex flex-col gap-4 p-6 overflow-y-auto hide-scrollbar">
+          <div className="flex flex-col gap-4 p-6 pb-28 overflow-y-auto hide-scrollbar">
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-2">
                 <span className="text-sm font-medium text-white">
@@ -1209,7 +1201,7 @@ export default function OrganizeMembers() {
               </div>
             </div>
           </div>
-          <div className="flex flex-col gap-3 p-6 absolute bottom-0 left-0 right-0 bg-[#1A1A1A] border-t border-white/10">
+          <div className="flex flex-col gap-3 p-6 absolute -bottom-0.5 left-0 right-0 bg-[#1A1A1A] border-t border-white/10">
             <button
               onClick={() => setAssignEventsDialogOpen(false)}
               className="w-full bg-white hover:bg-white/90 text-black border-white/10 border text-center rounded-full h-9 px-4 focus:outline-none flex items-center justify-center gap-2 font-semibold transition-colors text-sm"

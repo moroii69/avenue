@@ -278,8 +278,12 @@ export default function EventDetails() {
         <div className="m-4 mb-2">
           <SidebarToggle />
         </div>
-        <div className="min-h-screen text-white p-6">
-          <div className="text-center">Event not found</div>
+        <div className="min-h-screen text-white p-6 ">
+          <div className="border min-h-[300px] border-white/10 border-dashed rounded-xl flex items-center justify-center">
+            <div className="text-center font-medium text-white/50">
+              Event not found
+            </div>
+          </div>
         </div>
       </SidebarLayout>
     );
