@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import SidebarLayout from "../../components/layouts/SidebarLayout";
 import SidebarToggle from "../../components/layouts/SidebarToggle";
 import {
@@ -113,6 +114,7 @@ const eventData = {
 };
 
 export default function OrganizerEvents() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("live");
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -130,6 +132,10 @@ export default function OrganizerEvents() {
     );
   };
 
+  const handleViewEvent = (eventId) => {
+    navigate(`/organizer/events/${eventId}`);
+  };
+
   return (
     <SidebarLayout>
       <div className="m-4 mb-2 z-20">
@@ -138,14 +144,16 @@ export default function OrganizerEvents() {
       <div className="min-h-screen text-white p-6 max-w-7xl mx-auto @container">
         <h1 className="text-2xl md:text-3xl font-bold mb-9">Your Events</h1>
 
-        <Tabs className="flex flex-col gap-6">
-          <div className="flex items-center justify-between">
-            <TabsList>
+        <Tabs className="flex flex-col gap-6 w-full">
+          <div className="flex flex-col items-start justify-between w-full gap-4 md:flex-row">
+            <TabsList className="md:bg-white/5 md:px-1 md:rounded-full">
               <TabTrigger
                 value="live"
                 active={activeTab === "live"}
                 onClick={() => setActiveTab("live")}
-                className="flex items-center gap-2"
+                className={`flex items-center gap-2 pl-2 pr-1 md:rounded-full hover:bg-white/5 ${
+                  activeTab === "live" ? "bg-white/10" : ""
+                }`}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -172,7 +180,9 @@ export default function OrganizerEvents() {
                 value="drafts"
                 active={activeTab === "drafts"}
                 onClick={() => setActiveTab("drafts")}
-                className="flex items-center gap-2"
+                className={`flex items-center gap-2 pl-2 pr-1 md:rounded-full hover:bg-white/5 ${
+                  activeTab === "drafts" ? "bg-white/10" : ""
+                }`}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -203,7 +213,9 @@ export default function OrganizerEvents() {
                 value="deactivated"
                 active={activeTab === "deactivated"}
                 onClick={() => setActiveTab("deactivated")}
-                className="flex items-center gap-2"
+                className={`flex items-center gap-2 pl-2 pr-1 md:rounded-full hover:bg-white/5 ${
+                  activeTab === "deactivated" ? "bg-white/10" : ""
+                }`}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -227,13 +239,13 @@ export default function OrganizerEvents() {
               </TabTrigger>
             </TabsList>
 
-            <div className="relative">
+            <div className="relative w-fit flex justify-end">
               <input
                 type="text"
                 placeholder="Search events..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-10 bg-white/5 border border-white/10 rounded-full pl-10 pr-4 text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-white/10 w-[250px]"
+                className="h-10 w-full bg-white/5 border border-white/10 rounded-full pl-10 pr-4 text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-white/10 md:w-[250px]"
               />
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -429,9 +441,7 @@ export default function OrganizerEvents() {
                                 <Ellipsis />
                               </MenuTrigger>
                               <MenuItem
-                                onClick={() =>
-                                  console.log("View event", event.id)
-                                }
+                                onClick={() => handleViewEvent(event.id)}
                               >
                                 <div className="flex items-center gap-2">
                                   <svg
@@ -581,9 +591,7 @@ export default function OrganizerEvents() {
                                 <Ellipsis />
                               </MenuTrigger>
                               <MenuItem
-                                onClick={() =>
-                                  console.log("View event", event.id)
-                                }
+                                onClick={() => handleViewEvent(event.id)}
                               >
                                 <div className="flex items-center gap-2">
                                   <svg
@@ -866,9 +874,7 @@ export default function OrganizerEvents() {
                                 <Ellipsis />
                               </MenuTrigger>
                               <MenuItem
-                                onClick={() =>
-                                  console.log("View event", event.id)
-                                }
+                                onClick={() => handleViewEvent(event.id)}
                               >
                                 <div className="flex items-center gap-2">
                                   <svg

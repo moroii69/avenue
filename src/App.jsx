@@ -25,6 +25,8 @@ import OrganizerProfile from "./pages/Organizer/OrganizerProfile";
 import OrganizerDashboard from "./pages/Organizer/OrganizerDashboard";
 import OrganizerEvents from "./pages/Organizer/OrganizerEvents";
 import OrganizerWallet from "./pages/Organizer/OrganizerWallet";
+import EventDetails from "./pages/Organizer/EventDetails";
+
 function App() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -104,6 +106,7 @@ function App() {
           <Route path="/organizer/dashboard" element={<OrganizerDashboard />} />
           <Route path="/organizer/events" element={<OrganizerEvents />} />
           <Route path="/organizer/wallet" element={<OrganizerWallet />} />
+          <Route path="/organizer/events/:id" element={<EventDetails />} />
         </Routes>
         {!shouldHideFooter && <Footer />}
       </div>

@@ -23,10 +23,7 @@ export function TabsList({ children, className = "", selectedValue = "" }) {
   // Add click outside handler
   React.useEffect(() => {
     function handleClickOutside(event) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target)
-      ) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false);
       }
     }
@@ -52,18 +49,18 @@ export function TabsList({ children, className = "", selectedValue = "" }) {
   });
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative w-full @container" ref={dropdownRef}>
       <div
-        className={`md:w-fit md:flex md:rounded-full md:overflow-hidden md:bg-white/5 md:h-10 md:px-1 md:items-center md:justify-center md:gap-2 w-full hidden ${className}`}
+        className={`md:w-fit @4xl:flex md:overflow-hidden md:h-10 md:items-center md:justify-center md:gap-2 w-full hidden ${className}`}
       >
         {childrenWithProps}
       </div>
 
       {/* Mobile dropdown */}
-      <div className="md:hidden w-full">
+      <div className="@4xl:hidden w-full">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="w-full px-4 py-2 bg-white/5 text-sm rounded-lg flex items-center justify-between gap-2 capitalize"
+          className="w-full px-4 py-2 bg-white/5 text-sm rounded-lg flex items-center justify-between gap-2 capitalize border border-white/10"
         >
           <span className="flex items-center gap-2">
             {selected || "Select Option"}
@@ -86,7 +83,7 @@ export function TabsList({ children, className = "", selectedValue = "" }) {
         </button>
 
         {isOpen && (
-          <div className="absolute top-full left-0 w-full mt-1 backdrop-blur-3xl rounded-lg overflow-hidden z-50 py-1 grid gap-1">
+          <div className="absolute border border-white/10 top-full left-0 w-full mt-1 backdrop-blur-[100px] bg-[#1A1A1A] rounded-lg overflow-hidden z-50 p-1 grid gap-1">
             {childrenWithProps}
           </div>
         )}
@@ -98,16 +95,13 @@ export function TabsList({ children, className = "", selectedValue = "" }) {
 export function TabTrigger({
   children,
   value,
-  active,
   onClick,
   onSelect,
   className = "",
 }) {
   return (
     <button
-      className={`w-[98%] mx-auto md:h-8 md:w-fit md:px-1 md:pl-2 md:rounded-full text-sm px-4 py-2 text-left rounded-md hover:bg-white/5 ${
-        active ? "bg-white/10" : ""
-      } ${className}`}
+      className={`w-full rounded-lg mx-auto md:h-8 flex items-center justify-start md:w-fit text-sm text-left ${className}`}
       onClick={() => {
         onClick?.();
         onSelect?.();
@@ -118,12 +112,7 @@ export function TabTrigger({
   );
 }
 
-export function TabsContent({
-  value,
-  activeTab,
-  children,
-  className = "",
-}) {
+export function TabsContent({ value, activeTab, children, className = "" }) {
   if (value !== activeTab) return null;
   return <div className={className}>{children}</div>;
 }
