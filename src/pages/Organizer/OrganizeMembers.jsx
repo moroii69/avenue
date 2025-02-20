@@ -26,8 +26,39 @@ import * as z from "zod";
 import { Checkbox } from "../../components/ui/Checkbox";
 
 const statusIcons = {
-  active: <div className="w-2 h-2 rounded-full bg-emerald-500" />,
-  inactive: <div className="w-2 h-2 rounded-full bg-white/50" />,
+  active: (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="17"
+      height="16"
+      viewBox="0 0 17 16"
+      fill="none"
+    >
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M8.25 15C10.1065 15 11.887 14.2625 13.1997 12.9497C14.5125 11.637 15.25 9.85652 15.25 8C15.25 6.14348 14.5125 4.36301 13.1997 3.05025C11.887 1.7375 10.1065 1 8.25 1C6.39348 1 4.61301 1.7375 3.30025 3.05025C1.9875 4.36301 1.25 6.14348 1.25 8C1.25 9.85652 1.9875 11.637 3.30025 12.9497C4.61301 14.2625 6.39348 15 8.25 15ZM12.094 6.209C12.2157 6.05146 12.2699 5.85202 12.2446 5.65454C12.2193 5.45706 12.1165 5.27773 11.959 5.156C11.8015 5.03427 11.602 4.9801 11.4045 5.00542C11.2071 5.03073 11.0277 5.13346 10.906 5.291L7.206 10.081L5.557 8.248C5.49174 8.17247 5.41207 8.11073 5.32264 8.06639C5.23322 8.02205 5.13584 7.99601 5.03622 7.98978C4.9366 7.98356 4.83674 7.99729 4.7425 8.03016C4.64825 8.06303 4.56151 8.11438 4.48737 8.1812C4.41322 8.24803 4.35316 8.32898 4.31071 8.41931C4.26825 8.50965 4.24425 8.60755 4.24012 8.70728C4.23599 8.807 4.25181 8.90656 4.28664 9.00009C4.32148 9.09363 4.37464 9.17927 4.443 9.252L6.693 11.752C6.76649 11.8335 6.85697 11.8979 6.95806 11.9406C7.05915 11.9833 7.16838 12.0034 7.27805 11.9993C7.38772 11.9952 7.49515 11.967 7.59277 11.9169C7.69038 11.8667 7.7758 11.7958 7.843 11.709L12.094 6.209Z"
+        fill="#10B981"
+      />
+    </svg>
+  ),
+  inactive: (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="17"
+      height="16"
+      viewBox="0 0 17 16"
+      fill="none"
+    >
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M8.25 15C10.1065 15 11.887 14.2625 13.1997 12.9497C14.5125 11.637 15.25 9.85652 15.25 8C15.25 6.14348 14.5125 4.36301 13.1997 3.05025C11.887 1.7375 10.1065 1 8.25 1C6.39348 1 4.61301 1.7375 3.30025 3.05025C1.9875 4.36301 1.25 6.14348 1.25 8C1.25 9.85652 1.9875 11.637 3.30025 12.9497C4.61301 14.2625 6.39348 15 8.25 15ZM11.03 10.78C10.8894 10.9205 10.6988 10.9993 10.5 10.9993C10.3012 10.9993 10.1106 10.9205 9.97 10.78L8.25 9.06L6.53 10.78C6.46134 10.8537 6.37854 10.9128 6.28654 10.9538C6.19454 10.9948 6.09523 11.0168 5.99452 11.0186C5.89382 11.0204 5.79379 11.0018 5.7004 10.9641C5.60701 10.9264 5.52218 10.8703 5.45096 10.799C5.37974 10.7278 5.3236 10.643 5.28588 10.5496C5.24816 10.4562 5.22963 10.3562 5.23141 10.2555C5.23319 10.1548 5.25523 10.0555 5.29622 9.96346C5.33721 9.87146 5.39631 9.78866 5.47 9.72L7.19 8L5.47 6.28C5.33752 6.13783 5.2654 5.94978 5.26883 5.75548C5.27225 5.56118 5.35097 5.37579 5.48838 5.23838C5.62579 5.10097 5.81118 5.02225 6.00548 5.01883C6.19978 5.0154 6.38783 5.08752 6.53 5.22L8.25 6.94L9.97 5.22C10.0387 5.14631 10.1215 5.08721 10.2135 5.04622C10.3055 5.00523 10.4048 4.98319 10.5055 4.98141C10.6062 4.97963 10.7062 4.99816 10.7996 5.03588C10.893 5.0736 10.9778 5.12974 11.049 5.20096C11.1203 5.27218 11.1764 5.35701 11.2141 5.4504C11.2518 5.54379 11.2704 5.64382 11.2686 5.74452C11.2668 5.84523 11.2448 5.94454 11.2038 6.03654C11.1628 6.12854 11.1037 6.21134 11.03 6.28L9.31 8L11.03 9.72C11.1705 9.86063 11.2493 10.0512 11.2493 10.25C11.2493 10.4488 11.1705 10.6394 11.03 10.78Z"
+        fill="white"
+        fillOpacity="0.4"
+      />
+    </svg>
+  ),
 };
 
 const roles = ["Door Staff", "Security", "Event Coordinator"];
@@ -121,6 +152,14 @@ const sampleEvents = [
   { id: 2, name: "Tech Conference" },
   { id: 3, name: "New Year's Party" },
   { id: 4, name: "Corporate Event" },
+  { id: 5, name: "Christmas Party" },
+  { id: 6, name: "New Year's Eve" },
+  { id: 7, name: "Valentine's Day" },
+  { id: 8, name: "Halloween Party" },
+  { id: 9, name: "Thanksgiving Dinner" },
+  { id: 10, name: "Mothers Day" },
+  { id: 11, name: "Fathers Day" },
+  { id: 12, name: "Christmas Eve" },
 ];
 
 const newMemberSchema = z.object({
@@ -144,6 +183,7 @@ export default function OrganizeMembers() {
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [newMemberDialogOpen, setNewMemberDialogOpen] = useState(false);
   const [editMemberDialogOpen, setEditMemberDialogOpen] = useState(false);
+  const [assignEventsDialogOpen, setAssignEventsDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
   const {
@@ -504,7 +544,7 @@ export default function OrganizeMembers() {
                           <Ellipsis />
                         </MenuTrigger>
                         <MenuItem onClick={() => handleViewMember(member.id)}>
-                          <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-lg">
+                          <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
                               width="16"
@@ -534,7 +574,7 @@ export default function OrganizeMembers() {
                             setEditMemberDialogOpen(true);
                           }}
                         >
-                          <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-lg">
+                          <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
                               width="16"
@@ -552,6 +592,29 @@ export default function OrganizeMembers() {
                             <span>Edit member info</span>
                           </div>
                         </MenuItem>
+                        <MenuItem
+                          onClick={() => {
+                            setSelectedMember(member);
+                            setAssignEventsDialogOpen(true);
+                          }}
+                        >
+                          <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              viewBox="0 0 16 16"
+                              fill="none"
+                            >
+                              <path
+                                d="M8.50004 4.5C8.50004 5.16304 8.23665 5.79893 7.76781 6.26777C7.29897 6.73661 6.66309 7 6.00004 7C5.337 7 4.70112 6.73661 4.23228 6.26777C3.76344 5.79893 3.50004 5.16304 3.50004 4.5C3.50004 3.83696 3.76344 3.20107 4.23228 2.73223C4.70112 2.26339 5.337 2 6.00004 2C6.66309 2 7.29897 2.26339 7.76781 2.73223C8.23665 3.20107 8.50004 3.83696 8.50004 4.5ZM10 13C10.552 13 11.01 12.548 10.9 12.006C10.6695 10.8763 10.0558 9.86091 9.1627 9.13167C8.26962 8.40242 7.15204 8.0041 5.99904 8.0041C4.84605 8.0041 3.72846 8.40242 2.83538 9.13167C1.9423 9.86091 1.32857 10.8763 1.09804 12.006C0.989044 12.548 1.44804 13 2.00004 13H10ZM12.5 3.5C12.699 3.5 12.8897 3.57902 13.0304 3.71967C13.171 3.86032 13.25 4.05109 13.25 4.25V5.25H14.25C14.449 5.25 14.6397 5.32902 14.7804 5.46967C14.921 5.61032 15 5.80109 15 6C15 6.19891 14.921 6.38968 14.7804 6.53033C14.6397 6.67098 14.449 6.75 14.25 6.75H13.25V7.75C13.25 7.94891 13.171 8.13968 13.0304 8.28033C12.8897 8.42098 12.699 8.5 12.5 8.5C12.3011 8.5 12.1104 8.42098 11.9697 8.28033C11.8291 8.13968 11.75 7.94891 11.75 7.75V6.75H10.75C10.5511 6.75 10.3604 6.67098 10.2197 6.53033C10.0791 6.38968 10 6.19891 10 6C10 5.80109 10.0791 5.61032 10.2197 5.46967C10.3604 5.32902 10.5511 5.25 10.75 5.25H11.75V4.25C11.75 4.05109 11.8291 3.86032 11.9697 3.71967C12.1104 3.57902 12.3011 3.5 12.5 3.5Z"
+                                fill="white"
+                                fillOpacity="0.5"
+                              />
+                            </svg>
+                            <span>Assign events</span>
+                          </div>
+                        </MenuItem>
                         <MenuSeparator />
                         <MenuItem
                           onClick={() => {
@@ -559,7 +622,7 @@ export default function OrganizeMembers() {
                             setDeactivateDialogOpen(true);
                           }}
                         >
-                          <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-lg">
+                          <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
                               width="16"
@@ -736,7 +799,7 @@ export default function OrganizeMembers() {
                       </svg>
                     </button>
                   </DropdownTrigger>
-                  <DropdownContent className="w-full bg-[#151515] border border-white/10 tex-white rounded-lg shadow-lg overflow-hidden">
+                  <DropdownContent className="w-full hide-scrollbar max-h-[200px] overflow-y-auto bg-[#151515] border border-white/10 tex-white rounded-lg shadow-lg overflow-hidden">
                     {sampleEvents.map((event) => (
                       <DropdownItem
                         key={event.id}
@@ -765,6 +828,9 @@ export default function OrganizeMembers() {
                         </div>
                       </DropdownItem>
                     ))}
+                    <div className="sticky bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[#151515] to-transparent pointer-events-none flex items-center justify-center text-white/50 text-xs">
+                      Scroll for more
+                    </div>{" "}
                   </DropdownContent>
                 </Dropdown>
               </div>
@@ -975,7 +1041,7 @@ export default function OrganizeMembers() {
                       </svg>
                     </button>
                   </DropdownTrigger>
-                  <DropdownContent className="w-full bg-[#151515] border border-white/10 tex-white rounded-lg shadow-lg overflow-hidden">
+                  <DropdownContent className="w-full overflow-y-auto hide-scrollbar max-h-[200px] bg-[#151515] border border-white/10 tex-white rounded-lg shadow-lg overflow-hidden">
                     {sampleEvents.map((event) => (
                       <DropdownItem
                         key={event.id}
@@ -1004,6 +1070,9 @@ export default function OrganizeMembers() {
                         </div>
                       </DropdownItem>
                     ))}
+                    <div className="sticky bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-black/50 to-transparent pointer-events-none flex items-center justify-center text-white/50 text-xs">
+                      Scroll for more
+                    </div>
                   </DropdownContent>
                 </Dropdown>
               </div>
@@ -1018,6 +1087,136 @@ export default function OrganizeMembers() {
               </button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Assign Events Dialog */}
+      <Dialog
+        open={assignEventsDialogOpen}
+        onOpenChange={setAssignEventsDialogOpen}
+        className="!max-w-[400px] border border-white/10 rounded-xl !p-0 overflow-hidden"
+      >
+        <DialogContent className="max-h-[90vh] !gap-0">
+          <div className="flex flex-col gap-y-3 bg-white/[0.03] border-b border-white/10 p-6">
+            <DialogTitle>Assign events</DialogTitle>
+            <DialogDescription>
+              Select events for {selectedMember?.name}
+            </DialogDescription>
+          </div>
+          <div className="flex flex-col gap-4 p-6 overflow-y-auto hide-scrollbar">
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-2">
+                <span className="text-sm font-medium text-white">
+                  Currently assigned
+                </span>
+                {sampleEvents.slice(0, 2).map((event) => (
+                  <div
+                    key={event.id}
+                    className="flex items-center justify-between gap-3 p-3 bg-white/5 rounded-lg"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-white/10" />
+                      <div className="flex flex-col gap-y-2.5">
+                        <span className="text-sm font-medium text-white">
+                          {event.name}
+                        </span>
+                        <span className="text-xs text-white/50 flex items-center gap-2">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="15"
+                            height="14"
+                            viewBox="0 0 15 14"
+                            fill="none"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              clipRule="evenodd"
+                              d="M7.25 14C9.10652 14 10.887 13.2625 12.1997 11.9497C13.5125 10.637 14.25 8.85652 14.25 7C14.25 5.14348 13.5125 3.36301 12.1997 2.05025C10.887 0.737498 9.10652 0 7.25 0C5.39348 0 3.61301 0.737498 2.30025 2.05025C0.987498 3.36301 0.25 5.14348 0.25 7C0.25 8.85652 0.987498 10.637 2.30025 11.9497C3.61301 13.2625 5.39348 14 7.25 14ZM7.90625 2.625C7.90625 2.45095 7.83711 2.28403 7.71404 2.16096C7.59097 2.03789 7.42405 1.96875 7.25 1.96875C7.07595 1.96875 6.90903 2.03789 6.78596 2.16096C6.66289 2.28403 6.59375 2.45095 6.59375 2.625V7C6.59375 7.36225 6.88775 7.65625 7.25 7.65625H10.75C10.924 7.65625 11.091 7.58711 11.214 7.46404C11.3371 7.34097 11.4062 7.17405 11.4062 7C11.4062 6.82595 11.3371 6.65903 11.214 6.53596C11.091 6.41289 10.924 6.34375 10.75 6.34375H7.90625V2.625Z"
+                              fill="white"
+                              fillOpacity="0.4"
+                            />
+                          </svg>
+                          25 Dec 22:00
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        console.log("Remove event:", event.id);
+                      }}
+                      className="text-white/50 hover:text-white transition-colors"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="13"
+                        height="14"
+                        viewBox="0 0 13 14"
+                        fill="none"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          clipRule="evenodd"
+                          d="M3.75 2.25V3H1.5C1.30109 3 1.11032 3.07902 0.96967 3.21967C0.829018 3.36032 0.75 3.55109 0.75 3.75C0.75 3.94891 0.829018 4.13968 0.96967 4.28033C1.11032 4.42098 1.30109 4.5 1.5 4.5H1.8L2.615 12.65C2.65218 13.0199 2.8254 13.3628 3.10107 13.6123C3.37675 13.8617 3.73523 13.9999 4.107 14H9.392C9.76394 14.0001 10.1227 13.8621 10.3986 13.6126C10.6744 13.3631 10.8478 13.0201 10.885 12.65L11.7 4.5H12C12.1989 4.5 12.3897 4.42098 12.5303 4.28033C12.671 4.13968 12.75 3.94891 12.75 3.75C12.75 3.55109 12.671 3.36032 12.5303 3.21967C12.3897 3.07902 12.1989 3 12 3H9.75V2.25C9.75 1.65326 9.51295 1.08097 9.09099 0.65901C8.66903 0.237053 8.09674 0 7.5 0H6C5.40326 0 4.83097 0.237053 4.40901 0.65901C3.98705 1.08097 3.75 1.65326 3.75 2.25ZM6 1.5C5.80109 1.5 5.61032 1.57902 5.46967 1.71967C5.32902 1.86032 5.25 2.05109 5.25 2.25V3H8.25V2.25C8.25 2.05109 8.17098 1.86032 8.03033 1.71967C7.88968 1.57902 7.69891 1.5 7.5 1.5H6ZM4.8 5C4.89852 4.99502 4.99705 5.00952 5.08996 5.04268C5.18286 5.07584 5.26832 5.127 5.34142 5.19323C5.41453 5.25946 5.47385 5.33946 5.51599 5.42865C5.55813 5.51784 5.58226 5.61447 5.587 5.713L5.862 11.213C5.86933 11.4101 5.79872 11.6022 5.66546 11.7476C5.5322 11.893 5.34702 11.9801 5.15002 11.9899C4.95302 11.9998 4.76007 11.9317 4.61295 11.8003C4.46583 11.6689 4.37639 11.4849 4.364 11.288L4.089 5.788C4.08388 5.68956 4.09821 5.59107 4.13118 5.49818C4.16416 5.40528 4.21511 5.3198 4.28115 5.24661C4.34718 5.17343 4.427 5.11397 4.51603 5.07166C4.60506 5.02934 4.70155 5.00499 4.8 5ZM8.7 5C8.79844 5.00487 8.89496 5.02909 8.98404 5.07129C9.07312 5.11349 9.153 5.17283 9.21913 5.24592C9.28525 5.31901 9.33632 5.40442 9.36942 5.49726C9.40251 5.59011 9.41698 5.68856 9.412 5.787L9.137 11.287C9.12461 11.4839 9.03517 11.6679 8.88805 11.7993C8.74093 11.9307 8.54798 11.9988 8.35098 11.9889C8.15398 11.9791 7.9688 11.892 7.83554 11.7466C7.70228 11.6012 7.63167 11.4091 7.639 11.212L7.914 5.712C7.92409 5.51354 8.01253 5.32719 8.1599 5.19389C8.30727 5.06058 8.50152 4.99021 8.7 5Z"
+                          fill="#F43F5E"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <span className="text-sm font-medium text-white">
+                  Not assigned
+                </span>
+                {sampleEvents.slice(2).map((event) => (
+                  <div
+                    key={event.id}
+                    className="flex items-center justify-between gap-3 p-3 bg-white/5 rounded-lg"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-white/10" />
+                      <div className="flex flex-col gap-y-2.5">
+                        <span className="text-sm font-medium text-white">
+                          {event.name}
+                        </span>
+                        <span className="text-xs text-white/50">
+                          25 Dec 22:00
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        console.log("Add event:", event.id);
+                      }}
+                      className="text-white/50 hover:text-white transition-colors"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="17"
+                        height="16"
+                        viewBox="0 0 17 16"
+                        fill="none"
+                      >
+                        <path
+                          d="M9.5 3.75C9.5 3.55109 9.42098 3.36032 9.28033 3.21967C9.13968 3.07902 8.94891 3 8.75 3C8.55109 3 8.36032 3.07902 8.21967 3.21967C8.07902 3.36032 8 3.55109 8 3.75V7.25H4.5C4.30109 7.25 4.11032 7.32902 3.96967 7.46967C3.82902 7.61032 3.75 7.80109 3.75 8C3.75 8.19891 3.82902 8.38968 3.96967 8.53033C4.11032 8.67098 4.30109 8.75 4.5 8.75H8V12.25C8 12.4489 8.07902 12.6397 8.21967 12.7803C8.36032 12.921 8.55109 13 8.75 13C8.94891 13 9.13968 12.921 9.28033 12.7803C9.42098 12.6397 9.5 12.4489 9.5 12.25V8.75H13C13.1989 8.75 13.3897 8.67098 13.5303 8.53033C13.671 8.38968 13.75 8.19891 13.75 8C13.75 7.80109 13.671 7.61032 13.5303 7.46967C13.3897 7.32902 13.1989 7.25 13 7.25H9.5V3.75Z"
+                          fill="white"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-col gap-3 p-6 absolute bottom-0 left-0 right-0 bg-[#1A1A1A] border-t border-white/10">
+            <button
+              onClick={() => setAssignEventsDialogOpen(false)}
+              className="w-full bg-white hover:bg-white/90 text-black border-white/10 border text-center rounded-full h-9 px-4 focus:outline-none flex items-center justify-center gap-2 font-semibold transition-colors text-sm"
+            >
+              Done
+            </button>
+          </div>
         </DialogContent>
       </Dialog>
     </SidebarLayout>

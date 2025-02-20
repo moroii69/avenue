@@ -69,7 +69,7 @@ export const Dialog = ({
       <div
         role="dialog"
         aria-modal="true"
-        className={`fixed left-1/2 bottom-5 md:top-1/2 -translate-x-1/2 md:-translate-y-1/2 w-[95%] max-w-[400px] bg-[#111111] rounded-3xl p-6 z-50 h-fit ${className}`}
+        className={`fixed left-1/2 bottom-3 md:top-1/2 -translate-x-1/2 md:-translate-y-1/2 w-[95%] max-w-[400px] bg-[#111111] rounded-3xl p-6 z-50 h-fit ${className}`}
       >
         {children}
       </div>
