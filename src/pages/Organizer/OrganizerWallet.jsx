@@ -1029,50 +1029,62 @@ export default function OrganizerWallet() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
-                    {filteredSalesHistory.map((sale, index) => (
-                      <tr key={index} className="hover:bg-white/[0.02]">
-                        <td className="p-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded bg-white/10"></div>
-                            {sale.ticket}
-                          </div>
-                        </td>
-                        <td className="p-4">{sale.date}</td>
-                        <td className="p-4">
-                          <div className="flex items-center gap-2">
-                            {
-                              saleTypeIcons[
-                                sale.type === "sale" ? "Sale" : "refund"
-                              ]
-                            }
-                            <span className="capitalize">{sale.type}</span>
-                          </div>
-                        </td>
-                        <td className="p-4">
-                          <span
-                            className={
-                              sale.amount < 0 ? "text-white/50" : "text-white"
-                            }
-                          >
-                            {sale.amount < 0 ? "-" : ""}${Math.abs(sale.amount)}
-                          </span>
-                        </td>
-                        <td className="p-4">
-                          <div className="flex items-center gap-2">
-                            {statusIcons[sale.status]}
-                            <span>
-                              {sale.status.charAt(0).toUpperCase() +
-                                sale.status.slice(1)}
+                    {filteredSalesHistory.length > 0 ? (
+                      filteredSalesHistory.map((sale, index) => (
+                        <tr key={index} className="hover:bg-white/[0.02]">
+                          <td className="p-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded bg-white/10"></div>
+                              {sale.ticket}
+                            </div>
+                          </td>
+                          <td className="p-4">{sale.date}</td>
+                          <td className="p-4">
+                            <div className="flex items-center gap-2">
+                              {
+                                saleTypeIcons[
+                                  sale.type === "sale" ? "Sale" : "refund"
+                                ]
+                              }
+                              <span className="capitalize">{sale.type}</span>
+                            </div>
+                          </td>
+                          <td className="p-4">
+                            <span
+                              className={
+                                sale.amount < 0 ? "text-white/50" : "text-white"
+                              }
+                            >
+                              {sale.amount < 0 ? "-" : ""}$
+                              {Math.abs(sale.amount)}
                             </span>
-                          </div>
-                        </td>
-                        <td className="p-4">
-                          <button className="hover:bg-white/10 p-2 rounded-lg transition-colors">
-                            <Ellipsis className="w-4 h-4" />
-                          </button>
+                          </td>
+                          <td className="p-4">
+                            <div className="flex items-center gap-2">
+                              {statusIcons[sale.status]}
+                              <span>
+                                {sale.status.charAt(0).toUpperCase() +
+                                  sale.status.slice(1)}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="p-4">
+                            <button className="hover:bg-white/10 p-2 rounded-lg transition-colors">
+                              <Ellipsis className="w-4 h-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td
+                          colSpan={6}
+                          className="text-center p-4 text-white/50"
+                        >
+                          No results found
                         </td>
                       </tr>
-                    ))}
+                    )}
                   </tbody>
                 </table>
               </div>
