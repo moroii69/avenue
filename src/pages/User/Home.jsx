@@ -216,6 +216,8 @@ const Home = () => {
     );
   });
 
+  const sortedEvents = [...filteredEvents].sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
+
   const handleReset = () => {
     setSliderValue([0, 100]);
     setStartDate(null);
@@ -364,7 +366,7 @@ const Home = () => {
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-16 sm:mt-8 px-4 sm:px-8 md:px-16 lg:px-10 bg-primary mb-10">
-        {filteredEvents.map((card) => {
+        {sortedEvents.map((card) => {
           const isEventSaved = savedEventIds.has(card._id);
 
           return (
