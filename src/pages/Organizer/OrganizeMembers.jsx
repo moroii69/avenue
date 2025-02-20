@@ -264,7 +264,7 @@ export default function OrganizeMembers() {
       </div>
       <div className="text-white p-6 max-w-7xl mx-auto @container grid gap-9">
         <div className="grid gap-3">
-          <h1 className="text-2xl font-bold">Members</h1>
+          <h1 className="text-2xl md:text-3xl font-bold">Members</h1>
           <p className="text-white/70">Manage your event staff</p>
         </div>
 
