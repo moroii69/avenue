@@ -521,8 +521,8 @@ export default function OrganizerEvents() {
             activeTab={activeTab}
             className="grid gap-6"
           >
-            <div className="flex items-center bg-[#34B2DA1A]  rounded-lg p-4 relative overflow-hidden before:absolute before:top-1/2 before:-translate-y-1/2 before:left-1/2 before:-translate-x-1/2 before:w-[calc(100%-0.2rem)] before:h-[calc(100%-0.2rem)] before:border before:border-[#34B2DA]/20 before:z-0 before:rounded-lg">
-              <div className="flex items-center gap-x-2 z-0">
+            <div className="flex items-center bg-[#34B2DA1A] rounded-lg p-4 relative overflow-hidden before:absolute before:top-1/2 before:-translate-y-1/2 before:left-1/2 before:-translate-x-1/2 before:w-[calc(100%-0.2rem)] before:h-[calc(100%-0.2rem)] before:border before:border-[#34B2DA]/20 before:rounded-lg">
+              <div className="flex items-center gap-x-2">
                 {[...Array(100)].map((_, i) => (
                   <div
                     key={i}
@@ -532,7 +532,7 @@ export default function OrganizerEvents() {
                 ))}
               </div>
               <div className="flex items-start justify-center gap-x-2">
-                <div className="flex items-start lg:items-center gap-x-2 text-[#34B2DA] font-semibold text-sm -z-[0]">
+                <div className="flex items-start lg:items-center gap-x-2 text-[#34B2DA] font-semibold text-sm">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="16"
@@ -667,8 +667,8 @@ export default function OrganizerEvents() {
             activeTab={activeTab}
             className="grid gap-6"
           >
-            <div className="flex items-center bg-[#28180D]  rounded-lg p-4 relative overflow-hidden before:absolute before:top-1/2 before:-translate-y-1/2 before:left-1/2 before:-translate-x-1/2 before:w-[calc(100%-0.2rem)] before:h-[calc(100%-0.2rem)] before:border before:border-[#F97316]/20 before:z-0 before:rounded-lg">
-              <div className="flex items-center gap-x-2 z-0">
+            <div className="flex items-center bg-[#28180D] rounded-lg p-4 relative overflow-hidden before:absolute before:top-1/2 before:-translate-y-1/2 before:left-1/2 before:-translate-x-1/2 before:w-[calc(100%-0.2rem)] before:h-[calc(100%-0.2rem)] before:border before:border-[#F97316]/20 before:rounded-lg">
+              <div className="flex items-center gap-x-2">
                 {[...Array(100)].map((_, i) => (
                   <div
                     key={i}
@@ -678,7 +678,7 @@ export default function OrganizerEvents() {
                 ))}
               </div>
               <div className="flex items-start justify-center gap-x-2">
-                <div className="flex items-start lg:items-center gap-x-2 text-[#F97316] font-semibold text-sm -z-[0]">
+                <div className="flex items-start lg:items-center gap-x-2 text-[#F97316] font-semibold text-sm">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="16"
