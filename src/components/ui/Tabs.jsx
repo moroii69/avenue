@@ -83,7 +83,7 @@ export function TabsList({ children, className = "", selectedValue = "" }) {
         </button>
 
         {isOpen && (
-          <div className="absolute border border-white/10 top-full left-0 w-full mt-1 backdrop-blur-[100px] bg-[#1A1A1A] rounded-lg overflow-hidden z-50 p-1 grid gap-1">
+          <div className="absolute border border-white/10 top-full left-0 w-full mt-1 backdrop-blur-[100px] bg-[#1A1A1A] rounded-lg overflow-hidden z-[999999] p-1 grid gap-1">
             {childrenWithProps}
           </div>
         )}

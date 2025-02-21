@@ -295,7 +295,7 @@ export default function EventDetails() {
         <SidebarToggle />
       </div>
       <div className="min-h-screen text-white p-6 max-w-7xl mx-auto">
-        {/*   <div className="flex items-center gap-4 mb-8">
+        <div className="flex items-center gap-4 mb-8">
           <button
             onClick={() => window.history.back()}
             className="flex items-center gap-2 text-white/70 hover:text-white transition-colors"
@@ -317,7 +317,7 @@ export default function EventDetails() {
           </button>
           <div className="h-4 w-px bg-white/10" />
           <span className="text-white/50">Event Details</span>
-        </div> */}
+        </div>
 
         <div className="grid gap-6 @container">
           <div className="h-24 w-24 rounded-xl bg-white/10 flex items-center justify-center"></div>

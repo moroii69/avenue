@@ -151,7 +151,7 @@ export default function OrganizerEvents() {
                 value="live"
                 active={activeTab === "live"}
                 onClick={() => setActiveTab("live")}
-                className={`flex items-center gap-2 pl-2 pr-1 @4xl:rounded-full hover:bg-white/5 ${
+                className={`flex items-center gap-2 p-2 pl-2 pr-1 @4xl:rounded-full hover:bg-white/5 ${
                   activeTab === "live" ? "bg-white/10" : ""
                 }`}
               >
@@ -180,7 +180,7 @@ export default function OrganizerEvents() {
                 value="drafts"
                 active={activeTab === "drafts"}
                 onClick={() => setActiveTab("drafts")}
-                className={`flex items-center gap-2 pl-2 pr-1 @4xl:rounded-full hover:bg-white/5 ${
+                className={`flex items-center gap-2 p-2 pl-2 pr-1 @4xl:rounded-full hover:bg-white/5 ${
                   activeTab === "drafts" ? "bg-white/10" : ""
                 }`}
               >
@@ -213,7 +213,7 @@ export default function OrganizerEvents() {
                 value="deactivated"
                 active={activeTab === "deactivated"}
                 onClick={() => setActiveTab("deactivated")}
-                className={`flex items-center gap-2 pl-2 pr-1 @4xl:rounded-full hover:bg-white/5 ${
+                className={`flex items-center gap-2 p-2 pl-2 pr-1 @4xl:rounded-full hover:bg-white/5 ${
                   activeTab === "deactivated" ? "bg-white/10" : ""
                 }`}
               >
