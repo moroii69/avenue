@@ -658,7 +658,7 @@ export default function OrganizeMembers() {
       >
         <DialogContent className="max-h-[90vh] !gap-0">
           <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="flex flex-col gap-y-3 bg-white/[0.03] border-b border-white/10 p-6">
+            <div className="flex flex-col gap-y-3 bg-white/[0.03] border-b rounded-t-xl border-white/10 p-6">
               <DialogTitle>Add new member</DialogTitle>
               <DialogDescription>
                 Add a new member to your team.
@@ -902,7 +902,7 @@ export default function OrganizeMembers() {
       >
         <DialogContent className="max-h-[90vh] !gap-0">
           <form onSubmit={handleSubmitEdit(onEditSubmit)}>
-            <div className="flex flex-col gap-y-3 bg-white/[0.03] border-b border-white/10 p-6">
+            <div className="flex flex-col gap-y-3 bg-white/[0.03] rounded-t-xl border-b border-white/10 p-6">
               <DialogTitle>Edit member info</DialogTitle>
               <DialogDescription>Update member information.</DialogDescription>
             </div>
@@ -1097,7 +1097,7 @@ export default function OrganizeMembers() {
         className="!max-w-[400px] border border-white/10 rounded-xl !p-0 overflow-hidden"
       >
         <DialogContent className="max-h-[90vh] !gap-0">
-          <div className="flex flex-col gap-y-3 bg-white/[0.03] border-b border-white/10 p-6">
+          <div className="flex flex-col gap-y-3 bg-white/[0.03] rounded-t-xl border-b border-white/10 p-6">
             <DialogTitle>Assign events</DialogTitle>
             <DialogDescription>
               Select events for {selectedMember?.name}

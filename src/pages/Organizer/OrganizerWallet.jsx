@@ -1101,7 +1101,7 @@ export default function OrganizerWallet() {
       >
         <DialogContent className="max-h-[90vh] !gap-0">
           <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="flex flex-col gap-y-3 bg-white/[0.03] border-b border-white/10 p-6">
+            <div className="flex flex-col gap-y-3 bg-white/[0.03] rounded-t-xl border-b border-white/10 p-6">
               <DialogTitle>Withdraw funds</DialogTitle>
               <DialogDescription>
                 Withdraw your available balance to your linked card.
@@ -1228,7 +1228,7 @@ export default function OrganizerWallet() {
         className="!max-w-[1000px] border border-white/10 rounded-xl !p-0"
       >
         <DialogContent className="max-h-[90vh] !gap-0">
-          <div className="flex flex-col gap-y-3 bg-white/[0.03] border-b border-white/10 p-6">
+          <div className="flex flex-col gap-y-3 bg-white/[0.03] rounded-t-xl border-b border-white/10 p-6">
             <DialogTitle>Payment History</DialogTitle>
             <DialogDescription>
               This is a list of all the payments you have made this month.
