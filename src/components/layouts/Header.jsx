@@ -9,6 +9,7 @@ import { BookMarked } from 'lucide-react';
 import { LuBookMarked } from 'react-icons/lu';
 import { IoTicketOutline, IoTicketSharp } from 'react-icons/io5';
 import { RiAccountPinCircleLine } from 'react-icons/ri';
+import { FiRefreshCcw } from "react-icons/fi";
 
 const Header = () => {
   const { name, id } = useParams();
@@ -40,12 +41,12 @@ const Header = () => {
 
   const handleExplore = () => {
     setActiveButton('Explore');
-    navigate("/"); 
+    navigate("/");
   };
 
   const handleCreate = () => {
     setActiveButton('Create');
-    navigate("/type"); 
+    navigate("/type");
   };
 
   return (
@@ -203,6 +204,19 @@ const Header = () => {
                               <span className="text-white text-xs font-inter">My Account</span>
                             </a>
                           </li>
+                          {
+                            userId === '679485656e216db10d26702c' && (
+                              <li>
+                                <a
+                                  href="/profile"
+                                  className="flex items-center px-4 py-3 hover:bg-[#2a2a2a] rounded-md transition-all"
+                                >
+                                  <FiRefreshCcw className="text-gray-400 mr-3" />
+                                  <span className="text-white text-xs font-inter">Switch to Organizer</span>
+                                </a>
+                              </li>
+                            )
+                          }
                           <li>
                             <a
                               onClick={() => {
