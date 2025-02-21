@@ -823,7 +823,7 @@ export default function OrganizeMembers() {
                             checked={watch("events")?.includes(
                               String(event.id)
                             )}
-                            className="border-white/10 rounded bg-white/5 data-[state=checked]:bg-[#34B2DA] data-[state=checked]:text-black"
+                            className="border-white/10 -z-10 rounded bg-white/5 data-[state=checked]:bg-[#34B2DA] data-[state=checked]:text-black"
                           />
                         </div>
                       </DropdownItem>
@@ -1065,7 +1065,7 @@ export default function OrganizeMembers() {
                             checked={watchEdit("events")?.includes(
                               String(event.id)
                             )}
-                            className="border-white/10 rounded bg-white/5 data-[state=checked]:bg-[#34B2DA] data-[state=checked]:text-black"
+                            className="border-white/10 -z-10 rounded bg-white/5 data-[state=checked]:bg-[#34B2DA] data-[state=checked]:text-black"
                           />
                         </div>
                       </DropdownItem>
