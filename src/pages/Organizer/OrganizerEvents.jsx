@@ -531,8 +531,8 @@ export default function OrganizerEvents() {
                   />
                 ))}
               </div>
-              <div className="flex items-start justify-center gap-x-2 z-10">
-                <div className="flex items-start lg:items-center gap-x-2 text-[#34B2DA] font-semibold text-sm">
+              <div className="flex items-start justify-center gap-x-2">
+                <div className="flex items-start lg:items-center gap-x-2 text-[#34B2DA] font-semibold text-sm -z-[0]">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="16"
@@ -677,8 +677,8 @@ export default function OrganizerEvents() {
                   />
                 ))}
               </div>
-              <div className="flex items-start justify-center gap-x-2 z-10">
-                <div className="flex items-start lg:items-center gap-x-2 text-[#F97316] font-semibold text-sm">
+              <div className="flex items-start justify-center gap-x-2">
+                <div className="flex items-start lg:items-center gap-x-2 text-[#F97316] font-semibold text-sm -z-[0]">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="16"
