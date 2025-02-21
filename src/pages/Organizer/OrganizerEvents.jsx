@@ -522,16 +522,17 @@ export default function OrganizerEvents() {
             className="grid gap-6"
           >
             {/* relative overflow-hidden before:absolute before:top-1/2 before:-translate-y-1/2 before:left-1/2 before:-translate-x-1/2 before:w-[calc(100%-0.2rem)] before:h-[calc(100%-0.2rem)] before:border before:border-[#34B2DA]/20 before:rounded-lg */}
-            <div className="flex items-center bg-[#34B2DA1A] rounded-lg p-4 ">
-          {/*     <div className="flex items-center gap-x-2">
+            <div className="flex items-center bg-[#34B2DA1A] z-[1] rounded-lg p-4 relative overflow-hidden before:absolute before:top-1/2 before:-translate-y-1/2 before:left-1/2 before:-translate-x-1/2 before:w-[calc(100%-0.2rem)] before:h-[calc(100%-0.2rem)] before:border before:border-[#34B2DA]/20 before:rounded-lg before:z-[0]">
+              <div className="flex items-center gap-x-2">
                 {[...Array(100)].map((_, i) => (
                   <div
                     key={i}
-                    className="absolute top-1/2 -translate-y-1/2 h-[calc(100%+1rem)] w-px bg-[#34B2DA]/10 rotate-[40deg]"
+                    className="absolute top-1/2 -translate-y-1/2 z-[0] h-[calc(100%+1rem)] w-px bg-[#34B2DA]/10 rotate-[40deg]"
                     style={{ right: `${i * 15}px` }}
                   />
                 ))}
-              </div> */}
+              </div>
+
               <div className="flex items-start justify-center gap-x-2">
                 <div className="flex items-start lg:items-center gap-x-2 text-[#34B2DA] font-semibold text-sm">
                   <svg
@@ -669,16 +670,18 @@ export default function OrganizerEvents() {
             className="grid gap-6"
           >
             {/* relative overflow-hidden before:absolute before:top-1/2 before:-translate-y-1/2 before:left-1/2 before:-translate-x-1/2 before:w-[calc(100%-0.2rem)] before:h-[calc(100%-0.2rem)] before:border before:border-[#F97316]/20 before:rounded-lg */}
-            <div className="flex items-center bg-[#28180D] rounded-lg p-4">
-              {/*  <div className="flex items-center gap-x-2">
-                {[...Array(100)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="absolute top-1/2 -translate-y-1/2 h-[calc(100%+1rem)] w-px bg-[#F97316]/10 rotate-[40deg]"
-                    style={{ right: `${i * 15}px` }}
-                  />
-                ))}
-              </div> */}
+            <div className="flex items-center bg-[#28180D] rounded-lg z-[1] p-4 relative overflow-hidden before:absolute before:top-1/2 before:-translate-y-1/2 before:left-1/2 before:-translate-x-1/2 before:w-[calc(100%-0.2rem)] before:h-[calc(100%-0.2rem)] before:border before:border-[#F97316]/20 before:rounded-lg before:z-0">
+              {
+                <div className="flex items-center gap-x-2">
+                  {[...Array(100)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="absolute top-1/2 -translate-y-1/2 z-0 h-[calc(100%+1rem)] w-px bg-[#F97316]/10 rotate-[40deg]"
+                      style={{ right: `${i * 15}px` }}
+                    />
+                  ))}
+                </div>
+              }
               <div className="flex items-start justify-center gap-x-2">
                 <div className="flex items-start lg:items-center gap-x-2 text-[#F97316] font-semibold text-sm">
                   <svg
