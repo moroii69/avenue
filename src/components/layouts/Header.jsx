@@ -212,6 +212,18 @@ const Header = () => {
                               className="flex items-center px-4 py-3 hover:bg-[#2a2a2a] rounded-md transition-all cursor-pointer"
                             >
                               <FaSignOutAlt className="text-gray-400 mr-3" />
+                              <span className="text-white text-xs font-inter">Switch to organizer</span>
+                            </a>
+                          </li>
+                          <li>
+                            <a
+                              onClick={() => {
+                                localStorage.clear();
+                                window.location.href = "/";
+                              }}
+                              className="flex items-center px-4 py-3 hover:bg-[#2a2a2a] rounded-md transition-all cursor-pointer"
+                            >
+                              <FaSignOutAlt className="text-gray-400 mr-3" />
                               <span className="text-white text-xs font-inter">Logout</span>
                             </a>
                           </li>
