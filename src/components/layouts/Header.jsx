@@ -208,7 +208,7 @@ const Header = () => {
                             userId === '679485656e216db10d26702c' && (
                               <li>
                                 <a
-                                  href="https://dev.d2v6xgiqdulhai.amplifyapp.com/organizer/dashboard/"
+                                  href="/organizer/dashboard/"
                                   className="flex items-center px-4 py-3 hover:bg-[#2a2a2a] rounded-md transition-all"
                                 >
                                   <FiRefreshCcw className="text-gray-400 mr-3" />

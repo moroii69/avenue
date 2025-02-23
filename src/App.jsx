@@ -1,11 +1,18 @@
-import { BrowserRouter, Route, Routes, useLocation, useNavigate, Navigate } from "react-router-dom";
+import {
+  BrowserRouter,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+  Navigate,
+} from "react-router-dom";
 import Header from "../src/components/layouts/Header";
 import Footer from "../src/components/layouts/Footer";
 import Home from "./pages/User/Home";
 import Info from "./pages/User/Info";
 import Creater from "./pages/User/Creater";
 import Checkout from "./pages/User/Checkout";
-import { stripePromise } from "./constants/stripePromise"
+import { stripePromise } from "./constants/stripePromise";
 import Element from "antd/es/skeleton/Element";
 import { Elements } from "@stripe/react-stripe-js";
 import QrTicket from "./pages/User/QrTicket";
@@ -14,13 +21,42 @@ import Profile from "./pages/User/Profile";
 import Type from "./pages/Organizer/Type";
 import Ticket from "./pages/User/Ticket";
 import Saved from "./pages/User/Saved";
+import OrganizerProfile from "./pages/Organizer/OrganizerProfile";
+import OrganizerDashboard from "./pages/Organizer/OrganizerDashboard";
+import OrganizerEvents from "./pages/Organizer/OrganizerEvents";
+import OrganizerWallet from "./pages/Organizer/OrganizerWallet";
+import EventDetails from "./pages/Organizer/EventDetails";
+import OrganizeMembers from "./pages/Organizer/OrganizeMembers";
 
 function App() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const hideHeader = ["/login", "/qr-ticket"];
-  const hideFooter = ["/login", "/info", "/creater", "/checkout", "/qr-ticket", "/tickets", "/profile", "/ticket", "/saved"];
+  const hideHeader = [
+    "/login",
+    "/qr-ticket",
+    "/organizer/profile",
+    "/organizer/dashboard",
+    "/organizer/events",
+    "/organizer/wallet",
+    "/organizer/members",
+  ];
+  const hideFooter = [
+    "/login",
+    "/info",
+    "/creater",
+    "/checkout",
+    "/qr-ticket",
+    "/tickets",
+    "/profile",
+    "/ticket",
+    "/saved",
+    "/organizer/profile",
+    "/organizer/dashboard",
+    "/organizer/events",
+    "/organizer/wallet",
+    "/organizer/members",
+  ];
 
   const shouldHideNavbarAndFooter = hideHeader.some((path) =>
     location.pathname.startsWith(path)
@@ -42,11 +78,11 @@ function App() {
 
   return (
     <>
-      <div className="bg-primary h-screen">
+      <div className="bg-primary h-screen font-manrope">
         {!shouldHideNavbarAndFooter && <Header />}
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/:name" element={<Info />} />
+          <Route path="/info/:name" element={<Info />} />
           <Route path="/creater/:id" element={<Creater />} />
           <Route
             path="/checkout"
@@ -54,16 +90,27 @@ function App() {
               <Elements stripe={stripePromise}>
                 <Checkout />
               </Elements>
-            } />
+            }
+          />
           <Route path="/qr-ticket/:id" element={<QrTicket />} />
           <Route path="/tickets" element={<Tickets />} />
-          <Route path="/ticket" element={
-            <Elements stripe={stripePromise}>
-              <Ticket />
-            </Elements>} />
+          <Route
+            path="/ticket"
+            element={
+              <Elements stripe={stripePromise}>
+                <Ticket />
+              </Elements>
+            }
+          />
           <Route path="/profile" element={<Profile />} />
           <Route path="/type" element={<Type />} />
           <Route path="/saved" element={<Saved />} />
+          <Route path="/organizer/profile" element={<OrganizerProfile />} />
+          <Route path="/organizer/dashboard" element={<OrganizerDashboard />} />
+          <Route path="/organizer/events" element={<OrganizerEvents />} />
+          <Route path="/organizer/wallet" element={<OrganizerWallet />} />
+          <Route path="/organizer/events/:id" element={<EventDetails />} />
+          <Route path="/organizer/members" element={<OrganizeMembers />} />
         </Routes>
         {!shouldHideFooter && <Footer />}
       </div>
