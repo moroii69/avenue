@@ -466,14 +466,21 @@ export default function OrganizerWallet() {
         // Search filter
         if (searchQuery) {
             const searchLower = searchQuery.toLowerCase();
+            const formattedDate = new Date(sale.date)
+                .toLocaleString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    hour: "numeric",
+                    minute: "2-digit",
+                    hour12: true,
+                })
+                .replace(",", "")
+                .toLowerCase();
             const matchesSearch =
                 sale?.party?.event_name.toLowerCase().includes(searchLower) ||
-                sale?.tickets?.ticket_name.toLowerCase().includes(searchLower)
-            // sale.type.toLowerCase().includes(searchLower) ||
-            // sale.status.toLowerCase().includes(searchLower) ||
-            // sale.amount.toString().includes(searchLower) ||
-            // sale.date.toLowerCase().includes(searchLower);
-
+                sale?.tickets?.ticket_name.toLowerCase().includes(searchLower) ||
+                (sale?.amount / 100).toString().includes(searchLower) ||
+                formattedDate.includes(searchLower);
             if (!matchesSearch) return false;
         }
 
@@ -504,13 +511,18 @@ export default function OrganizerWallet() {
 
         // Type filter
         if (typeFilter !== "All types") {
-            if (sale.type.toLowerCase() !== typeFilter.toLowerCase()) return false;
+            const isRefund = sale.refund === "true" || sale.refund === true;
+            const saleType = isRefund ? "Refund" : "Sale";
+
+            if (saleType.toLowerCase() !== typeFilter.toLowerCase()) return false;
         }
 
+
+
         // Ticket filter
-        if (ticketFilter !== "All events") {
-            if (sale?.tickets !== ticketFilter) return false;
-        }
+        // if (ticketFilter !== "All events") {
+        //     if (sale?.tickets !== ticketFilter) return false;
+        // }
 
         return true;
     });
@@ -1310,8 +1322,8 @@ export default function OrganizerWallet() {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-white/5">
-                                        {orgEventList.length > 0 ? (
-                                            orgEventList.map((sale, index) => (
+                                        {filteredSalesHistory.length > 0 ? (
+                                            filteredSalesHistory.map((sale, index) => (
                                                 <tr key={index} className="hover:bg-white/[0.02]">
                                                     <td className="p-4">
                                                         <div className="flex items-center gap-3">
