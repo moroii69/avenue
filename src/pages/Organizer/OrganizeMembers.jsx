@@ -24,6 +24,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Checkbox } from "../../components/ui/Checkbox";
+import url from "../../constants/url"
+import axios from "axios";
 
 const statusIcons = {
   active: (
@@ -170,6 +172,7 @@ const newMemberSchema = z.object({
 });
 
 const editMemberSchema = z.object({
+  id: z.string(),
   fullName: z.string().min(1, "Full name is required"),
   phoneNumber: z.string().min(1, "Phone number is required"),
   role: z.string().min(1, "Role is required"),
@@ -177,7 +180,7 @@ const editMemberSchema = z.object({
 });
 
 export default function OrganizeMembers() {
-  const [members] = useState(sampleMembers);
+  //const [members] = useState(sampleMembers);
   const [selectedMember, setSelectedMember] = useState(null);
   const [deactivateDialogOpen, setDeactivateDialogOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState("all");
@@ -185,6 +188,10 @@ export default function OrganizeMembers() {
   const [editMemberDialogOpen, setEditMemberDialogOpen] = useState(false);
   const [assignEventsDialogOpen, setAssignEventsDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const [oragnizerId, setOragnizerId] = useState(null);
+  const [members, setMembers] = useState([]);
+  const [events, setEvents] = useState([]);
 
   const {
     register,
@@ -195,6 +202,7 @@ export default function OrganizeMembers() {
   } = useForm({
     resolver: zodResolver(newMemberSchema),
     defaultValues: {
+      id: "",
       fullName: "",
       phoneNumber: "",
       role: roles[0],
@@ -212,6 +220,7 @@ export default function OrganizeMembers() {
   } = useForm({
     resolver: zodResolver(editMemberSchema),
     defaultValues: {
+      id: "",
       fullName: "",
       phoneNumber: "",
       role: roles[0],
@@ -222,21 +231,68 @@ export default function OrganizeMembers() {
   useEffect(() => {
     if (selectedMember && editMemberDialogOpen) {
       resetEdit({
+        id: selectedMember._id,
         fullName: selectedMember.name,
-        phoneNumber: selectedMember.phone.replace("+1", ""),
+        phoneNumber: selectedMember.phone_number.replace("+1", ""),
         role: selectedMember.role,
-        events: [], // You would need to map the assigned events to actual event IDs here
+        events: selectedMember.events,
       });
     }
   }, [selectedMember, editMemberDialogOpen, resetEdit]);
 
-  const onSubmit = (data) => {
-    console.log("Form data:", data);
+  const onSubmit = async (data) => {
+    try {
+      const formData = {
+        organizer_id: oragnizerId,
+        name: data.fullName,
+        email: "gagansk2125@gmail.com",
+        phone_number: "+1" + data.phoneNumber,
+        password: "123",
+        role: data.role,
+        events: data.events
+      }
+      const response = await fetch(`${url}/member/add-member`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      if (response.ok) {
+        alert("Member added successfully!");
+        window.location.reload()
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
     setNewMemberDialogOpen(false);
   };
 
-  const onEditSubmit = (data) => {
-    console.log("Edit member data:", data);
+  const onEditSubmit = async (data) => {
+    try {
+      const formData = {
+        organizer_id: oragnizerId,
+        name: data.fullName,
+        email: "gagansk2125@gmail.com",
+        phone_number: "+1" + data.phoneNumber,
+        password: "123",
+        role: data.role,
+        events: data.events
+      }
+      const response = await fetch(`${url}/member/update-member/${data.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      if (response.ok) {
+        alert("Member updated successfully!");
+        window.location.reload()
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
     setEditMemberDialogOpen(false);
   };
 
@@ -245,17 +301,61 @@ export default function OrganizeMembers() {
   };
 
   const filteredMembers = members.filter((member) => {
-    const matchesStatus =
-      selectedStatus === "all" || member.status === selectedStatus;
+    // const matchesStatus =
+    //   selectedStatus === "all" || member.status === selectedStatus;
     const matchesSearch =
       searchQuery.trim() === "" ||
       member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      member.phone.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      member.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      member.assigned.toLowerCase().includes(searchQuery.toLowerCase());
+      member.phone_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      member.role.toLowerCase().includes(searchQuery.toLowerCase())
+    //member.assigned.toLowerCase().includes(searchQuery.toLowerCase());
 
-    return matchesStatus && matchesSearch;
+    //return matchesStatus && matchesSearch;
+    return matchesSearch;
   });
+
+  useEffect(() => {
+    const loadFromLocalStorage = () => {
+      const storedUserOrganizerId = localStorage.getItem("organizerId");
+      setOragnizerId(storedUserOrganizerId || null);
+    };
+    loadFromLocalStorage();
+
+    const handleStorageChange = () => {
+      loadFromLocalStorage();
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, []);
+
+  const fetchMembers = async () => {
+    try {
+      const response = await axios.get(`${url}/member/get-organizer-member/${oragnizerId}`);
+      setMembers(response.data);
+    } catch (error) {
+      console.error('Error fetching members:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchMembers();
+  }, [oragnizerId]);
+
+  const fetchEvents = async () => {
+    try {
+      const response = await axios.get(`${url}/event/get-event-by-organizer-id/${oragnizerId}`);
+      setEvents(response.data);
+    } catch (error) {
+      console.error('Error fetching events:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchEvents();
+  }, [oragnizerId]);
 
   return (
     <SidebarLayout>
@@ -271,17 +371,17 @@ export default function OrganizeMembers() {
         <div className="grid @4xl:grid-cols-3 gap-4 h-fit">
           <div className="border border-white/10 p-4 rounded-xl h-full flex flex-col gap-y-3">
             <h2 className="font-medium text-white/70 text-sm">Total members</h2>
-            <p className="text-2xl font-medium">12</p>
+            <p className="text-2xl font-medium">{members.length || 0}</p>
           </div>
           <div className="border border-white/10 p-4 rounded-xl h-full flex flex-col gap-y-3">
             <h2 className="font-medium text-white/70 text-sm">
               Active members
             </h2>
-            <p className="text-2xl font-medium">10</p>
+            <p className="text-2xl font-medium">-</p>
           </div>
           <div className="border border-white/10 p-4 rounded-xl h-full flex flex-col gap-y-3">
             <h2 className="font-medium text-white/70 text-sm">Door staff</h2>
-            <p className="text-2xl font-medium">8</p>
+            <p className="text-2xl font-medium">{members.filter(member => member.role === 'Door Staff').length || 0}</p>
           </div>
         </div>
 
@@ -331,8 +431,8 @@ export default function OrganizeMembers() {
                   {selectedStatus === "all"
                     ? "All status"
                     : selectedStatus === "active"
-                    ? "Active"
-                    : "Inactive"}
+                      ? "Active"
+                      : "Inactive"}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="16"
@@ -522,13 +622,13 @@ export default function OrganizeMembers() {
                           {member.name}
                         </div>
                       </td>
-                      <td className="py-4 pl-4">{member.phone}</td>
+                      <td className="py-4 pl-4">{member.phone_number}</td>
                       <td className="py-4 pl-4">{member.role}</td>
-                      <td className="py-4 pl-4">{member.assigned}</td>
+                      <td className="py-4 pl-4">{member.assigned || "-"}</td>
                       <td className="py-4 pl-4">
                         <div className="flex items-center gap-2">
                           {statusIcons[member.status]}
-                          <span>{member.status}</span>
+                          <span>{member.status || "-"}</span>
                         </div>
                       </td>
                       <td className="py-4 pl-4">
@@ -536,7 +636,7 @@ export default function OrganizeMembers() {
                           <MenuTrigger>
                             <Ellipsis />
                           </MenuTrigger>
-                          <MenuItem onClick={() => handleViewMember(member.id)}>
+                          <MenuItem onClick={() => handleViewMember(member._id)}>
                             <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -777,9 +877,8 @@ export default function OrganizeMembers() {
                       <span>
                         {watch("events")?.length === 0
                           ? "Select events"
-                          : `${watch("events")?.length} event${
-                              watch("events")?.length === 1 ? "" : "s"
-                            } selected`}
+                          : `${watch("events")?.length} event${watch("events")?.length === 1 ? "" : "s"
+                          } selected`}
                       </span>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -800,13 +899,15 @@ export default function OrganizeMembers() {
                     </button>
                   </DropdownTrigger>
                   <DropdownContent className="w-full hide-scrollbar max-h-[200px] overflow-y-auto bg-[#151515] border border-white/10 tex-white rounded-lg shadow-lg overflow-hidden">
-                    {sampleEvents.map((event) => (
+                    {events
+                    .filter(event => event.explore === 'YES')
+                    .map((event) => (
                       <DropdownItem
                         key={event.id}
                         className="px-4 py-2 hover:bg-white/5 transition-colors text-white"
                         onClick={() => {
                           const currentEvents = watch("events") || [];
-                          const eventId = String(event.id);
+                          const eventId = String(event._id);
                           if (currentEvents.includes(eventId)) {
                             setValue(
                               "events",
@@ -818,10 +919,10 @@ export default function OrganizeMembers() {
                         }}
                       >
                         <div className="flex items-center w-full justify-between gap-3">
-                          {event.name}
+                          {event.event_name}
                           <Checkbox
                             checked={watch("events")?.includes(
-                              String(event.id)
+                              String(event._id)
                             )}
                             className="border-white/10 -z-10 rounded bg-white/5 data-[state=checked]:bg-[#34B2DA] data-[state=checked]:text-black"
                           />
@@ -863,15 +964,27 @@ export default function OrganizeMembers() {
             ?
           </DialogTitle>
           <DialogDescription>
-            This member will no longer be able to access events. You can always
-            activate them again later.
+            This member will no longer be able to access events.
+            {/* You can always activate them again later. */}
           </DialogDescription>
           <div className="flex flex-col gap-3 mt-3">
             <button
-              onClick={() => {
-                console.log("Deactivate member:", selectedMember?.name);
-                setDeactivateDialogOpen(false);
-              }}
+              onClick={
+                async () => {
+                  if (!selectedMember?._id) return;
+
+                  try {
+                    const response = await axios.delete(
+                      `${url}/member/delete-member/${selectedMember._id}`
+                    );
+                    alert("Member deleted successfully")
+                    window.location.reload()
+                    setDeactivateDialogOpen(false);
+                  } catch (error) {
+                    console.error("Error deleting member:", error);
+                  }
+                }
+              }
               className="w-full bg-[#f43f5e] hover:bg-[#f43f5e]/90 text-white border-white/10 border text-center rounded-full h-10 px-4 focus:outline-none flex items-center justify-center gap-2 font-medium transition-colors"
             >
               <svg
@@ -907,6 +1020,24 @@ export default function OrganizeMembers() {
               <DialogDescription>Update member information.</DialogDescription>
             </div>
             <div className="flex flex-col gap-4 p-6">
+              <div className="flex-col items-start justify-between gap-4 hidden">
+                <div className="flex flex-col gap-3 w-full">
+                  <span className="text-sm font-medium text-white">
+                    ID
+                  </span>
+                  <input
+                    {...registerEdit("id")}
+                    placeholder="John Doe"
+                    className="border bg-primary text-white text-sm border-white/10 h-10 rounded-lg px-5 py-2.5 focus:outline-none w-full"
+                  />
+                  {editErrors.fullName && (
+                    <span className="text-xs text-red-500">
+                      {editErrors.fullName.message}
+                    </span>
+                  )}
+                </div>
+              </div>
+
               <div className="flex flex-col items-start justify-between gap-4">
                 <div className="flex flex-col gap-3 w-full">
                   <span className="text-sm font-medium text-white">
@@ -1019,9 +1150,8 @@ export default function OrganizeMembers() {
                       <span>
                         {watchEdit("events")?.length === 0
                           ? selectedMember?.assigned || "Select events"
-                          : `${watchEdit("events")?.length} event${
-                              watchEdit("events")?.length === 1 ? "" : "s"
-                            } selected`}
+                          : `${watchEdit("events")?.length} event${watchEdit("events")?.length === 1 ? "" : "s"
+                          } selected`}
                       </span>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -1042,13 +1172,15 @@ export default function OrganizeMembers() {
                     </button>
                   </DropdownTrigger>
                   <DropdownContent className="w-full overflow-y-auto hide-scrollbar max-h-[200px] bg-[#151515] border border-white/10 tex-white rounded-lg shadow-lg overflow-hidden">
-                    {sampleEvents.map((event) => (
+                    {events
+                    .filter(event => event.explore === 'YES')
+                    .map((event) => (
                       <DropdownItem
-                        key={event.id}
+                        key={event._id}
                         className="px-4 py-2 hover:bg-white/5 transition-colors text-white"
                         onClick={() => {
                           const currentEvents = watchEdit("events") || [];
-                          const eventId = String(event.id);
+                          const eventId = String(event._id);
                           if (currentEvents.includes(eventId)) {
                             setEditValue(
                               "events",
@@ -1060,10 +1192,10 @@ export default function OrganizeMembers() {
                         }}
                       >
                         <div className="flex items-center w-full justify-between gap-3">
-                          {event.name}
+                          {event.event_name}
                           <Checkbox
                             checked={watchEdit("events")?.includes(
-                              String(event.id)
+                              String(event._id)
                             )}
                             className="border-white/10 -z-10 rounded bg-white/5 data-[state=checked]:bg-[#34B2DA] data-[state=checked]:text-black"
                           />

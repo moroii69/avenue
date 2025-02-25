@@ -7,6 +7,30 @@
     scrollbar-width: none;
 }
 
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    /* Makes the scrollbar thin */
+    height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: black;
+    /* Sets the background to black */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #555;
+    /* Thumb color; adjust as needed */
+    border-radius: 3px;
+}
+
+/* For Firefox */
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #555 black;
+    /* Thumb color then track color */
+}
+
 .striped-background {
     background: repeating-linear-gradient(-45deg,
             #0063946e,

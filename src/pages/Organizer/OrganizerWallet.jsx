@@ -19,6 +19,8 @@ import * as z from "zod";
 import { Ellipsis } from "lucide-react";
 import url from "../../constants/url"
 import axios from "axios"
+import { Spin } from 'antd';
+import "../../css/global.css"
 
 const salesHistory = [
     {
@@ -433,18 +435,7 @@ const cards = [
 ];
 
 // Add withdrawal form schema
-const withdrawalSchema = z.object({
-    amount: z
-        .number({
-            required_error: "Amount is required",
-            invalid_type_error: "Amount must be a number",
-        })
-        .min(1, "Amount must be greater than 0")
-        .max(10110, "Amount cannot exceed available balance"),
-    cardId: z.number({
-        required_error: "Please select a card",
-    }),
-});
+
 
 export default function OrganizerWallet() {
     const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -467,6 +458,9 @@ export default function OrganizerWallet() {
     const [bankDetails, setBankDetails] = useState({})
     const [payoutList, setPayoutList] = useState([])
     const [orgEventList, setOrgEventList] = useState([])
+    const [balanceLoader, setBalanceLoader] = useState(true);
+    const [historyLoader, setHistoryLoader] = useState(true);
+    const [statusInstant, setStatusInstant] = useState(true);
 
     const filteredSalesHistory = orgEventList.filter((sale) => {
         // Search filter
@@ -521,6 +515,19 @@ export default function OrganizerWallet() {
         return true;
     });
 
+    const withdrawalSchema = z.object({
+        amount: z
+            .number({
+                required_error: "Amount is required",
+                invalid_type_error: "Amount must be a number",
+            })
+            .min(1, "Amount must be greater than 0")
+            .max(accountBalance?.balance?.instant_available[0].amount / 100, "Amount cannot exceed available balance"),
+        cardId: z.number({
+            required_error: "Please select a card",
+        }),
+    });
+
     const {
         register,
         handleSubmit,
@@ -535,10 +542,22 @@ export default function OrganizerWallet() {
         },
     });
 
+
+
     const onSubmit = (data) => {
         console.log("Withdrawal data:", data);
-        // Handle withdrawal logic here
-        setIsWithdrawOpen(false);
+        try {
+            const payout = axios.post(`${url}/instant-payout`, {
+                account_id: accountId,
+                amount: data.amount,
+                currency: "usd"
+            });
+            alert("Transfered successfully");
+            window.location.reload()
+        } catch (error) {
+            console.error("Error processing refund or updating status:", error);
+            alert("Instant Payout Failed. Please try again.");
+        }
     };
 
     useEffect(() => {
@@ -579,6 +598,7 @@ export default function OrganizerWallet() {
 
     const fetchBalance = async () => {
         if (organizer && organizer.stripeAccountId) {
+            setBalanceLoader(true)
             try {
                 const response = await axios.get(
                     `${url}/check-user-balance/${organizer.stripeAccountId}`
@@ -586,6 +606,8 @@ export default function OrganizerWallet() {
                 setSetAccountBalance(response.data || { available: [], instant_available: [], pending: [] });
             } catch (error) {
                 console.error("Error fetching balance:", error);
+            } finally {
+                setBalanceLoader(false)
             }
         }
     };
@@ -648,6 +670,8 @@ export default function OrganizerWallet() {
             setPayoutList(response.data?.payouts);
         } catch (error) {
             console.error("Error fetching balance:", error);
+        } finally {
+            setHistoryLoader(false)
         }
     }
 
@@ -678,6 +702,24 @@ export default function OrganizerWallet() {
         }
     }, [oragnizerId]);
 
+    const fetchStatusInstantPayout = async (req, res) => {
+        if (!accountId) {
+            console.log("accountId is undefined");
+            return;
+        }
+        try {
+            const response = await axios.get(
+                `${url}/check-instant-eligiblity/${accountId}`
+            );
+            setStatusInstant(response.data?.instantPayouts);
+        } catch (error) {
+            console.error("Error fetching balance:", error);
+        }
+    }
+
+    useEffect(() => {
+        fetchStatusInstantPayout()
+    }, [accountId])
 
     return (
         <SidebarLayout>
@@ -698,7 +740,21 @@ export default function OrganizerWallet() {
                             <div className="flex flex-col md:flex-row gap-5 md:gap-2 justify-between items-center p-4">
                                 <div className="flex flex-col gap-3">
                                     <p className="text-sm text-white/70">Available balance</p>
-                                    <span className="text-3xl font-bold mt-1">${accountBalance?.balance?.pending?.[0]?.amount ? (accountBalance?.balance?.pending[0].amount / 100).toFixed(2) : 0}</span>
+                                    <span className="text-3xl font-bold mt-1">
+                                        {
+                                            balanceLoader ? (
+                                                <>
+                                                    <div className='text-center'>
+                                                        <Spin size="small" />
+                                                    </div>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    ${accountBalance?.balance?.pending?.[0]?.amount ? (accountBalance?.balance?.pending[0].amount / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 0}
+                                                </>
+                                            )
+                                        }
+                                    </span>
                                 </div>
                                 <div className="flex gap-2">
                                     <button
@@ -722,31 +778,33 @@ export default function OrganizerWallet() {
                                         </svg>
                                         <span>History</span>
                                     </button>
-                                    <button
-                                        onClick={() => setIsWithdrawOpen(true)}
-                                        className="text-sm bg-white text-black px-3 py-2 rounded-full flex items-center gap-2 font-semibold"
-                                    >
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="16"
-                                            height="16"
-                                            viewBox="0 0 16 16"
-                                            fill="none"
+                                    <div>
+                                        <button
+                                            disabled={!statusInstant}
+                                            onClick={() => setIsWithdrawOpen(true)}
+                                            className={`text-sm ${statusInstant === false ? 'bg-[#ffffff] bg-opacity-30' : 'bg-white'} text-black px-3 py-2 cursor-pointer rounded-full flex items-center gap-2 font-semibold`}
                                         >
-                                            <path
-                                                d="M7.24985 10.2503C7.24985 10.4492 7.32886 10.64 7.46952 10.7806C7.61017 10.9213 7.80093 11.0003 7.99985 11.0003C8.19876 11.0003 8.38952 10.9213 8.53018 10.7806C8.67083 10.64 8.74985 10.4492 8.74985 10.2503V4.56032L10.9698 6.78032C11.0385 6.854 11.1213 6.91311 11.2133 6.9541C11.3053 6.99509 11.4046 7.01713 11.5053 7.01891C11.606 7.02068 11.7061 7.00216 11.7994 6.96444C11.8928 6.92672 11.9777 6.87057 12.0489 6.79936C12.1201 6.72814 12.1762 6.6433 12.214 6.54991C12.2517 6.45653 12.2702 6.3565 12.2684 6.25579C12.2667 6.15509 12.2446 6.05578 12.2036 5.96378C12.1626 5.87178 12.1035 5.78898 12.0298 5.72032L8.52985 2.22032C8.38922 2.07987 8.1986 2.00098 7.99985 2.00098C7.8011 2.00098 7.61047 2.07987 7.46985 2.22032L3.96985 5.72032C3.83737 5.86249 3.76524 6.05054 3.76867 6.24484C3.7721 6.43914 3.85081 6.62453 3.98822 6.76194C4.12564 6.89935 4.31102 6.97806 4.50532 6.98149C4.69963 6.98492 4.88767 6.9128 5.02985 6.78032L7.24985 4.56032V10.2503Z"
-                                                fill="#0A0A0A"
-                                            />
-                                            <path
-                                                d="M3.5 9.75C3.5 9.55109 3.42098 9.36032 3.28033 9.21967C3.13968 9.07902 2.94891 9 2.75 9C2.55109 9 2.36032 9.07902 2.21967 9.21967C2.07902 9.36032 2 9.55109 2 9.75V11.25C2 11.9793 2.28973 12.6788 2.80546 13.1945C3.32118 13.7103 4.02065 14 4.75 14H11.25C11.9793 14 12.6788 13.7103 13.1945 13.1945C13.7103 12.6788 14 11.9793 14 11.25V9.75C14 9.55109 13.921 9.36032 13.7803 9.21967C13.6397 9.07902 13.4489 9 13.25 9C13.0511 9 12.8603 9.07902 12.7197 9.21967C12.579 9.36032 12.5 9.55109 12.5 9.75V11.25C12.5 11.94 11.94 12.5 11.25 12.5H4.75C4.06 12.5 3.5 11.94 3.5 11.25V9.75Z"
-                                                fill="#0A0A0A"
-                                            />
-                                        </svg>
-                                        <span>Withdraw instantly</span>
-                                    </button>
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                width="16"
+                                                height="16"
+                                                viewBox="0 0 16 16"
+                                                fill="none"
+                                            >
+                                                <path
+                                                    d="M7.24985 10.2503C7.24985 10.4492 7.32886 10.64 7.46952 10.7806C7.61017 10.9213 7.80093 11.0003 7.99985 11.0003C8.19876 11.0003 8.38952 10.9213 8.53018 10.7806C8.67083 10.64 8.74985 10.4492 8.74985 10.2503V4.56032L10.9698 6.78032C11.0385 6.854 11.1213 6.91311 11.2133 6.9541C11.3053 6.99509 11.4046 7.01713 11.5053 7.01891C11.606 7.02068 11.7061 7.00216 11.7994 6.96444C11.8928 6.92672 11.9777 6.87057 12.0489 6.79936C12.1201 6.72814 12.1762 6.6433 12.214 6.54991C12.2517 6.45653 12.2702 6.3565 12.2684 6.25579C12.2667 6.15509 12.2446 6.05578 12.2036 5.96378C12.1626 5.87178 12.1035 5.78898 12.0298 5.72032L8.52985 2.22032C8.38922 2.07987 8.1986 2.00098 7.99985 2.00098C7.8011 2.00098 7.61047 2.07987 7.46985 2.22032L3.96985 5.72032C3.83737 5.86249 3.76524 6.05054 3.76867 6.24484C3.7721 6.43914 3.85081 6.62453 3.98822 6.76194C4.12564 6.89935 4.31102 6.97806 4.50532 6.98149C4.69963 6.98492 4.88767 6.9128 5.02985 6.78032L7.24985 4.56032V10.2503Z"
+                                                    fill="#0A0A0A"
+                                                />
+                                                <path
+                                                    d="M3.5 9.75C3.5 9.55109 3.42098 9.36032 3.28033 9.21967C3.13968 9.07902 2.94891 9 2.75 9C2.55109 9 2.36032 9.07902 2.21967 9.21967C2.07902 9.36032 2 9.55109 2 9.75V11.25C2 11.9793 2.28973 12.6788 2.80546 13.1945C3.32118 13.7103 4.02065 14 4.75 14H11.25C11.9793 14 12.6788 13.7103 13.1945 13.1945C13.7103 12.6788 14 11.9793 14 11.25V9.75C14 9.55109 13.921 9.36032 13.7803 9.21967C13.6397 9.07902 13.4489 9 13.25 9C13.0511 9 12.8603 9.07902 12.7197 9.21967C12.579 9.36032 12.5 9.55109 12.5 9.75V11.25C12.5 11.94 11.94 12.5 11.25 12.5H4.75C4.06 12.5 3.5 11.94 3.5 11.25V9.75Z"
+                                                    fill="#0A0A0A"
+                                                />
+                                            </svg>
+                                            <span>Withdraw instantly - {statusInstant === false ? "Not Eligible" : ""}</span>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-
                             {/* Processing Payment Alert */}
 
                             <div className="flex items-center bg-[#28180D] p-4 relative overflow-hidden before:absolute before:top-1/2 before:-translate-y-1/2 before:left-1/2 before:-translate-x-1/2 before:w-[calc(100%-0.2rem)] before:h-[calc(100%-0.2rem)] before:border before:border-[#F97316]/20 before:z-0 before:rounded-b-lg">
@@ -774,9 +832,21 @@ export default function OrganizerWallet() {
                                             fill="#F97316"
                                         />
                                     </svg>
-                                    <p className="text-[#F97316]">
-                                        ${accountBalance?.transit ? (accountBalance?.transit / 100).toFixed(2) : 0.00} is processing
-                                    </p>
+                                    {
+                                        accountBalance.transit ? (
+                                            <>
+                                                <p className="text-[#F97316]">
+                                                    ${(accountBalance?.transit / 100).toFixed(2)} is processing
+                                                </p>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <p className="text-[#F97316]">
+                                                    No payouts scheduled
+                                                </p>
+                                            </>
+                                        )
+                                    }
                                 </div>
                             </div>
                         </div>
@@ -843,7 +913,25 @@ export default function OrganizerWallet() {
                                     Total revenue
                                 </p>
                                 <div className="flex items-center gap-2 mt-3">
-                                    <span className="text-2xl font-bold">${accountBalance?.totalVolume ? (accountBalance?.totalVolume / 100).toFixed(2) : 0.00}</span>
+                                    <span className="text-2xl font-bold">
+                                        {
+                                            balanceLoader ? (
+                                                <>
+                                                    <div className='text-center'>
+                                                        <Spin size="small" />
+                                                    </div>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    ${accountBalance?.totalVolume
+                                                        ? (accountBalance.totalVolume / 100)
+                                                            .toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                                                        : "0.00"}
+                                                </>
+
+                                            )
+                                        }
+                                    </span>
                                     {/* <span className="text-xs text-[#10B981] bg-[#10B981]/10 px-1.5 py-0.5 rounded-full border border-[#10B981]/10">
                                         +8%
                                     </span> */}
@@ -852,7 +940,22 @@ export default function OrganizerWallet() {
                             <div className="rounded-xl border border-white/10 p-4">
                                 <p className="text-sm text-white/70">Refunds</p>
                                 <div className="flex items-center gap-2 mt-3">
-                                    <span className="text-2xl font-bold">${accountBalance?.totalRefund ? (accountBalance?.totalRefund / 100).toFixed(2) : 0.00}</span>
+                                    <span className="text-2xl font-bold">
+                                        {
+                                            balanceLoader ? (
+                                                <>
+                                                    <div className='text-center'>
+                                                        <Spin size="small" />
+                                                    </div>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    ${accountBalance?.totalRefund ? (accountBalance?.totalRefund / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 0.00}
+                                                </>
+                                            )
+                                        }
+
+                                    </span>
                                     {/* <span className="text-xs text-[#F43F5E] bg-[#F43F5E]/10 px-1.5 py-0.5 rounded-full border border-[#F43F5E]/10">
                                         -8%
                                     </span> */}
@@ -1247,7 +1350,7 @@ export default function OrganizerWallet() {
                                                             }
                                                         >
                                                             {sale.amount < 0 ? "-" : ""}$
-                                                            {Math.abs(sale.amount / 100)}
+                                                            {Math.abs(sale.amount / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                                         </span>
                                                     </td>
                                                     <td className="p-4">
@@ -1326,7 +1429,7 @@ export default function OrganizerWallet() {
                                     <div className="flex items-center gap-x-2">
                                         <span className="text-sm text-white/60">Instant Available:</span>
                                         <span className="text-sm font-medium text-white">
-                                            ${accountBalance?.balance?.instant_available?.[0]?.amount ? accountBalance?.balance?.instant_available[0].amount / 100 : 0}
+                                            ${accountBalance?.balance?.instant_available?.[0]?.amount ? (accountBalance?.balance?.instant_available[0].amount / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 0}
                                         </span>
                                     </div>
                                     {errors.amount && (
@@ -1426,7 +1529,7 @@ export default function OrganizerWallet() {
                         </DialogDescription>
                     </div>
 
-                    <div className="border border-white/10 rounded-lg max-h-[80vh] overflow-y-auto m-6">
+                    <div className="border border-white/10 rounded-lg max-h-[80vh] overflow-y-auto m-6 hide-scrollbar">
                         <table className="w-full text-white text-sm">
                             <thead className="bg-white/[0.03] border-b border-white/10">
                                 <tr className="text-left [&>th]:font-medium [&>th]:min-w-[180px]">
@@ -1437,11 +1540,14 @@ export default function OrganizerWallet() {
                                         Account
                                     </th>
                                     <th className="p-4 text-sm font-medium text-white/70">
-                                        Date
+                                        Initiated Date
                                     </th>
                                     <th className="p-4 text-sm font-medium text-white/70">
-                                        Reference
+                                        Est. Arrival
                                     </th>
+                                    {/* <th className="p-4 text-sm font-medium text-white/70">
+                                        Reference
+                                    </th> */}
                                     <th className="p-4 text-sm font-medium text-white/70">
                                         Status
                                     </th>
@@ -1450,7 +1556,7 @@ export default function OrganizerWallet() {
                             <tbody className="divide-y divide-white/5">
                                 {payoutList.map((payout, index) => (
                                     <tr key={index} className="hover:bg-white/[0.01]">
-                                        <td className="p-4">${(payout.amount / 100).toFixed(2)}</td>
+                                        <td className="p-4">${(payout.amount / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                                         <td className="p-4 flex items-center gap-2">
                                             {/* <div className="border border-white/10 rounded h-6 w-fit px-1 py-1 flex items-center justify-center">
                                                 {bankDetails?.bankAccounts?.[0]?.bank_name}
@@ -1458,19 +1564,44 @@ export default function OrganizerWallet() {
                                             •••• {bankDetails?.bankAccounts?.[0]?.last4}
                                         </td>
                                         <td className="p-4">
-                                            {new Date(payout.arrival_date * 1000)
-                                                .toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-                                                .replace(',', '')}
+                                            {(() => {
+                                                const dateObj = new Date(payout.created * 1000);
+                                                const formattedDate = dateObj.toLocaleDateString("en-US", {
+                                                    month: "short",
+                                                    day: "numeric",
+                                                });
+                                                const formattedTime = dateObj.toLocaleTimeString("en-US", {
+                                                    hour: "numeric",
+                                                    minute: "numeric",
+                                                    hour12: true,
+                                                });
+                                                return `${formattedDate}, ${formattedTime}`;
+                                            })()}
                                         </td>
-                                        <td className="p-4">#{payout.id.slice(-6)}</td>
+                                        <td className="p-4">
+                                            {(() => {
+                                                const dateObj = new Date(payout.arrival_date * 1000);
+                                                const formattedDate = dateObj.toLocaleDateString("en-US", {
+                                                    month: "short",
+                                                    day: "numeric",
+                                                });
+                                                const formattedTime = dateObj.toLocaleTimeString("en-US", {
+                                                    hour: "numeric",
+                                                    minute: "numeric",
+                                                    hour12: true,
+                                                });
+                                                return `${formattedDate}, ${formattedTime}`;
+                                            })()}
+                                        </td>
+                                        {/* <td className="p-4">#{payout.id.slice(-6)}</td> */}
 
                                         <td className="p-4">
                                             <span
                                                 className={`inline-flex items-center gap-1.5 rounded-full text-xs font-medium`}
                                             >
                                                 {statusIcons[payout.status]}
-                                                {payout.status.charAt(0).toUpperCase() +
-                                                    payout.status.slice(1)}
+                                                {(payout.status === "in_transit" ? "processing" : payout.status === 'paid' ? "completed" : payout.status)
+                                                    .replace(/^./, (char) => char.toUpperCase())}
                                             </span>
                                         </td>
                                     </tr>

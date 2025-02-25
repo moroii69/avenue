@@ -1,11 +1,13 @@
 import { MoreHorizontal } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Dropdown,
   DropdownTrigger,
   DropdownContent,
   DropdownItem,
 } from "../../components/ui/Dropdown";
+import axios from "axios";
+import url from "../../constants/url"
 
 const ticketTypesIcons = {
   regular: (
@@ -243,15 +245,28 @@ const eventSalesHistory = [
   },
 ];
 
-export default function SalesTab() {
+export default function SalesTab({ eventId }) {
   const [timeFilter, setTimeFilter] = useState("All time");
   const [typeFilter, setTypeFilter] = useState("All types");
   const [ticketFilter, setTicketFilter] = useState("All tickets");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Filter the sales history based on all filters
+  const [book, setBook] = useState([]);
+
+  const fetchBook = async () => {
+    try {
+      const response = await axios.get(`${url}/get-event-payment-list/${eventId}`);
+      setBook(response.data);
+    } catch (error) {
+      console.error('Error fetching events:', error);
+    }
+  }
+
+  useEffect(() => {
+    fetchBook()
+  }, [eventId])
+
   const filteredSalesHistory = eventSalesHistory.filter((sale) => {
-    // Filter by ticket type
     if (
       ticketFilter !== "All tickets" &&
       sale.ticket.toLowerCase() !== ticketFilter.toLowerCase()
@@ -259,7 +274,6 @@ export default function SalesTab() {
       return false;
     }
 
-    // Filter by status
     if (
       typeFilter !== "All types" &&
       sale.type.toLowerCase() !== typeFilter.toLowerCase()
@@ -267,7 +281,6 @@ export default function SalesTab() {
       return false;
     }
 
-    // Filter by date
     const saleDate = new Date(
       sale.date
         .replace("Today", new Date().toDateString())
@@ -287,7 +300,6 @@ export default function SalesTab() {
       return false;
     }
 
-    // Filter by search query
     const searchLower = searchQuery.toLowerCase();
     return (
       searchQuery === "" ||
@@ -300,6 +312,20 @@ export default function SalesTab() {
       (sale.amount?.toString() || "").includes(searchLower)
     );
   });
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const month = date.toLocaleString('en-US', { month: 'short' }).toLowerCase();
+
+    let hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+
+    return `${month} ${day}, ${hours}:${minutes} ${ampm}`;
+  };
 
   return (
     <div className="@container grid gap-6">
@@ -537,6 +563,7 @@ export default function SalesTab() {
           </svg>
         </div>
       </div>
+
       <div className="border rounded-xl h-fit border-white/10 overflow-hidden">
         <div className="overflow-x-auto w-full">
           <table className="w-full text-sm">
@@ -564,37 +591,37 @@ export default function SalesTab() {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {filteredSalesHistory.map((payout, index) => (
+              {book.map((payout, index) => (
                 <tr key={index} className="hover:bg-white/[0.01]">
-                  <td className="p-4">{payout.date}</td>
+                  <td className="p-4">{formatDate(payout.date)}</td>
                   <td className="p-4">
                     <div className="flex items-center gap-2 capitalize">
-                      {saleTypesIcons[payout.type]}
-                      {payout.type}
+                      {/* {saleTypesIcons[payout.type]} */}
+                      {/* {payout.type} */}
+                      Sale
                     </div>
                   </td>
                   <td className="p-4">
                     <div className="flex items-center gap-2 capitalize">
-                      {ticketTypesIcons[payout.ticket]}
-                      {payout.ticket} x {payout.totalTicketHeadCount}
+                      {/* {ticketTypesIcons[payout.ticket]} */}
+                      {payout?.tickets?.ticket_name} x {payout.count}
                     </div>
                   </td>
                   <td className="p-4">
                     <div className="flex flex-col">
-                      <span>{payout.name}</span>
+                      <span>{payout.firstName}</span>
                       <span className="text-white/50 text-xs">
                         {payout.email}
                       </span>
                     </div>
                   </td>
                   <td
-                    className={`p-4 ${
-                      payout.amount < 0 ? "text-white/50" : ""
-                    }`}
+                    className={`p-4 ${payout.amount < 0 ? "text-white/50" : ""
+                      }`}
                   >
                     {payout.amount < 0
-                      ? `-$${Math.abs(payout.amount)}`
-                      : `$${payout.amount}`}
+                      ? `-$${Math.abs(payout.amount / 100)}`
+                      : `$${payout.amount / 100}`}
                   </td>
                   <td className="p-4">
                     <span className="flex items-center gap-2 capitalize">
@@ -623,34 +650,33 @@ export default function SalesTab() {
                       <span className="font-medium">Total Amount</span>
                       <span className="text-green-500 border border-green-500/10 border-dashed bg-green-500/5 px-2 py-1 rounded">
                         Sales: $
-                        {filteredSalesHistory
-                          .filter((sale) => sale.type === "sale")
-                          .reduce((sum, sale) => sum + sale.amount, 0)}
+                        {book
+                          // .filter((sale) => sale.type === "sale")
+                          .reduce((sum, sale) => (sum + sale.amount / 100), 0)}
                       </span>
                       <span className="text-red-500 border border-red-500/10 border-dashed bg-red-500/5 px-2 py-1 rounded">
-                        Refunds: $
-                        {Math.abs(
+                        Refunds: $0.00
+                        {/* {Math.abs(
                           filteredSalesHistory
                             .filter((sale) => sale.type === "refund")
                             .reduce((sum, sale) => sum + sale.amount, 0)
-                        )}
+                        )} */}
                       </span>
                     </div>
                   </td>
                   <td className="p-4 font-medium">
                     <span
-                      className={`border border-white/10 px-2 py-1 rounded border-dashed ${
-                        filteredSalesHistory.reduce(
-                          (sum, sale) => sum + sale.amount,
-                          0
-                        ) < 0
-                          ? "bg-red-500/10"
-                          : "bg-green-500/10"
-                      }`}
+                      className={`border border-white/10 px-2 py-1 rounded border-dashed ${book.reduce(
+                        (sum, sale) => (sum + sale.amount / 100),
+                        0
+                      ) < 0
+                        ? "bg-red-500/10"
+                        : "bg-green-500/10"
+                        }`}
                     >
                       $
-                      {filteredSalesHistory.reduce(
-                        (sum, sale) => sum + sale.amount,
+                      {book.reduce(
+                        (sum, sale) => (sum + sale.amount / 100 ),
                         0
                       )}
                     </span>
