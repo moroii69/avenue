@@ -143,7 +143,7 @@ const saleTypeIcons = {
 };
 
 const statusIcons = {
-    completed: (
+    paid: (
         <svg
             xmlns="http://www.w3.org/2000/svg"
             width="17"
@@ -159,7 +159,7 @@ const statusIcons = {
             />
         </svg>
     ),
-    processing: (
+    in_transit: (
         <svg
             xmlns="http://www.w3.org/2000/svg"
             width="17"
@@ -464,18 +464,21 @@ export default function OrganizerWallet() {
         pending: [],
     });
     const [transferedAmount, setTransferedAmount] = useState("")
+    const [bankDetails, setBankDetails] = useState({})
+    const [payoutList, setPayoutList] = useState([])
+    const [orgEventList, setOrgEventList] = useState([])
 
-    const filteredSalesHistory = salesHistory.filter((sale) => {
+    const filteredSalesHistory = orgEventList.filter((sale) => {
         // Search filter
         if (searchQuery) {
             const searchLower = searchQuery.toLowerCase();
             const matchesSearch =
-                sale.ticket.toLowerCase().includes(searchLower) ||
-                sale.reference.toLowerCase().includes(searchLower) ||
-                sale.type.toLowerCase().includes(searchLower) ||
-                sale.status.toLowerCase().includes(searchLower) ||
-                sale.amount.toString().includes(searchLower) ||
-                sale.date.toLowerCase().includes(searchLower);
+                sale?.party?.event_name.toLowerCase().includes(searchLower) ||
+                sale?.tickets?.ticket_name.toLowerCase().includes(searchLower)
+            // sale.type.toLowerCase().includes(searchLower) ||
+            // sale.status.toLowerCase().includes(searchLower) ||
+            // sale.amount.toString().includes(searchLower) ||
+            // sale.date.toLowerCase().includes(searchLower);
 
             if (!matchesSearch) return false;
         }
@@ -511,8 +514,8 @@ export default function OrganizerWallet() {
         }
 
         // Ticket filter
-        if (ticketFilter !== "All tickets") {
-            if (sale.ticket !== ticketFilter) return false;
+        if (ticketFilter !== "All events") {
+            if (sale?.tickets !== ticketFilter) return false;
         }
 
         return true;
@@ -612,6 +615,70 @@ export default function OrganizerWallet() {
         }
     }, [organizer]);
 
+    const fetchBankDetails = async () => {
+        if (!accountId) {
+            console.log("accountId is undefined");
+            return;
+        }
+        try {
+            const response = await axios.get(
+                `${url}/bank-accounts/${accountId}`
+            );
+            setBankDetails(response.data);
+        } catch (error) {
+            console.error("Error fetching balance:", error);
+        }
+    };
+
+    useEffect(() => {
+        if (accountId) {
+            fetchBankDetails();
+        }
+    }, [accountId]);
+
+    const fetchPayout = async () => {
+        if (!accountId) {
+            console.log("accountId is undefined");
+            return;
+        }
+        try {
+            const response = await axios.get(
+                `${url}/payout-money-movement/${accountId}`
+            );
+            setPayoutList(response.data?.payouts);
+        } catch (error) {
+            console.error("Error fetching balance:", error);
+        }
+    }
+
+    useEffect(() => {
+        if (accountId) {
+            fetchPayout();
+        }
+    }, [accountId]);
+
+    const fetchOrgEvents = async () => {
+        if (!oragnizerId) {
+            console.log("oragnizerId is undefined");
+            return;
+        }
+        try {
+            const response = await axios.get(
+                `${url}/organizer-transactions/${oragnizerId}`
+            );
+            setOrgEventList(response.data?.data);
+        } catch (error) {
+            console.error("Error fetching balance:", error);
+        }
+    }
+
+    useEffect(() => {
+        if (oragnizerId) {
+            fetchOrgEvents();
+        }
+    }, [oragnizerId]);
+
+
     return (
         <SidebarLayout>
             <div className="m-4 mb-2 z-20">
@@ -631,7 +698,7 @@ export default function OrganizerWallet() {
                             <div className="flex flex-col md:flex-row gap-5 md:gap-2 justify-between items-center p-4">
                                 <div className="flex flex-col gap-3">
                                     <p className="text-sm text-white/70">Available balance</p>
-                                    <span className="text-3xl font-bold mt-1">${accountBalance?.pending?.[0]?.amount ? accountBalance.pending[0].amount / 100 : 0}</span>
+                                    <span className="text-3xl font-bold mt-1">${accountBalance?.balance?.pending?.[0]?.amount ? (accountBalance?.balance?.pending[0].amount / 100).toFixed(2) : 0}</span>
                                 </div>
                                 <div className="flex gap-2">
                                     <button
@@ -675,7 +742,7 @@ export default function OrganizerWallet() {
                                                 fill="#0A0A0A"
                                             />
                                         </svg>
-                                        <span>Withdraw</span>
+                                        <span>Withdraw instantly</span>
                                     </button>
                                 </div>
                             </div>
@@ -707,7 +774,9 @@ export default function OrganizerWallet() {
                                             fill="#F97316"
                                         />
                                     </svg>
-                                    <p className="text-[#F97316]">$2,340 is processing</p>
+                                    <p className="text-[#F97316]">
+                                        ${accountBalance?.transit ? (accountBalance?.transit / 100).toFixed(2) : 0.00} is processing
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -737,7 +806,10 @@ export default function OrganizerWallet() {
                                         />
                                     </svg>
                                     <div className="flex items-center gap-x-2">
-                                        <p className="font-medium">Mastercard 4468</p>
+                                        <p className="font-medium">
+                                            {bankDetails?.bankAccounts?.[0]?.bank_name} {bankDetails?.bankAccounts?.[0]?.last4}
+                                        </p>
+
                                         <span className="text-xs font-semibold bg-white/5 rounded-full h-6 flex items-center px-2.5">
                                             DEFAULT
                                         </span>
@@ -771,7 +843,7 @@ export default function OrganizerWallet() {
                                     Total revenue
                                 </p>
                                 <div className="flex items-center gap-2 mt-3">
-                                    <span className="text-2xl font-bold">${transferedAmount.totalAmountTransferred || 0}</span>
+                                    <span className="text-2xl font-bold">${accountBalance?.totalVolume ? (accountBalance?.totalVolume / 100).toFixed(2) : 0.00}</span>
                                     {/* <span className="text-xs text-[#10B981] bg-[#10B981]/10 px-1.5 py-0.5 rounded-full border border-[#10B981]/10">
                                         +8%
                                     </span> */}
@@ -780,7 +852,7 @@ export default function OrganizerWallet() {
                             <div className="rounded-xl border border-white/10 p-4">
                                 <p className="text-sm text-white/70">Refunds</p>
                                 <div className="flex items-center gap-2 mt-3">
-                                    <span className="text-2xl font-bold">$0</span>
+                                    <span className="text-2xl font-bold">${accountBalance?.totalRefund ? (accountBalance?.totalRefund / 100).toFixed(2) : 0.00}</span>
                                     {/* <span className="text-xs text-[#F43F5E] bg-[#F43F5E]/10 px-1.5 py-0.5 rounded-full border border-[#F43F5E]/10">
                                         -8%
                                     </span> */}
@@ -959,7 +1031,7 @@ export default function OrganizerWallet() {
                                             onClick={() => setTicketFilter("All tickets")}
                                             className="px-4 py-2 hover:bg-white/5 text-white"
                                         >
-                                            All tickets
+                                            All events
                                         </DropdownItem>
                                         {Array.from(
                                             new Set(salesHistory.map((sale) => sale.ticket))
@@ -1006,6 +1078,26 @@ export default function OrganizerWallet() {
                                 <table className="w-full text-sm">
                                     <thead>
                                         <tr className="text-left text-white/70 [&_th]:font-medium border-b border-white/5 bg-white/[0.03] [&>th]:min-w-[250px] @4xl:[&>th]:min-w-fit last:[&>th]:min-w-fit">
+                                            <th className="p-4 ">
+                                                <div className="flex items-center gap-2">
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        width="16"
+                                                        height="16"
+                                                        viewBox="0 0 16 16"
+                                                        fill="none"
+                                                    >
+                                                        <path
+                                                            fillRule="evenodd"
+                                                            clipRule="evenodd"
+                                                            d="M1 4.5C1 4.10218 1.15804 3.72064 1.43934 3.43934C1.72064 3.15804 2.10218 3 2.5 3H13.5C13.8978 3 14.2794 3.15804 14.5607 3.43934C14.842 3.72064 15 4.10218 15 4.5V5.5C15 5.776 14.773 5.994 14.505 6.062C14.0743 6.1718 13.6925 6.42192 13.4198 6.77286C13.1472 7.1238 12.9991 7.55557 12.9991 8C12.9991 8.44443 13.1472 8.8762 13.4198 9.22714C13.6925 9.57808 14.0743 9.8282 14.505 9.938C14.773 10.006 15 10.224 15 10.5V11.5C15 11.8978 14.842 12.2794 14.5607 12.5607C14.2794 12.842 13.8978 13 13.5 13H2.5C2.10218 13 1.72064 12.842 1.43934 12.5607C1.15804 12.2794 1 11.8978 1 11.5V10.5C1 10.224 1.227 10.006 1.495 9.938C1.92565 9.8282 2.30747 9.57808 2.58016 9.22714C2.85285 8.8762 3.00088 8.44443 3.00088 8C3.00088 7.55557 2.85285 7.1238 2.58016 6.77286C2.30747 6.42192 1.92565 6.1718 1.495 6.062C1.227 5.994 1 5.776 1 5.5V4.5ZM10 5.75C10 5.55109 10.079 5.36032 10.2197 5.21967C10.3603 5.07902 10.5511 5 10.75 5C10.9489 5 11.1397 5.07902 11.2803 5.21967C11.421 5.36032 11.5 5.55109 11.5 5.75V6.75C11.5 6.94891 11.421 7.13968 11.2803 7.28033C11.1397 7.42098 10.9489 7.5 10.75 7.5C10.5511 7.5 10.3603 7.42098 10.2197 7.28033C10.079 7.13968 10 6.94891 10 6.75V5.75ZM10.75 8.5C10.5511 8.5 10.3603 8.57902 10.2197 8.71967C10.079 8.86032 10 9.05109 10 9.25V10.25C10 10.4489 10.079 10.6397 10.2197 10.7803C10.3603 10.921 10.5511 11 10.75 11C10.9489 11 11.1397 10.921 11.2803 10.7803C11.421 10.6397 11.5 10.4489 11.5 10.25V9.25C11.5 9.05109 11.421 8.86032 11.2803 8.71967C11.1397 8.57902 10.9489 8.5 10.75 8.5Z"
+                                                            fill="white"
+                                                            fillOpacity="0.5"
+                                                        />
+                                                    </svg>
+                                                    Event
+                                                </div>
+                                            </th>
                                             <th className="p-4 ">
                                                 <div className="flex items-center gap-2">
                                                     <svg
@@ -1115,24 +1207,37 @@ export default function OrganizerWallet() {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-white/5">
-                                        {filteredSalesHistory.length > 0 ? (
-                                            filteredSalesHistory.map((sale, index) => (
+                                        {orgEventList.length > 0 ? (
+                                            orgEventList.map((sale, index) => (
                                                 <tr key={index} className="hover:bg-white/[0.02]">
                                                     <td className="p-4">
                                                         <div className="flex items-center gap-3">
-                                                            <div className="w-8 h-8 rounded bg-white/10"></div>
-                                                            {sale.ticket}
+                                                            {/* <div className="w-8 h-8 rounded bg-white/10"></div> */}
+                                                            {sale?.party?.event_name}
                                                         </div>
                                                     </td>
-                                                    <td className="p-4">{sale.date}</td>
+                                                    <td className="p-4">
+                                                        <div className="flex items-center gap-3">
+                                                            {sale?.tickets?.ticket_name ? sale?.tickets?.ticket_name : "Complimentary Ticket"}
+                                                        </div>
+                                                    </td>
+                                                    <td className="p-4">
+                                                        {new Date(sale.date)
+                                                            .toLocaleString("en-US", {
+                                                                month: "short",
+                                                                day: "numeric",
+                                                                hour: "numeric",
+                                                                minute: "2-digit",
+                                                                hour12: true,
+                                                            })
+                                                            .replace(",", "")}
+                                                    </td>
                                                     <td className="p-4">
                                                         <div className="flex items-center gap-2">
-                                                            {
-                                                                saleTypeIcons[
-                                                                sale.type === "sale" ? "Sale" : "refund"
-                                                                ]
-                                                            }
-                                                            <span className="capitalize">{sale.type}</span>
+                                                            {saleTypeIcons[(!sale.refund || sale.refund === "false") ? "Sale" : "refund"]}
+                                                            <span className="capitalize">
+                                                                {(!sale.refund || sale.refund === "false") ? "Sale" : "refund"}
+                                                            </span>
                                                         </div>
                                                     </td>
                                                     <td className="p-4">
@@ -1142,15 +1247,15 @@ export default function OrganizerWallet() {
                                                             }
                                                         >
                                                             {sale.amount < 0 ? "-" : ""}$
-                                                            {Math.abs(sale.amount)}
+                                                            {Math.abs(sale.amount / 100)}
                                                         </span>
                                                     </td>
                                                     <td className="p-4">
                                                         <div className="flex items-center gap-2">
-                                                            {statusIcons[sale.status]}
+                                                            {statusIcons["success"]}
                                                             <span>
-                                                                {sale.status.charAt(0).toUpperCase() +
-                                                                    sale.status.slice(1)}
+                                                                {"success".charAt(0).toUpperCase() +
+                                                                    "success".slice(1)}
                                                             </span>
                                                         </div>
                                                     </td>
@@ -1188,9 +1293,9 @@ export default function OrganizerWallet() {
                 <DialogContent className="max-h-[90vh] !gap-0">
                     <form onSubmit={handleSubmit(onSubmit)}>
                         <div className="flex flex-col gap-y-3 bg-white/[0.03] rounded-t-xl border-b border-white/10 p-6">
-                            <DialogTitle>Withdraw funds</DialogTitle>
+                            <DialogTitle>Withdraw funds instantly</DialogTitle>
                             <DialogDescription>
-                                Withdraw your available balance to your linked card.
+                                Withdraw your available balance to your account instantly.
                             </DialogDescription>
                         </div>
                         <div className="flex flex-col gap-4 p-6">
@@ -1211,7 +1316,7 @@ export default function OrganizerWallet() {
                                         <button
                                             type="button"
                                             onClick={() =>
-                                                setValue("amount", 10110, { shouldValidate: true })
+                                                setValue("amount", accountBalance?.balance?.instant_available?.[0]?.amount ? accountBalance?.balance?.instant_available[0].amount / 100 : 0, { shouldValidate: true })
                                             }
                                             className="absolute right-0 top-0 h-full px-3 text-xs text-white/50 hover:text-white transition-colors border-l border-white/10"
                                         >
@@ -1219,9 +1324,9 @@ export default function OrganizerWallet() {
                                         </button>
                                     </div>
                                     <div className="flex items-center gap-x-2">
-                                        <span className="text-sm text-white/60">Available:</span>
+                                        <span className="text-sm text-white/60">Instant Available:</span>
                                         <span className="text-sm font-medium text-white">
-                                            $10,110
+                                            ${accountBalance?.balance?.instant_available?.[0]?.amount ? accountBalance?.balance?.instant_available[0].amount / 100 : 0}
                                         </span>
                                     </div>
                                     {errors.amount && (
@@ -1235,7 +1340,7 @@ export default function OrganizerWallet() {
                             {/* Card Selection */}
                             <div className="flex flex-col gap-4">
                                 <label className="text-sm font-medium text-white">
-                                    Select Card
+                                    Accounts available
                                 </label>
                                 <Dropdown>
                                     <DropdownTrigger className="w-full">
@@ -1244,10 +1349,10 @@ export default function OrganizerWallet() {
                                             className="flex w-full justify-between items-center text-white gap-2 border border-white/10 hover:bg-white/10 transition-colors px-4 py-2 rounded-lg text-sm font-medium"
                                         >
                                             <div className="flex items-center gap-2">
-                                                <div className="border border-white/10 rounded h-6 w-fit px-1 py-1 flex items-center justify-center">
+                                                {/* <div className="border border-white/10 rounded h-6 w-fit px-1 py-1 flex items-center justify-center">
                                                     {cardIcons[selectedCard.type]}
-                                                </div>
-                                                <span>•••• {selectedCard.last4}</span>
+                                                </div> */}
+                                                <span>•••• {bankDetails?.bankAccounts?.[0]?.last4}</span>
                                             </div>
                                             <svg
                                                 xmlns="http://www.w3.org/2000/svg"
@@ -1267,23 +1372,23 @@ export default function OrganizerWallet() {
                                         </button>
                                     </DropdownTrigger>
                                     <DropdownContent className="w-full bg-[#151515] border border-white/10 tex-white rounded-lg shadow-lg overflow-hidden">
-                                        {cards.map((card) => (
-                                            <DropdownItem
-                                                key={card.id}
-                                                className="px-4 py-2 hover:bg-white/5 transition-colors text-white"
-                                                onClick={() => {
-                                                    setSelectedCard(card);
-                                                    setValue("cardId", card.id, { shouldValidate: true });
-                                                }}
-                                            >
-                                                <div className="flex items-center gap-2">
-                                                    <div className="border border-white/10 rounded h-6 w-fit px-1 py-1 flex items-center justify-center">
-                                                        {cardIcons[card.type]}
-                                                    </div>
-                                                    <span>•••• {card.last4}</span>
+                                        {/* {cards.map((card) => ( */}
+                                        <DropdownItem
+                                            key={1}
+                                            className="px-4 py-2 hover:bg-white/5 transition-colors text-white"
+                                            onClick={() => {
+                                                setSelectedCard("");
+                                                setValue("cardId", 1, { shouldValidate: true });
+                                            }}
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <div className="border border-white/10 rounded h-6 w-fit px-1 py-1 flex items-center justify-center">
+                                                    {bankDetails?.bankAccounts?.[0]?.bank_name}
                                                 </div>
-                                            </DropdownItem>
-                                        ))}
+                                                <span>•••• {bankDetails?.bankAccounts?.[0]?.last4}</span>
+                                            </div>
+                                        </DropdownItem>
+                                        {/* ))} */}
                                     </DropdownContent>
                                 </Dropdown>
                                 {errors.cardId && (
@@ -1315,9 +1420,9 @@ export default function OrganizerWallet() {
             >
                 <DialogContent className="max-h-[90vh] !gap-0">
                     <div className="flex flex-col gap-y-3 bg-white/[0.03] rounded-t-xl border-b border-white/10 p-6">
-                        <DialogTitle>Payment History</DialogTitle>
+                        <DialogTitle>Payout History</DialogTitle>
                         <DialogDescription>
-                            This is a list of all the payments you have made this month.
+                            This is a list of all the payouts you have made.
                         </DialogDescription>
                     </div>
 
@@ -1329,7 +1434,7 @@ export default function OrganizerWallet() {
                                         Amount
                                     </th>
                                     <th className="p-4 text-sm font-medium text-white/70">
-                                        Card
+                                        Account
                                     </th>
                                     <th className="p-4 text-sm font-medium text-white/70">
                                         Date
@@ -1343,17 +1448,21 @@ export default function OrganizerWallet() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-white/5">
-                                {payoutHistory.map((payout, index) => (
+                                {payoutList.map((payout, index) => (
                                     <tr key={index} className="hover:bg-white/[0.01]">
-                                        <td className="p-4">${payout.amount}</td>
+                                        <td className="p-4">${(payout.amount / 100).toFixed(2)}</td>
                                         <td className="p-4 flex items-center gap-2">
-                                            <div className="border border-white/10 rounded h-6 w-fit px-1 py-1 flex items-center justify-center">
-                                                {cardIcons[payout.cardType]}
-                                            </div>
-                                            •••• {payout.cardLast4}
+                                            {/* <div className="border border-white/10 rounded h-6 w-fit px-1 py-1 flex items-center justify-center">
+                                                {bankDetails?.bankAccounts?.[0]?.bank_name}
+                                            </div> */}
+                                            •••• {bankDetails?.bankAccounts?.[0]?.last4}
                                         </td>
-                                        <td className="p-4">{payout.date}</td>
-                                        <td className="p-4">{payout.reference}</td>
+                                        <td className="p-4">
+                                            {new Date(payout.arrival_date * 1000)
+                                                .toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+                                                .replace(',', '')}
+                                        </td>
+                                        <td className="p-4">#{payout.id.slice(-6)}</td>
 
                                         <td className="p-4">
                                             <span
@@ -1371,6 +1480,7 @@ export default function OrganizerWallet() {
                     </div>
                 </DialogContent>
             </Dialog>
+
         </SidebarLayout>
     );
 }

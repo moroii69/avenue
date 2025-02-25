@@ -177,8 +177,7 @@ export default function OrganizerEvents() {
     const formatDate = (dateString) => {
         const date = new Date(dateString);
         const day = date.getDate();
-        const month = date.toLocaleString('en-US', { month: 'short' });
-        const year = date.getFullYear().toString().slice(-2);
+        const month = date.toLocaleString('en-US', { month: 'short' }).toLowerCase();
 
         let hours = date.getHours();
         const minutes = date.getMinutes().toString().padStart(2, '0');
@@ -186,7 +185,7 @@ export default function OrganizerEvents() {
         hours = hours % 12;
         hours = hours ? hours : 12;
 
-        return `${day} ${month} ${year} ${hours}:${minutes} ${ampm}`;
+        return `${month} ${day}, ${hours}:${minutes} ${ampm}`;
     };
 
     const earningFunc = async (id) => {
@@ -240,6 +239,9 @@ export default function OrganizerEvents() {
         }
     };
 
+    const liveEvents =
+        events && filterEvents(events).filter((event) => event?.explore === "YES") || [];
+
     return (
         <SidebarLayout>
             <div className="m-4 mb-2 z-20">
@@ -276,7 +278,7 @@ export default function OrganizerEvents() {
                                 </svg>
                                 Live Events
                                 <span className="bg-[#151515] h-6 w-fit px-2 rounded-full flex items-center justify-center">
-                                    {events ? filterEvents(events).filter(event => event?.explore === "YES").length : 0}
+                                    {liveEvents.length}
                                 </span>
                             </TabTrigger>
                             <TabTrigger
