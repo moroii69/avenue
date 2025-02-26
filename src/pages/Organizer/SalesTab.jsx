@@ -5,7 +5,7 @@ import {
   DropdownTrigger,
   DropdownContent,
   DropdownItem,
-} from "../../components/ui/dropdown";
+} from "../../components/ui/Dropdown";
 
 const ticketTypesIcons = {
   regular: (

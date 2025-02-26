@@ -10,6 +10,10 @@ import {
 import { useState } from "react";
 import SalesTab from "./SalesTab";
 import AnalyticsTab from "./AnalyticsTab";
+import TicketTab from "./TicketTab";
+import PromosTab from "./PromosTab";
+import CustomerTab from "./CustomerTab";
+import SettingTab from "./SettingTab";
 
 // Mock data structure (you should replace this with actual data fetching)
 const eventData = {
@@ -181,7 +185,7 @@ const TABS = [
         />
       </svg>
     ),
-    content: <div>{/* Tickets content */}</div>,
+    content: <TicketTab />,
   },
   {
     id: "customers",
@@ -201,7 +205,7 @@ const TABS = [
         />
       </svg>
     ),
-    content: <div>{/* customer content */}</div>,
+    content: <CustomerTab />,
   },
   {
     id: "promos",
@@ -223,7 +227,7 @@ const TABS = [
         />
       </svg>
     ),
-    content: <div>{/* promos content */}</div>,
+    content: <PromosTab />,
   },
   {
     id: "team",
@@ -265,7 +269,7 @@ const TABS = [
         />
       </svg>
     ),
-    content: <div>{/* Settings content */}</div>,
+    content: <SettingTab />,
   },
 ];
 
@@ -298,7 +302,7 @@ export default function EventDetails() {
       </div>
       <div className="grid gap-12 text-white p-6 max-w-7xl mx-auto">
         <div className="grid gap-6">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 text-sm h-8 w-fit rounded-md border border-white/10 border-dashed px-2">
             <button
               onClick={() => window.history.back()}
               className="flex items-center gap-2 text-white/70 hover:text-white transition-colors"
@@ -318,7 +322,7 @@ export default function EventDetails() {
               </svg>
               Back to Events
             </button>
-            <div className="h-4 w-px bg-white/10" />
+            <div className="h-7 w-px bg-white/10" />
             <span className="text-white/50">Event Details</span>
           </div>
 
@@ -468,7 +472,7 @@ export default function EventDetails() {
                 </TabTrigger>
               ))}
             </TabsList>
-            <div className="mt-6">
+            <div className="mt-8">
               {TABS.map((tab) => (
                 <TabsContent key={tab.id} value={tab.id} activeTab={activeTab}>
                   {tab.content}

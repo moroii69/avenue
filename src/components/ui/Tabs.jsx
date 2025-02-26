@@ -57,7 +57,7 @@ export function TabsList({ children, className = "", selectedValue = "" }) {
       </div>
 
       {/* Mobile dropdown */}
-      <div className="@4xl:hidden w-full">
+      <div className="@4xl:hidden w-fit min-w-[200px]">
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="w-full px-4 py-2 bg-white/5 text-sm rounded-lg flex items-center justify-between gap-2 capitalize border border-white/10"
@@ -83,7 +83,7 @@ export function TabsList({ children, className = "", selectedValue = "" }) {
         </button>
 
         {isOpen && (
-          <div className="absolute border border-white/10 top-full left-0 w-full mt-1 backdrop-blur-[100px] bg-[#1A1A1A] rounded-lg z-10">
+          <div className="absolute border border-white/10 top-full left-0 w-fit min-w-[200px] mt-1 backdrop-blur-[100px] bg-[#1A1A1A] rounded-lg z-10">
             <div className="relative z-10 p-1 grid gap-1">
               {childrenWithProps}
             </div>

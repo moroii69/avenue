@@ -1,7 +1,4 @@
-// 'use client';
-
-import { RiExternalLinkLine } from "@remixicon/react";
-import { AreaChart, Card } from "@tremor/react";
+import { AreaChart } from "@tremor/react";
 
 function valueFormatter(number) {
   const formatter = new Intl.NumberFormat("en-US", {
@@ -63,39 +60,57 @@ const data = [
   },
 ];
 
+// Custom colors for the chart
+const customColors = {
+  Balance: "white",
+};
+
 export default function AnalyticsTab() {
   return (
     <>
       <div className="p-0 sm:mx-auto sm:w-full bg-transparent border border-white/10 rounded-xl">
-        <div className="p-6">
-          <p className="text-white/60 text-sm">Balance</p>
-          <p className="text-2xl font-semibold text-white">$60,143</p>
+        <div className="p-0">
+          <div className="p-6">
+            <p className="text-white/60 text-sm">Balance</p>
+            <p className="text-2xl font-semibold text-white">$60,143</p>
+          </div>
           <AreaChart
             data={data}
             index="date"
             categories={["Balance"]}
+            colors={customColors}
             showLegend={false}
-            showGradient={false}
+            showGradient={true}
+            gradientFromColor="rgba(255, 255, 255, 0.2)"
+            gradientToColor="rgba(255, 255, 255, 0.05)"
             yAxisWidth={45}
             valueFormatter={valueFormatter}
             showAnimation={true}
             showDataPoints={true}
             curveType="monotone"
-            className="mt-8 hidden h-60 sm:block [&_circle]:!opacity-100 [&_circle]:!r-2"
+            showGridLines={false}
+            showXAxis={false}
+            showYAxis={false}
+            className="mt-8 hidden h-60 sm:block [&_circle]:!opacity-100 [&_circle]:!r-2 [&_path.area-line]:!stroke-white [&_path.area-line]:!stroke-[1px] [&_text]:!text-white/60 [&_line]:!hidden"
           />
           <AreaChart
             data={data}
             index="date"
             categories={["Balance"]}
+            colors={customColors}
             showLegend={false}
-            showGradient={false}
+            showGradient={true}
+            gradientFromColor="rgba(255, 255, 255, 0.2)"
+            gradientToColor="rgba(255, 255, 255, 0.05)"
             showYAxis={false}
+            showXAxis={false}
             startEndOnly={true}
             valueFormatter={valueFormatter}
             showAnimation={true}
             showDataPoints={true}
             curveType="monotone"
-            className="mt-8 h-48 sm:hidden [&_circle]:!opacity-100 [&_circle]:!r-2"
+            showGridLines={false}
+            className="mt-8 h-48 sm:hidden [&_circle]:!opacity-100 [&_circle]:!r-2 [&_path.area-line]:!stroke-white [&_path.area-line]:!stroke-[1px] [&_text]:!text-white/60 [&_line]:!hidden"
           />
         </div>
       </div>
