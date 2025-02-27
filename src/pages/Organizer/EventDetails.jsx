@@ -14,6 +14,7 @@ import TicketTab from "./TicketTab";
 import PromosTab from "./PromosTab";
 import CustomerTab from "./CustomerTab";
 import SettingTab from "./SettingTab";
+import TeamTab from "./TeamTab";
 
 // Mock data structure (you should replace this with actual data fetching)
 const eventData = {
@@ -247,7 +248,7 @@ const TABS = [
         />
       </svg>
     ),
-    content: <div>{/* teams content */}</div>,
+    content: <TeamTab />,
   },
   {
     id: "settings",

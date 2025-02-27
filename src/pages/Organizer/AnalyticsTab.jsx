@@ -91,7 +91,7 @@ export default function AnalyticsTab() {
             showGridLines={false}
             showXAxis={false}
             showYAxis={false}
-            className="mt-8 hidden h-60 sm:block [&_circle]:!opacity-100 [&_circle]:!r-2 [&_path.area-line]:!stroke-white [&_path.area-line]:!stroke-[1px] [&_text]:!text-white/60 [&_line]:!hidden"
+            className="mt-8 hidden h-60 sm:block [&_circle]:!opacity-100 [&_circle]:!r-2 [&_path.area-line]:!stroke-green-500 [&_path.area-line]:!stroke-[1px] [&_text]:!text-white/60 [&_line]:!hidden"
           />
           <AreaChart
             data={data}
@@ -110,7 +110,7 @@ export default function AnalyticsTab() {
             showDataPoints={true}
             curveType="monotone"
             showGridLines={false}
-            className="mt-8 h-48 sm:hidden [&_circle]:!opacity-100 [&_circle]:!r-2 [&_path.area-line]:!stroke-white [&_path.area-line]:!stroke-[1px] [&_text]:!text-white/60 [&_line]:!hidden"
+            className="mt-8 h-48 sm:hidden [&_circle]:!opacity-100 [&_circle]:!r-2 [&_path.area-line]:!stroke-green-500 [&_path.area-line]:!stroke-[1px] [&_text]:!text-white/60 [&_line]:!hidden"
           />
         </div>
       </div>

@@ -23,6 +23,8 @@ import {
   DialogDescription,
   DialogTrigger,
 } from "../../components/ui/Dialog";
+import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 // Mock data structure
 const eventData = {
@@ -270,8 +272,8 @@ export default function OrganizerEvents() {
               <div className="overflow-x-auto w-full">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="text-white/70 [&_th]:font-medium border-b border-white/5 bg-white/5 [&>th]:min-w-[180px] last:[&>th]:min-w-fit">
-                      <th className="text-left p-4">
+                    <tr className="text-white/70 [&_th]:font-medium border-b border-white/5 bg-white/5 [&>th]:min-w-[220px] last:[&>th]:min-w-fit [&>th]:border-r [&>th]:border-white/5 last:[&>th]:border-r-0">
+                      <th className="text-left p-4 min-w-[220px]">
                         <div className="flex items-center gap-x-2">
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -356,7 +358,6 @@ export default function OrganizerEvents() {
                           Earnings
                         </div>
                       </th>
-
                       <th className="text-left p-4">
                         <div className="flex items-center gap-x-2">
                           <svg
@@ -375,9 +376,8 @@ export default function OrganizerEvents() {
                           Tickets sold
                         </div>
                       </th>
-                      <th className="py-4 px-4 sticky right-0 border-b border-white/10">
-                        {" "}
-                        <div className="bg-white/5 sticky right-0 z-0 backdrop-blur-sm border-l border-white/5 h-10 w-10 flex items-center justify-center rounded-md">
+                      <th className="py-4 px-4">
+                        <div className="h-8 w-8 flex items-center justify-center rounded-md">
                           <Ellipsis />
                         </div>
                       </th>
@@ -388,9 +388,18 @@ export default function OrganizerEvents() {
                       filterEvents(eventData.liveEvents).map((event) => (
                         <tr
                           key={event.id}
-                          className="border-b border-white/5 [&_td]:font-medium hover:bg-white/[2.5%] cursor-pointer transition-colors"
+                          className="border-b border-white/5 [&_td]:font-medium hover:bg-white/[2.5%] cursor-pointer transition-colors [&>td]:border-r [&>td]:border-white/5 last:[&>td]:border-r-0"
                         >
-                          <td className="py-4 pl-4">{event.name}</td>
+                          <td className="py-4 px-4 flex items-center gap-x-2">
+                            {event.name}
+
+                            <Link
+                              to={`/organizer/events/${event.id}`}
+                              className="ml-auto h-8 w-8 flex items-center justify-center rounded-md border border-white/5"
+                            >
+                              <ArrowRight className="w-4 h-4 text-white/50" />
+                            </Link>
+                          </td>
                           <td className="py-4 pl-4">{event.date}</td>
                           <td className="py-4 pl-4">{event.location}</td>
                           <td className="py-4 pl-4">{event.revenue}</td>
@@ -438,7 +447,7 @@ export default function OrganizerEvents() {
                             </div>
                           </td>
                           <td className="py-4 px-4 sticky right-0">
-                            <div className="bg-white/5 backdrop-blur-sm border-l border-white/5 h-10 w-10 flex items-center justify-center rounded-md">
+                            <div className="bg-white/[0.03] backdrop-blur-sm border-l border-white/5 h-8 w-8 flex items-center justify-center rounded-md">
                               <DirectionAwareMenu>
                                 <MenuTrigger>
                                   <Ellipsis />
@@ -577,9 +586,8 @@ export default function OrganizerEvents() {
                       <th className="text-left p-4">Location</th>
                       <th className="text-left p-4">Revenue</th>
                       <th className="text-left p-4">Tickets sold</th>
-                      <th className="py-4 px-4 sticky right-0 border-b border-white/10">
-                        {" "}
-                        <div className="bg-white/5 sticky right-0 z-0 backdrop-blur-sm border-l border-white/5 h-10 w-10 flex items-center justify-center rounded-md">
+                      <th className="py-4 px-4">
+                        <div className="h-8 w-8 flex items-center justify-center rounded-md">
                           <Ellipsis />
                         </div>
                       </th>
@@ -598,7 +606,7 @@ export default function OrganizerEvents() {
                           <td className="py-4 pl-4">{event.revenue}</td>
                           <td className="py-4 pl-4">{event.ticketsSold}</td>
                           <td className="py-4 pl-4 sticky right-0">
-                            <div className="bg-white/5 sticky right-0 z-0 backdrop-blur-sm border-l border-white/5 h-10 w-10 flex items-center justify-center rounded-md">
+                            <div className="bg-white/[0.03] backdrop-blur-sm border-l border-white/5 h-8 w-8 flex items-center justify-center rounded-md">
                               <DirectionAwareMenu>
                                 <MenuTrigger>
                                   <Ellipsis />
@@ -823,9 +831,8 @@ export default function OrganizerEvents() {
                           Tickets sold
                         </div>
                       </th>
-                      <th className="py-4 px-4 sticky right-0 border-b border-white/10">
-                        {" "}
-                        <div className="bg-white/5 sticky right-0 z-0 backdrop-blur-sm border-l border-white/5 h-10 w-10 flex items-center justify-center rounded-md">
+                      <th className="py-4 px-4">
+                        <div className="h-8 w-8 flex items-center justify-center rounded-md">
                           <Ellipsis />
                         </div>
                       </th>
@@ -886,7 +893,7 @@ export default function OrganizerEvents() {
                             </div>
                           </td>
                           <td className="py-4 pl-4 sticky right-0">
-                            <div className="bg-white/5 sticky right-0 z-0 backdrop-blur-sm border-l border-white/5 h-10 w-10 flex items-center justify-center rounded-md">
+                            <div className="bg-white/[0.03] backdrop-blur-sm border-l border-white/5 h-8 w-8 flex items-center justify-center rounded-md">
                               <DirectionAwareMenu>
                                 <MenuTrigger>
                                   <Ellipsis />

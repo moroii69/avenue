@@ -677,7 +677,7 @@ export default function TicketTab() {
               </div>
             </div>
 
-            <div className="flex flex-col md:flex-row border-t border-white/10 sticky bottom-0 bg-primary justify-between w-full gap-3 p-4">
+            <div className="flex flex-col md:flex-row border-t border-white/10 sticky bottom-0 bg-white/[0.03] backdrop-blur-xl justify-between w-full gap-3 p-4">
               <button
                 type="button"
                 onClick={() => setNewTicketTypeDialogOpen(false)}
