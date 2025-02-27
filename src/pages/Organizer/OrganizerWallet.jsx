@@ -471,6 +471,11 @@ export default function OrganizerWallet() {
     const [statusInstant, setStatusInstant] = useState(true);
     const [events, setEvents] = useState([]);
     const [filteredTotal, setFilteredTotal] = useState(0);
+    const [filteredRefundTotal, setFilteredRefundTotal] = useState(0);
+    const [orgEventLoader, setOrgEventLoader] = useState(false);
+    const [processLoader, setProcessLoader] = useState(false);
+    const [includeFee, setIncludeFee] = useState(false);
+    const [maxAmount, setMaxAmount] = useState(0);
 
     const filteredSalesHistory = orgEventList.filter((sale) => {
         // Search filter
@@ -547,8 +552,21 @@ export default function OrganizerWallet() {
             return sum + amountAfterFee;
         }, 0);
 
+    const totalRefundAmount = filteredSalesHistory.reduce((sum, sale) => {
+        if (sale.refund === "true" && sale.amount) {
+            const amountAfterFee = (Number(sale.amount) / 100 - 0.89) / 1.09;
+            return sum + amountAfterFee;
+        }
+        return sum;
+    }, 0);
+
+
     useEffect(() => {
         setFilteredTotal(totalAmount);
+    }, [filteredSalesHistory]);
+
+    useEffect(() => {
+        setFilteredRefundTotal(totalRefundAmount);
     }, [filteredSalesHistory]);
 
     const withdrawalSchema = z.object({
@@ -569,6 +587,7 @@ export default function OrganizerWallet() {
         handleSubmit,
         formState: { errors, isValid },
         setValue,
+        watch
     } = useForm({
         resolver: zodResolver(withdrawalSchema),
         mode: "onChange",
@@ -591,30 +610,6 @@ export default function OrganizerWallet() {
         } catch (error) {
             console.error("Error processing refund or updating status:", error);
             alert("Instant Payout Failed. Please try again.");
-        }
-    };
-
-    const onSubmitRefund = async () => {
-        try {
-            const refundRequest = axios.post(`${url}/refund`, {
-                paymentIntentId: selectedEvent.transaction_id.split("_secret_")[0],
-                amount: (((selectedEvent.amount / 100) - 0.89) / 1.09).toFixed(2),
-                organizerId: oragnizerId
-            });
-
-            const updateStatusRequest = axios.post(`${url}/updateRefundStatus`, {
-                paymentId: selectedEvent.transaction_id,
-                refund: true,
-            });
-
-            const [refundResponse, statusResponse] = await Promise.all([refundRequest, updateStatusRequest]);
-
-            alert("Refund initiated successfully");
-            window.location.reload()
-
-        } catch (error) {
-            console.error("Error processing refund or updating status:", error);
-            alert("Refund or status update failed. Please try again.");
         }
     };
 
@@ -744,6 +739,7 @@ export default function OrganizerWallet() {
             console.log("oragnizerId is undefined");
             return;
         }
+        setOrgEventLoader(true)
         try {
             const response = await axios.get(
                 `${url}/organizer-transactions/${oragnizerId}`
@@ -751,6 +747,8 @@ export default function OrganizerWallet() {
             setOrgEventList(response.data?.data);
         } catch (error) {
             console.error("Error fetching balance:", error);
+        } finally {
+            setOrgEventLoader(false)
         }
     }
 
@@ -791,6 +789,79 @@ export default function OrganizerWallet() {
     useEffect(() => {
         fetchEvents();
     }, [oragnizerId]);
+
+    const ticketPrice = selectedEvent?.amount ?
+        ((selectedEvent.amount / 100 - 0.89) / 1.09).toFixed(2) : 0;
+
+    const feeAmount = selectedEvent?.amount ?
+        (selectedEvent.amount / 100 - parseFloat(ticketPrice)).toFixed(2) : 0;
+
+    const maxTotal = selectedEvent?.amount ? (selectedEvent.amount / 100).toFixed(2) : 0;
+
+    const amountValue = watch("amount", "");
+
+    useEffect(() => {
+        if (amountValue) {
+            const parsedAmount = parseFloat(amountValue) || 0;
+            const maxAllowed = includeFee ? parseFloat(maxTotal) : parseFloat(ticketPrice);
+
+            if (parsedAmount > maxAllowed) {
+                setValue("amount", maxAllowed, { shouldValidate: true });
+            }
+        }
+    }, [amountValue, includeFee, ticketPrice, maxTotal, setValue]);
+
+    const handleMaxClick = () => {
+        if (selectedEvent?.amount) {
+            setMaxAmount(parseFloat(ticketPrice));
+
+            if (includeFee) {
+                setValue("amount", maxTotal, { shouldValidate: true });
+            } else {
+                setValue("amount", ticketPrice, { shouldValidate: true });
+            }
+        }
+    };
+
+    const handleFeeToggle = (checked) => {
+        setIncludeFee(checked);
+        const currentInputValue = document.querySelector('input[type="number"]').value;
+        const currentAmount = parseFloat(currentInputValue || 0);
+
+        if (checked) {
+            const amountWithoutFee = Math.min(currentAmount, parseFloat(ticketPrice));
+            const totalWithFee = (amountWithoutFee * 1.09 + 0.89).toFixed(2);
+            setValue("amount", totalWithFee, { shouldValidate: true });
+        } else {
+            const amountWithoutFee = ((Math.min(currentAmount, parseFloat(maxTotal)) - 0.89) / 1.09).toFixed(2);
+            setValue("amount", amountWithoutFee, { shouldValidate: true });
+        }
+    };
+
+    const onSubmitRefund = async () => {
+        //console.log("Refund", amountValue)
+        try {
+            const refundRequest = axios.post(`${url}/refund`, {
+                paymentIntentId: selectedEvent.transaction_id.split("_secret_")[0],
+                amount: amountValue,
+                organizerId: oragnizerId
+            });
+
+            const updateStatusRequest = axios.post(`${url}/updateRefundStatus`, {
+                paymentId: selectedEvent.transaction_id,
+                refund: true,
+            });
+
+            const [refundResponse, statusResponse] = await Promise.all([refundRequest, updateStatusRequest]);
+
+            alert("Refund initiated successfully");
+            window.location.reload()
+
+        } catch (error) {
+            console.error("Error processing refund or updating status:", error);
+            alert("Refund or status update failed. Please try again.");
+        }
+    };
 
     return (
         <SidebarLayout>
@@ -904,17 +975,29 @@ export default function OrganizerWallet() {
                                         />
                                     </svg>
                                     {
-                                        accountBalance.transit ? (
+                                        balanceLoader ? (
                                             <>
-                                                <p className="text-[#F97316]">
-                                                    ${(accountBalance?.transit / 100).toFixed(2)} is processing
-                                                </p>
+                                                <div className='text-center'>
+                                                    <Spin size="small" />
+                                                </div>
                                             </>
                                         ) : (
                                             <>
-                                                <p className="text-[#F97316]">
-                                                    No payouts scheduled
-                                                </p>
+                                                {
+                                                    accountBalance.transit ? (
+                                                        <>
+                                                            <p className="text-[#F97316]">
+                                                                ${(accountBalance?.transit / 100).toFixed(2)} is processing
+                                                            </p>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <p className="text-[#F97316]">
+                                                                No payouts scheduled
+                                                            </p>
+                                                        </>
+                                                    )
+                                                }
                                             </>
                                         )
                                     }
@@ -986,7 +1069,7 @@ export default function OrganizerWallet() {
                                 <div className="flex items-center gap-2 mt-3">
                                     <span className="text-2xl font-bold">
                                         {
-                                            balanceLoader ? (
+                                            orgEventLoader ? (
                                                 <>
                                                     <div className='text-center'>
                                                         <Spin size="small" />
@@ -1013,7 +1096,7 @@ export default function OrganizerWallet() {
                                 <div className="flex items-center gap-2 mt-3">
                                     <span className="text-2xl font-bold">
                                         {
-                                            balanceLoader ? (
+                                            orgEventLoader ? (
                                                 <>
                                                     <div className='text-center'>
                                                         <Spin size="small" />
@@ -1021,7 +1104,7 @@ export default function OrganizerWallet() {
                                                 </>
                                             ) : (
                                                 <>
-                                                    ${accountBalance?.totalRefund ? (accountBalance?.totalRefund / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 0.00}
+                                                    ${filteredRefundTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                                 </>
                                             )
                                         }
@@ -1401,131 +1484,208 @@ export default function OrganizerWallet() {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-white/5">
-                                        {filteredSalesHistory.length > 0 ? (
-                                            filteredSalesHistory.map((sale, index) => (
-                                                <tr key={index} className="hover:bg-white/[0.02]">
-                                                    <td className="p-4">
-                                                        <div className="flex items-center gap-3">
-                                                            {/* <div className="w-8 h-8 rounded bg-white/10"></div> */}
-                                                            {sale?.firstName}
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-4">
-                                                        <div className="flex items-center gap-3">
-                                                            {/* <div className="w-8 h-8 rounded bg-white/10"></div> */}
-                                                            {sale?.party?.event_name}
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-4">
-                                                        <div className="flex items-center gap-3">
-                                                            {sale?.tickets?.ticket_name ? sale?.tickets?.ticket_name + " x " + sale?.count : "Complimentary Ticket"}
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-4">
-                                                        {(() => {
-                                                            const dateObj = new Date(sale.date);
-                                                            const formattedDate = dateObj.toLocaleString("en-US", { month: "short", day: "numeric" });
-                                                            const formattedTime = dateObj.toLocaleString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
-                                                            return `${formattedDate} at ${formattedTime}`;
-                                                        })()}
-                                                    </td>
-                                                    <td className="p-4">
-                                                        <div className="flex items-center gap-2">
-                                                            {saleTypeIcons[(!sale.refund || sale.refund === "false") ? "Sale" : "refund"]}
-                                                            <span className="capitalize">
-                                                                {(!sale.refund || sale.refund === "false") ? "Sale" : "refund"}
-                                                            </span>
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-4">
-                                                        <span className={sale.amount < 0 ? "text-white/50" : "text-white"}>
-                                                            {sale.amount < 0 ? "-" : ""}$
-                                                            {(Math.abs((sale.amount / 100) - 0.89) / 1.09)
-                                                                .toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                                        </span>
-                                                    </td>
-                                                    <td className="p-4">
-                                                        <div className="flex items-center gap-2">
-                                                            {statusIcons["paid"]}
-                                                            <span>
-                                                                {"completed".charAt(0).toUpperCase() +
-                                                                    "completed".slice(1)}
-                                                            </span>
-                                                        </div>
-                                                    </td>
-                                                    <td className="py-4 pl-4">
-                                                        <DirectionAwareMenu>
-                                                            <MenuTrigger>
-                                                                <Ellipsis />
-                                                            </MenuTrigger>
-                                                            <MenuItem
-                                                                onClick={() => handleViewEvent(event.id)}
-                                                            >
-                                                                <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
-                                                                    <svg
-                                                                        xmlns="http://www.w3.org/2000/svg"
-                                                                        width="16"
-                                                                        height="16"
-                                                                        viewBox="0 0 16 16"
-                                                                        fill="none"
-                                                                    >
-                                                                        <path
-                                                                            d="M8 9.5C8.39782 9.5 8.77936 9.34196 9.06066 9.06066C9.34196 8.77936 9.5 8.39782 9.5 8C9.5 7.60218 9.34196 7.22064 9.06066 6.93934C8.77936 6.65804 8.39782 6.5 8 6.5C7.60218 6.5 7.22064 6.65804 6.93934 6.93934C6.65804 7.22064 6.5 7.60218 6.5 8C6.5 8.39782 6.65804 8.77936 6.93934 9.06066C7.22064 9.34196 7.60218 9.5 8 9.5Z"
-                                                                            fill="white"
-                                                                            fillOpacity="0.5"
-                                                                        />
-                                                                        <path
-                                                                            fillRule="evenodd"
-                                                                            clipRule="evenodd"
-                                                                            d="M1.37996 8.28012C1.31687 8.09672 1.31687 7.89751 1.37996 7.71412C1.85633 6.33749 2.75014 5.14368 3.93692 4.29893C5.1237 3.45419 6.54437 3.00056 8.00109 3.00122C9.45782 3.00188 10.8781 3.4568 12.0641 4.30262C13.2501 5.14844 14.1428 6.34306 14.618 7.72012C14.681 7.90351 14.681 8.10273 14.618 8.28612C14.1418 9.6631 13.248 10.8573 12.0611 11.7023C10.8742 12.5473 9.4533 13.0011 7.99632 13.0005C6.53934 12.9998 5.11883 12.5447 3.9327 11.6986C2.74657 10.8525 1.85387 9.65753 1.37896 8.28012H1.37996ZM11 8.00012C11 8.79577 10.6839 9.55883 10.1213 10.1214C9.55867 10.684 8.79561 11.0001 7.99996 11.0001C7.20431 11.0001 6.44125 10.684 5.87864 10.1214C5.31603 9.55883 4.99996 8.79577 4.99996 8.00012C4.99996 7.20447 5.31603 6.44141 5.87864 5.8788C6.44125 5.31619 7.20431 5.00012 7.99996 5.00012C8.79561 5.00012 9.55867 5.31619 10.1213 5.8788C10.6839 6.44141 11 7.20447 11 8.00012Z"
-                                                                            fill="white"
-                                                                            fillOpacity="0.5"
-                                                                        />
-                                                                    </svg>
-                                                                    <span>View ticket</span>
-                                                                </div>
-                                                            </MenuItem>
-                                                            <MenuSeparator />
-                                                            <MenuItem
-                                                                onClick={() => {
-                                                                    setSelectedEvent(sale);
-                                                                    setIsRefundOpen(true);
-                                                                }}
-                                                            >
-                                                                <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
-                                                                    <svg
-                                                                        xmlns="http://www.w3.org/2000/svg"
-                                                                        width="17"
-                                                                        height="16"
-                                                                        viewBox="0 0 17 16"
-                                                                        fill="none"
-                                                                    >
-                                                                        <path
-                                                                            fillRule="evenodd"
-                                                                            clipRule="evenodd"
-                                                                            d="M13.2501 9.74985C13.2501 9.38871 13.1789 9.03111 13.0407 8.69747C12.9025 8.36382 12.7 8.06066 12.4446 7.8053C12.1893 7.54994 11.8861 7.34738 11.5525 7.20918C11.2188 7.07098 10.8612 6.99985 10.5001 6.99985H5.31007L7.53007 9.21985C7.60376 9.28851 7.66286 9.37131 7.70385 9.46331C7.74485 9.55531 7.76689 9.65462 7.76866 9.75532C7.77044 9.85603 7.75192 9.95606 7.7142 10.0494C7.67647 10.1428 7.62033 10.2277 7.54911 10.2989C7.47789 10.3701 7.39306 10.4262 7.29967 10.464C7.20628 10.5017 7.10625 10.5202 7.00555 10.5184C6.90485 10.5167 6.80553 10.4946 6.71353 10.4536C6.62154 10.4126 6.53873 10.3535 6.47007 10.2798L2.97007 6.77985C2.82962 6.63922 2.75073 6.4486 2.75073 6.24985C2.75073 6.0511 2.82962 5.86047 2.97007 5.71985L6.47007 2.21985C6.61225 2.08737 6.80029 2.01524 6.9946 2.01867C7.1889 2.0221 7.37428 2.10081 7.51169 2.23822C7.64911 2.37564 7.72782 2.56102 7.73125 2.75532C7.73468 2.94963 7.66255 3.13767 7.53007 3.27985L5.31007 5.49985H10.5001C11.6272 5.49985 12.7082 5.94761 13.5053 6.74464C14.3023 7.54167 14.7501 8.62268 14.7501 9.74985C14.7501 10.877 14.3023 11.958 13.5053 12.7551C12.7082 13.5521 11.6272 13.9998 10.5001 13.9998H9.50007C9.30116 13.9998 9.11039 13.9208 8.96974 13.7802C8.82909 13.6395 8.75007 13.4488 8.75007 13.2498C8.75007 13.0509 8.82909 12.8602 8.96974 12.7195C9.11039 12.5789 9.30116 12.4998 9.50007 12.4998H10.5001C10.8612 12.4998 11.2188 12.4287 11.5525 12.2905C11.8861 12.1523 12.1893 11.9498 12.4446 11.6944C12.7 11.439 12.9025 11.1359 13.0407 10.8022C13.1789 10.4686 13.2501 10.111 13.2501 9.74985Z"
-                                                                            fill="#F43F5E"
-                                                                        />
-                                                                    </svg>
-                                                                    <span className="text-[#F43F5E]">
-                                                                        Refund
-                                                                    </span>
-                                                                </div>
-                                                            </MenuItem>
-                                                        </DirectionAwareMenu>
-                                                    </td>
-                                                </tr>
-                                            ))
-                                        ) : (
-                                            <tr>
-                                                <td
-                                                    colSpan={6}
-                                                    className="text-center p-4 text-white/50"
-                                                >
-                                                    No results found
-                                                </td>
-                                            </tr>
-                                        )}
+                                        {
+                                            orgEventLoader ? (
+                                                <>
+                                                    <tr>
+                                                        <td
+                                                            colSpan={8}
+                                                            className="text-center p-4 text-white/50"
+                                                        >
+                                                            <Spin size="small" />
+                                                        </td>
+                                                    </tr>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    {filteredSalesHistory.length > 0 ? (
+                                                        filteredSalesHistory.flatMap((sale, index) => {
+                                                            // Determine if there is a refund
+                                                            const hasRefund = sale.refund && sale.refund !== "false";
+                                                            const rows = [];
+
+                                                            // Sale row
+                                                            rows.push(
+                                                                <tr key={`${index}-sale`} className="hover:bg-white/[0.02]">
+                                                                    <td className="p-4">
+                                                                        <div className="flex items-center gap-3">{sale?.firstName}</div>
+                                                                    </td>
+                                                                    <td className="p-4">
+                                                                        <div className="flex items-center gap-3">{sale?.party?.event_name}</div>
+                                                                    </td>
+                                                                    <td className="p-4">
+                                                                        <div className="flex items-center gap-3">
+                                                                            {sale?.tickets?.ticket_name
+                                                                                ? `${sale?.tickets?.ticket_name} x ${sale?.count}`
+                                                                                : "Complimentary Ticket"}
+                                                                        </div>
+                                                                    </td>
+                                                                    <td className="p-4">
+                                                                        {(() => {
+                                                                            const dateObj = new Date(sale.date);
+                                                                            const formattedDate = dateObj.toLocaleString("en-US", {
+                                                                                month: "short",
+                                                                                day: "numeric",
+                                                                            });
+                                                                            const formattedTime = dateObj.toLocaleString("en-US", {
+                                                                                hour: "numeric",
+                                                                                minute: "2-digit",
+                                                                                hour12: true,
+                                                                            });
+                                                                            return `${formattedDate} at ${formattedTime}`;
+                                                                        })()}
+                                                                    </td>
+                                                                    <td className="p-4">
+                                                                        <div className="flex items-center gap-2">
+                                                                            {saleTypeIcons["Sale"]}
+                                                                            <span className="capitalize">Sale</span>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td className="p-4">
+                                                                        <span className={sale.amount < 0 ? "text-white/50" : "text-white"}>
+                                                                            {sale.amount < 0 ? "-" : ""}$
+                                                                            {(Math.abs((sale.amount / 100) - 0.89) / 1.09).toLocaleString("en-US", {
+                                                                                minimumFractionDigits: 2,
+                                                                                maximumFractionDigits: 2,
+                                                                            })}
+                                                                        </span>
+                                                                    </td>
+                                                                    <td className="p-4">
+                                                                        <div className="flex items-center gap-2">
+                                                                            {statusIcons["paid"]}
+                                                                            <span>Completed</span>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td className="py-4 pl-4">
+                                                                        <DirectionAwareMenu>
+                                                                            <MenuTrigger>
+                                                                                <Ellipsis />
+                                                                            </MenuTrigger>
+                                                                            <MenuItem onClick={() => handleViewEvent(sale.party?.id)}>
+                                                                                <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
+                                                                                    <svg
+                                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                                        width="16"
+                                                                                        height="16"
+                                                                                        viewBox="0 0 16 16"
+                                                                                        fill="none"
+                                                                                    >
+                                                                                        <path
+                                                                                            d="M8 9.5C8.39782 9.5 8.77936 9.34196 9.06066 9.06066C9.34196 8.77936 9.5 8.39782 9.5 8C9.5 7.60218 9.34196 7.22064 9.06066 6.93934C8.77936 6.65804 8.39782 6.5 8 6.5C7.60218 6.5 7.22064 6.65804 6.93934 6.93934C6.65804 7.22064 6.5 7.60218 6.5 8C6.5 8.39782 6.65804 8.77936 6.93934 9.06066C7.22064 9.34196 7.60218 9.5 8 9.5Z"
+                                                                                            fill="white"
+                                                                                            fillOpacity="0.5"
+                                                                                        />
+                                                                                        <path
+                                                                                            fillRule="evenodd"
+                                                                                            clipRule="evenodd"
+                                                                                            d="M1.37996 8.28012C1.31687 8.09672 1.31687 7.89751 1.37996 7.71412C1.85633 6.33749 2.75014 5.14368 3.93692 4.29893C5.1237 3.45419 6.54437 3.00056 8.00109 3.00122C9.45782 3.00188 10.8781 3.4568 12.0641 4.30262C13.2501 5.14844 14.1428 6.34306 14.618 7.72012C14.681 7.90351 14.681 8.10273 14.618 8.28612C14.1418 9.6631 13.248 10.8573 12.0611 11.7023C10.8742 12.5473 9.4533 13.0011 7.99632 13.0005C6.53934 12.9998 5.11883 12.5447 3.9327 11.6986C2.74657 10.8525 1.85387 9.65753 1.37896 8.28012H1.37996ZM11 8.00012C11 8.79577 10.6839 9.55883 10.1213 10.1214C9.55867 10.684 8.79561 11.0001 7.99996 11.0001C7.20431 11.0001 6.44125 10.684 5.87864 10.1214C5.31603 9.55883 4.99996 8.79577 4.99996 8.00012C4.99996 7.20447 5.31603 6.44141 5.87864 5.8788C6.44125 5.31619 7.20431 5.00012 7.99996 5.00012C8.79561 5.00012 9.55867 5.31619 10.1213 5.8788C10.6839 6.44141 11 7.20447 11 8.00012Z"
+                                                                                            fill="white"
+                                                                                            fillOpacity="0.5"
+                                                                                        />
+                                                                                    </svg>
+                                                                                    <span>View ticket</span>
+                                                                                </div>
+                                                                            </MenuItem>
+                                                                            <MenuSeparator />
+                                                                            <MenuItem
+                                                                                onClick={() => {
+                                                                                    setSelectedEvent(sale);
+                                                                                    setIsRefundOpen(true);
+                                                                                }}
+                                                                            >
+                                                                                <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
+                                                                                    <svg
+                                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                                        width="17"
+                                                                                        height="16"
+                                                                                        viewBox="0 0 17 16"
+                                                                                        fill="none"
+                                                                                    >
+                                                                                        <path
+                                                                                            fillRule="evenodd"
+                                                                                            clipRule="evenodd"
+                                                                                            d="M13.2501 9.74985C13.2501 9.38871 13.1789 9.03111 13.0407 8.69747C12.9025 8.36382 12.7 8.06066 12.4446 7.8053C12.1893 7.54994 11.8861 7.34738 11.5525 7.20918C11.2188 7.07098 10.8612 6.99985 10.5001 6.99985H5.31007L7.53007 9.21985C7.60376 9.28851 7.66286 9.37131 7.70385 9.46331C7.74485 9.55531 7.76689 9.65462 7.76866 9.75532C7.77044 9.85603 7.75192 9.95606 7.7142 10.0494C7.67647 10.1428 7.62033 10.2277 7.54911 10.2989C7.47789 10.3701 7.39306 10.4262 7.29967 10.464C7.20628 10.5017 7.10625 10.5202 7.00555 10.5184C6.90485 10.5167 6.80553 10.4946 6.71353 10.4536C6.62154 10.4126 6.53873 10.3535 6.47007 10.2798L2.97007 6.77985C2.82962 6.63922 2.75073 6.4486 2.75073 6.24985C2.75073 6.0511 2.82962 5.86047 2.97007 5.71985L6.47007 2.21985C6.61225 2.08737 6.80029 2.01524 6.9946 2.01867C7.1889 2.0221 7.37428 2.10081 7.51169 2.23822C7.64911 2.37564 7.72782 2.56102 7.73125 2.75532C7.73468 2.94963 7.66255 3.13767 7.53007 3.27985L5.31007 5.49985H10.5001C11.6272 5.49985 12.7082 5.94761 13.5053 6.74464C14.3023 7.54167 14.7501 8.62268 14.7501 9.74985C14.7501 10.877 14.3023 11.958 13.5053 12.7551C12.7082 13.5521 11.6272 13.9998 10.5001 13.9998H9.50007C9.30116 13.9998 9.11039 13.9208 8.96974 13.7802C8.82909 13.6395 8.75007 13.4488 8.75007 13.2498C8.75007 13.0509 8.82909 12.8602 8.96974 12.7195C9.11039 12.5789 9.30116 12.4998 9.50007 12.4998H10.5001C10.8612 12.4998 11.2188 12.4287 11.5525 12.2905C11.8861 12.1523 12.1893 11.9498 12.4446 11.6944C12.7 11.439 12.9025 11.1359 13.0407 10.8022C13.1789 10.4686 13.2501 10.111 13.2501 9.74985Z"
+                                                                                            fill="#F43F5E"
+                                                                                        />
+                                                                                    </svg>
+                                                                                    <span className="text-[#F43F5E]">Refund</span>
+                                                                                </div>
+                                                                            </MenuItem>
+                                                                        </DirectionAwareMenu>
+                                                                    </td>
+                                                                </tr>
+                                                            );
+
+                                                            if (hasRefund) {
+                                                                rows.push(
+                                                                    <tr key={`${index}-refund`} className="hover:bg-white/[0.02]">
+                                                                        <td className="p-4">
+                                                                            <div className="flex items-center gap-3">{sale?.firstName}</div>
+                                                                        </td>
+                                                                        <td className="p-4">
+                                                                            <div className="flex items-center gap-3">{sale?.party?.event_name}</div>
+                                                                        </td>
+                                                                        <td className="p-4">
+                                                                            <div className="flex items-center gap-3">
+                                                                                {sale?.tickets?.ticket_name
+                                                                                    ? `${sale?.tickets?.ticket_name} x ${sale?.count}`
+                                                                                    : "Complimentary Ticket"}
+                                                                            </div>
+                                                                        </td>
+                                                                        <td className="p-4">
+                                                                            {(() => {
+                                                                                const dateObj = new Date(sale.updatedAt);
+                                                                                const formattedDate = dateObj.toLocaleString("en-US", {
+                                                                                    month: "short",
+                                                                                    day: "numeric",
+                                                                                });
+                                                                                const formattedTime = dateObj.toLocaleString("en-US", {
+                                                                                    hour: "numeric",
+                                                                                    minute: "2-digit",
+                                                                                    hour12: true,
+                                                                                });
+                                                                                return `${formattedDate} at ${formattedTime}`;
+                                                                            })()}
+                                                                        </td>
+                                                                        <td className="p-4">
+                                                                            <div className="flex items-center gap-2">
+                                                                                {saleTypeIcons["refund"]}
+                                                                                <span className="capitalize">Refund</span>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td className="p-4">
+                                                                            <span className="text-red-500">
+                                                                                -$
+                                                                                {(Math.abs((sale.amount / 100) - 0.89) / 1.09).toLocaleString("en-US", {
+                                                                                    minimumFractionDigits: 2,
+                                                                                    maximumFractionDigits: 2,
+                                                                                })}
+                                                                            </span>
+                                                                        </td>
+                                                                        <td className="p-4">
+                                                                            <div className="flex items-center gap-2">
+                                                                                {statusIcons["paid"]}
+                                                                                <span>Refunded</span>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td className="py-4 pl-4"></td>
+                                                                    </tr>
+                                                                );
+                                                            }
+
+                                                            return rows;
+                                                        })
+                                                    ) : (
+                                                        <tr>
+                                                            <td colSpan={6} className="text-center p-4 text-white/50">
+                                                                No results found
+                                                            </td>
+                                                        </tr>
+                                                    )}
+                                                </>
+
+                                            )
+                                        }
                                     </tbody>
                                 </table>
                             </div>
@@ -1785,15 +1945,21 @@ export default function OrganizerWallet() {
                                         </span>
                                         <input
                                             type="number"
+                                            step="0.01"
                                             placeholder="0.00"
-                                            {...register("amount", { valueAsNumber: true })}
+                                            {...register("amount", {
+                                                valueAsNumber: true,
+                                                validate: (value) => {
+                                                    if (!selectedEvent?.amount) return true;
+                                                    const maxRefundableAmount = includeFee ? parseFloat(maxTotal) : parseFloat(ticketPrice);
+                                                    return value <= maxRefundableAmount || `Amount cannot exceed ${maxRefundableAmount}`;
+                                                }
+                                            })}
                                             className="border bg-primary text-white text-sm border-white/10 h-10 rounded-lg pl-8 pr-20 py-2.5 focus:outline-none w-full"
                                         />
                                         <button
                                             type="button"
-                                            onClick={() =>
-                                                setValue("amount", selectedEvent?.amount ? (((selectedEvent?.amount / 100) - 0.89) / 1.09).toFixed(2) : "", { shouldValidate: true })
-                                            }
+                                            onClick={handleMaxClick}
                                             className="absolute right-0 top-0 h-full px-3 text-xs text-white/50 hover:text-white transition-colors border-l border-white/10"
                                         >
                                             MAX
@@ -1802,13 +1968,19 @@ export default function OrganizerWallet() {
                                     <div className="flex items-center gap-x-2">
                                         <span className="text-sm text-white/60">Ticket price:</span>
                                         <span className="text-sm font-medium text-white">
-                                            ${selectedEvent?.amount ? ((((selectedEvent?.amount / 100) - 0.89) / 1.09).toFixed(2)) : ""}
+                                            ${ticketPrice}
                                         </span>
                                     </div>
                                     <div className="flex items-center gap-x-2">
+                                        <input
+                                            type="checkbox"
+                                            checked={includeFee}
+                                            onChange={(e) => handleFeeToggle(e.target.checked)}
+                                            className="w-4 h-4 accent-gray-600 cursor-pointer"
+                                        />
                                         <span className="text-sm text-white/60">Fee (9% + $0.89):</span>
                                         <span className="text-sm font-medium text-white">
-                                            ${selectedEvent?.amount ? (((selectedEvent?.amount / 100) - (((selectedEvent?.amount / 100) - 0.89) / 1.09))).toFixed(2) : ""}
+                                            ${feeAmount}
                                         </span>
                                     </div>
                                     {errors.amount && (

@@ -166,7 +166,8 @@ const sampleEvents = [
 
 const newMemberSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
-  phoneNumber: z.string().min(1, "Phone number is required"),
+  email: z.string().min(1, "Email Id is required"),
+  phoneNumber: z.string().optional(),
   role: z.string().min(1, "Role is required"),
   events: z.array(z.string()).optional(),
 });
@@ -174,7 +175,8 @@ const newMemberSchema = z.object({
 const editMemberSchema = z.object({
   id: z.string(),
   fullName: z.string().min(1, "Full name is required"),
-  phoneNumber: z.string().min(1, "Phone number is required"),
+  email: z.string().optional(),
+  phoneNumber: z.string().optional(),
   role: z.string().min(1, "Role is required"),
   events: z.array(z.string()).optional(),
 });
@@ -183,6 +185,7 @@ export default function OrganizeMembers() {
   //const [members] = useState(sampleMembers);
   const [selectedMember, setSelectedMember] = useState(null);
   const [deactivateDialogOpen, setDeactivateDialogOpen] = useState(false);
+  const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [newMemberDialogOpen, setNewMemberDialogOpen] = useState(false);
   const [editMemberDialogOpen, setEditMemberDialogOpen] = useState(false);
@@ -204,6 +207,7 @@ export default function OrganizeMembers() {
     defaultValues: {
       id: "",
       fullName: "",
+      email: "",
       phoneNumber: "",
       role: roles[0],
       events: [],
@@ -222,6 +226,7 @@ export default function OrganizeMembers() {
     defaultValues: {
       id: "",
       fullName: "",
+      email: "",
       phoneNumber: "",
       role: roles[0],
       events: [],
@@ -233,6 +238,7 @@ export default function OrganizeMembers() {
       resetEdit({
         id: selectedMember._id,
         fullName: selectedMember.name,
+        email: selectedMember.email,
         phoneNumber: selectedMember.phone_number.replace("+1", ""),
         role: selectedMember.role,
         events: selectedMember.events,
@@ -245,8 +251,8 @@ export default function OrganizeMembers() {
       const formData = {
         organizer_id: oragnizerId,
         name: data.fullName,
-        email: "gagansk2125@gmail.com",
-        phone_number: "+1" + data.phoneNumber,
+        email: data.email,
+        phone_number: "",
         password: "123",
         role: data.role,
         events: data.events
@@ -273,11 +279,12 @@ export default function OrganizeMembers() {
       const formData = {
         organizer_id: oragnizerId,
         name: data.fullName,
-        email: "gagansk2125@gmail.com",
-        phone_number: "+1" + data.phoneNumber,
+        email: data.email,
+        phone_number: "",
         password: "123",
         role: data.role,
-        events: data.events
+        events: data.events,
+        status: "active"
       }
       const response = await fetch(`${url}/member/update-member/${data.id}`, {
         method: "PUT",
@@ -301,8 +308,8 @@ export default function OrganizeMembers() {
   };
 
   const filteredMembers = members.filter((member) => {
-    // const matchesStatus =
-    //   selectedStatus === "all" || member.status === selectedStatus;
+    const matchesStatus =
+      selectedStatus === "all" || member.status === selectedStatus;
     const matchesSearch =
       searchQuery.trim() === "" ||
       member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -311,7 +318,7 @@ export default function OrganizeMembers() {
     //member.assigned.toLowerCase().includes(searchQuery.toLowerCase());
 
     //return matchesStatus && matchesSearch;
-    return matchesSearch;
+    return matchesStatus && matchesSearch;
   });
 
   useEffect(() => {
@@ -377,7 +384,7 @@ export default function OrganizeMembers() {
             <h2 className="font-medium text-white/70 text-sm">
               Active members
             </h2>
-            <p className="text-2xl font-medium">-</p>
+            <p className="text-2xl font-medium">{members.filter(member => member.status === 'active').length || 0}</p>
           </div>
           <div className="border border-white/10 p-4 rounded-xl h-full flex flex-col gap-y-3">
             <h2 className="font-medium text-white/70 text-sm">Door staff</h2>
@@ -539,7 +546,7 @@ export default function OrganizeMembers() {
                           fillOpacity="0.5"
                         />
                       </svg>
-                      Phone
+                      Email
                     </div>
                   </th>
                   <th className="text-left p-4">
@@ -622,9 +629,9 @@ export default function OrganizeMembers() {
                           {member.name}
                         </div>
                       </td>
-                      <td className="py-4 pl-4">{member.phone_number}</td>
+                      <td className="py-4 pl-4">{member.email}</td>
                       <td className="py-4 pl-4">{member.role}</td>
-                      <td className="py-4 pl-4">{member.assigned || "-"}</td>
+                      <td className="py-4 pl-4">{member.events?.length + " events" || "-"}</td>
                       <td className="py-4 pl-4">
                         <div className="flex items-center gap-2">
                           {statusIcons[member.status]}
@@ -636,7 +643,7 @@ export default function OrganizeMembers() {
                           <MenuTrigger>
                             <Ellipsis />
                           </MenuTrigger>
-                          <MenuItem onClick={() => handleViewMember(member._id)}>
+                          {/* <MenuItem onClick={() => handleViewMember(member._id)}>
                             <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -660,7 +667,7 @@ export default function OrganizeMembers() {
                               </svg>
                               <span>View member</span>
                             </div>
-                          </MenuItem>
+                          </MenuItem> */}
                           <MenuItem
                             onClick={() => {
                               setSelectedMember(member);
@@ -708,11 +715,37 @@ export default function OrganizeMembers() {
                               <span>Assign events</span>
                             </div>
                           </MenuItem>
-                          <MenuSeparator />
                           <MenuItem
                             onClick={() => {
                               setSelectedMember(member);
                               setDeactivateDialogOpen(true);
+                            }}
+                          >
+                            <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className="text-yellow-500"
+                              >
+                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                                <line x1="12" y1="9" x2="12" y2="13" />
+                                <line x1="12" y1="17" x2="12.01" y2="17" />
+                              </svg>
+                              <span>{member.status === 'active' ? "Deactivate" : "Activate"} member</span>
+                            </div>
+                          </MenuItem>
+                          <MenuSeparator />
+                          <MenuItem
+                            onClick={() => {
+                              setSelectedMember(member);
+                              setRemoveDialogOpen(true);
                             }}
                           >
                             <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
@@ -730,7 +763,7 @@ export default function OrganizeMembers() {
                                   fill="#F43F5E"
                                 />
                               </svg>
-                              <span>Remove from team</span>
+                              <span>Remove member</span>
                             </div>
                           </MenuItem>
                         </DirectionAwareMenu>
@@ -786,6 +819,24 @@ export default function OrganizeMembers() {
               <div className="flex flex-col items-start justify-between gap-4">
                 <div className="flex flex-col gap-3 w-full">
                   <span className="text-sm font-medium text-white">
+                    Email Id
+                  </span>
+                  <input
+                    {...register("email")}
+                    placeholder="johndoe@gmail.com"
+                    className="border bg-primary text-white text-sm border-white/10 h-10 rounded-lg px-5 py-2.5 focus:outline-none w-full"
+                  />
+                  {errors.email && (
+                    <span className="text-xs text-red-500">
+                      {errors.email.message}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* <div className="flex flex-col items-start justify-between gap-4">
+                <div className="flex flex-col gap-3 w-full">
+                  <span className="text-sm font-medium text-white">
                     Phone Number
                   </span>
                   <div className="relative w-full">
@@ -812,7 +863,7 @@ export default function OrganizeMembers() {
                     </span>
                   )}
                 </div>
-              </div>
+              </div> */}
 
               <div className="flex flex-col gap-4">
                 <label className="text-sm font-medium text-white">Role</label>
@@ -900,35 +951,35 @@ export default function OrganizeMembers() {
                   </DropdownTrigger>
                   <DropdownContent className="w-full hide-scrollbar max-h-[200px] overflow-y-auto bg-[#151515] border border-white/10 tex-white rounded-lg shadow-lg overflow-hidden">
                     {events
-                    .filter(event => event.explore === 'YES')
-                    .map((event) => (
-                      <DropdownItem
-                        key={event.id}
-                        className="px-4 py-2 hover:bg-white/5 transition-colors text-white"
-                        onClick={() => {
-                          const currentEvents = watch("events") || [];
-                          const eventId = String(event._id);
-                          if (currentEvents.includes(eventId)) {
-                            setValue(
-                              "events",
-                              currentEvents.filter((id) => id !== eventId)
-                            );
-                          } else {
-                            setValue("events", [...currentEvents, eventId]);
-                          }
-                        }}
-                      >
-                        <div className="flex items-center w-full justify-between gap-3">
-                          {event.event_name}
-                          <Checkbox
-                            checked={watch("events")?.includes(
-                              String(event._id)
-                            )}
-                            className="border-white/10 -z-10 rounded bg-white/5 data-[state=checked]:bg-[#34B2DA] data-[state=checked]:text-black"
-                          />
-                        </div>
-                      </DropdownItem>
-                    ))}
+                      .filter(event => event.explore === 'YES')
+                      .map((event) => (
+                        <DropdownItem
+                          key={event.id}
+                          className="px-4 py-2 hover:bg-white/5 transition-colors text-white"
+                          onClick={() => {
+                            const currentEvents = watch("events") || [];
+                            const eventId = String(event._id);
+                            if (currentEvents.includes(eventId)) {
+                              setValue(
+                                "events",
+                                currentEvents.filter((id) => id !== eventId)
+                              );
+                            } else {
+                              setValue("events", [...currentEvents, eventId]);
+                            }
+                          }}
+                        >
+                          <div className="flex items-center w-full justify-between gap-3">
+                            {event.event_name}
+                            <Checkbox
+                              checked={watch("events")?.includes(
+                                String(event._id)
+                              )}
+                              className="border-white/10 -z-10 rounded bg-white/5 data-[state=checked]:bg-[#34B2DA] data-[state=checked]:text-black"
+                            />
+                          </div>
+                        </DropdownItem>
+                      ))}
                     <div className="sticky bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[#151515] to-transparent pointer-events-none flex items-center justify-center text-white/50 text-xs">
                       Scroll for more
                     </div>{" "}
@@ -949,22 +1000,22 @@ export default function OrganizeMembers() {
         </DialogContent>
       </Dialog>
 
-      {/* Deactivate Dialog */}
+      {/* Remove Dialog */}
       <Dialog
-        open={deactivateDialogOpen}
-        onOpenChange={setDeactivateDialogOpen}
+        open={removeDialogOpen}
+        onOpenChange={setRemoveDialogOpen}
         className="!max-w-[400px] border border-white/10 rounded-xl !p-0"
       >
         <DialogContent className="flex flex-col gap-3 p-6">
           <DialogTitle className="flex items-center gap-2">
-            Deactivate{" "}
+            Remove{" "}
             <span className="text-white bg-red-500/10 border border-white/10 border-dashed rounded-lg px-2 py-1 h-8 flex items-center justify-center text-sm w-fit">
               {selectedMember?.name}
             </span>
             ?
           </DialogTitle>
           <DialogDescription>
-            This member will no longer be able to access events.
+            This member will no longer be able to access events and permanently deleted from your account.
             {/* You can always activate them again later. */}
           </DialogDescription>
           <div className="flex flex-col gap-3 mt-3">
@@ -1059,6 +1110,24 @@ export default function OrganizeMembers() {
               <div className="flex flex-col items-start justify-between gap-4">
                 <div className="flex flex-col gap-3 w-full">
                   <span className="text-sm font-medium text-white">
+                    Email Id
+                  </span>
+                  <input
+                    {...registerEdit("email")}
+                    placeholder="johndoe@gmail.com"
+                    className="border bg-primary text-white text-sm border-white/10 h-10 rounded-lg px-5 py-2.5 focus:outline-none w-full"
+                  />
+                  {editErrors.email && (
+                    <span className="text-xs text-red-500">
+                      {editErrors.email.message}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* <div className="flex flex-col items-start justify-between gap-4">
+                <div className="flex flex-col gap-3 w-full">
+                  <span className="text-sm font-medium text-white">
                     Phone Number
                   </span>
                   <div className="relative w-full">
@@ -1085,7 +1154,7 @@ export default function OrganizeMembers() {
                     </span>
                   )}
                 </div>
-              </div>
+              </div> */}
 
               <div className="flex flex-col gap-4">
                 <label className="text-sm font-medium text-white">Role</label>
@@ -1173,35 +1242,35 @@ export default function OrganizeMembers() {
                   </DropdownTrigger>
                   <DropdownContent className="w-full overflow-y-auto hide-scrollbar max-h-[200px] bg-[#151515] border border-white/10 tex-white rounded-lg shadow-lg overflow-hidden">
                     {events
-                    .filter(event => event.explore === 'YES')
-                    .map((event) => (
-                      <DropdownItem
-                        key={event._id}
-                        className="px-4 py-2 hover:bg-white/5 transition-colors text-white"
-                        onClick={() => {
-                          const currentEvents = watchEdit("events") || [];
-                          const eventId = String(event._id);
-                          if (currentEvents.includes(eventId)) {
-                            setEditValue(
-                              "events",
-                              currentEvents.filter((id) => id !== eventId)
-                            );
-                          } else {
-                            setEditValue("events", [...currentEvents, eventId]);
-                          }
-                        }}
-                      >
-                        <div className="flex items-center w-full justify-between gap-3">
-                          {event.event_name}
-                          <Checkbox
-                            checked={watchEdit("events")?.includes(
-                              String(event._id)
-                            )}
-                            className="border-white/10 -z-10 rounded bg-white/5 data-[state=checked]:bg-[#34B2DA] data-[state=checked]:text-black"
-                          />
-                        </div>
-                      </DropdownItem>
-                    ))}
+                      .filter(event => event.explore === 'YES')
+                      .map((event) => (
+                        <DropdownItem
+                          key={event._id}
+                          className="px-4 py-2 hover:bg-white/5 transition-colors text-white"
+                          onClick={() => {
+                            const currentEvents = watchEdit("events") || [];
+                            const eventId = String(event._id);
+                            if (currentEvents.includes(eventId)) {
+                              setEditValue(
+                                "events",
+                                currentEvents.filter((id) => id !== eventId)
+                              );
+                            } else {
+                              setEditValue("events", [...currentEvents, eventId]);
+                            }
+                          }}
+                        >
+                          <div className="flex items-center w-full justify-between gap-3">
+                            {event.event_name}
+                            <Checkbox
+                              checked={watchEdit("events")?.includes(
+                                String(event._id)
+                              )}
+                              className="border-white/10 -z-10 rounded bg-white/5 data-[state=checked]:bg-[#34B2DA] data-[state=checked]:text-black"
+                            />
+                          </div>
+                        </DropdownItem>
+                      ))}
                     <div className="sticky bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-black/50 to-transparent pointer-events-none flex items-center justify-center text-white/50 text-xs">
                       Scroll for more
                     </div>
@@ -1351,6 +1420,75 @@ export default function OrganizeMembers() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Deactivate Dialog */}
+      <Dialog
+        open={deactivateDialogOpen}
+        onOpenChange={setDeactivateDialogOpen}
+        className="!max-w-[400px] border border-white/10 rounded-xl !p-0"
+      >
+        <DialogContent className="flex flex-col gap-3 p-6">
+          <DialogTitle className="flex items-center gap-2">
+            {selectedMember?.status === 'active' ? "Deactivate" : "Activate"}{" "}
+            <span className="text-white bg-yellow-500/10 border border-white/10 border-dashed rounded-lg px-2 py-1 h-8 flex items-center justify-center text-sm w-fit">
+              {selectedMember?.name}
+            </span>
+            ?
+          </DialogTitle>
+          <DialogDescription>
+            {
+              selectedMember?.status === 'active' ?
+                "This member will no longer be able to access events and you can make them activate at anytime." :
+                "This member will able to access events and you can make them deactivate at anytime."
+            }
+            {/* You can always activate them again later. */}
+          </DialogDescription>
+          <div className="flex flex-col gap-3 mt-3">
+            <button
+              onClick={async () => {
+                if (!selectedMember?._id) return;
+
+                try {
+                  const newStatus = selectedMember.status === "active" ? "inactive" : "active";
+
+                  const response = await axios.patch(
+                    `${url}/member/status-change-member/${selectedMember._id}`,
+                    { status: newStatus }
+                  );
+
+                  alert("Member status changed successfully");
+                  window.location.reload();
+                  setDeactivateDialogOpen(false);
+                } catch (error) {
+                  console.error("Error updating member status:", error);
+                  alert("Failed to change member status. Please try again.");
+                }
+              }}
+
+              className="w-full bg-yellow-700 text-white border-white/10 border text-center rounded-full h-10 px-4 focus:outline-none flex items-center justify-center gap-2 font-medium transition-colors"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="text-yellow-500"
+              >
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                <line x1="12" y1="9" x2="12" y2="13" />
+                <line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+              {selectedMember?.status === 'active' ? "Deactivate" : "Activate"} member
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
     </SidebarLayout>
   );
 }
