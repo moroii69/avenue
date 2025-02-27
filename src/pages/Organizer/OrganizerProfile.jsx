@@ -8,7 +8,10 @@ import {
 } from "react-icons/io5";
 import SidebarLayout from "../../components/layouts/SidebarLayout";
 import SidebarToggle from "../../components/layouts/SidebarToggle";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import axios from "axios";
+import url from "../../constants/url"
+import { Spin } from 'antd';
 
 const Icons = {
     Link: ({ className }) => (
@@ -88,6 +91,8 @@ const InputField = ({
     placeholder,
     value,
     onChange,
+    fieldName,
+    editedField
 }) => (
     <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
         <div className="flex flex-col gap-3">
@@ -103,11 +108,14 @@ const InputField = ({
                 className="border bg-primary text-sm border-white/10 h-10 rounded-lg px-5 py-2.5 focus:outline-none w-full"
                 aria-label={label}
             />
+            {editedField === fieldName && (
+                <p className="text-green-500 text-xs mt-1">Updated</p>
+            )}
         </div>
     </div>
 );
 
-const PhoneInput = ({ value, onChange }) => (
+const PhoneInput = ({ value, onChange, fieldName, editedField }) => (
     <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
         <div className="flex flex-col gap-3">
             <span className="text-sm font-medium">Phone Number</span>
@@ -134,6 +142,9 @@ const PhoneInput = ({ value, onChange }) => (
                     aria-label="Phone number"
                 />
             </div>
+            {editedField === fieldName && (
+                <p className="text-green-500 text-xs mt-1">Updated</p>
+            )}
         </div>
     </div>
 );
@@ -145,6 +156,8 @@ const SocialLinkInput = ({
     onChange,
     description = "Will be shown to attendees",
     icon: Icon = IoLinkSharp,
+    fieldName,
+    editedField
 }) => (
     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div className="flex flex-col gap-3">
@@ -165,6 +178,9 @@ const SocialLinkInput = ({
                     aria-label={label}
                 />
             </div>
+            {editedField === fieldName && (
+                <p className="text-green-500 text-xs mt-1 items-end">Updated</p>
+            )}
         </div>
     </div>
 );
@@ -246,6 +262,170 @@ const LogoutDialog = ({ isOpen, onClose }) => {
 
 const OrganizerProfile = () => {
     const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
+    const [oragnizerId, setOragnizerId] = useState(null);
+    const [events, setEvents] = useState([]);
+    const [organizer, setOrganizer] = useState({
+        bio: "",
+        name: "",
+        email: "",
+        phone: "",
+        instagram: "",
+        twitter: "",
+        website: "",
+        url: ""
+    });
+    const [filteredEvents, setFilteredEvents] = useState([]);
+    const [filteredPastEvents, setFilteredPastEvents] = useState([]);
+    const [loading, setLoading] = useState(false)
+    const [editedField, setEditedField] = useState(null);
+
+    useEffect(() => {
+        const loadFromLocalStorage = () => {
+            const storedUserOrganizerId = localStorage.getItem('organizerId');
+            if (storedUserOrganizerId) {
+                setOragnizerId(storedUserOrganizerId);
+            } else {
+                console.warn("No organizerId found in localStorage");
+            }
+        };
+
+        loadFromLocalStorage();
+        const handleStorageChange = () => {
+            loadFromLocalStorage();
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+        };
+    }, []);
+
+    const fetchOrganizer = async () => {
+        if (oragnizerId) {
+            setLoading(true)
+            try {
+                const response = await axios.get(`${url}/get-organizer/${oragnizerId}`);
+                setOrganizer(response.data);
+            } catch (error) {
+                console.error("Error fetching organizer:", error);
+            } finally {
+                setLoading(false)
+            }
+        } else {
+            console.log("not found")
+        }
+    };
+
+    useEffect(() => {
+        if (oragnizerId) {
+            fetchOrganizer();
+        }
+    }, [oragnizerId]);
+
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const day = date.getDate();
+        const month = date.toLocaleString('en-US', { month: 'short' });
+        const year = date.getFullYear().toString().slice(-2);
+
+        let hours = date.getHours();
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12;
+
+        return `${month} ${day}, ${hours}:${minutes} ${ampm}`;
+    };
+
+    const formattedDate = new Date(organizer.createdAt).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long'
+    });
+
+    const fetchEvents = async () => {
+        if (oragnizerId) {
+            try {
+                const response = await axios.get(`${url}/event/get-event-by-organizer-id/${oragnizerId}`);
+                setEvents(response.data);
+                console.log(response.data)
+            } catch (error) {
+                console.error("Error fetching events:", error);
+            }
+        } else {
+            console.log("not found")
+        }
+    }
+
+    useEffect(() => {
+        if (oragnizerId) {
+            fetchEvents()
+        }
+    }, [oragnizerId]);
+
+    useEffect(() => {
+        const currentDate = new Date();
+        currentDate.setHours(0, 0, 0, 0);
+
+        const upcomingEvents = events.filter(event => {
+            const eventDate = new Date(event.start_date);
+            eventDate.setHours(0, 0, 0, 0);
+            return eventDate >= currentDate && event.explore === "YES";
+        });
+        setFilteredEvents(upcomingEvents);
+
+
+        const pastEvents = events.filter(event => {
+            const eventDate = new Date(event.start_date);
+            eventDate.setHours(0, 0, 0, 0);
+            return eventDate < currentDate && event.explore === "YES";
+        });
+        setFilteredPastEvents(pastEvents);
+
+
+    }, [events]);
+
+    const prevValuesRef = useRef({ ...organizer });
+
+    useEffect(() => {
+        if (oragnizerId) {
+            const fieldsToWatch = ["name", "email", "phone", "instagram", "twitter", "website"];
+            const hasChangedField = fieldsToWatch.find(field => prevValuesRef.current[field] !== organizer[field]);
+
+            if (hasChangedField) {
+                prevValuesRef.current = { ...organizer };
+                setEditedField(hasChangedField);
+
+                const updateOrganizer = async () => {
+                    try {
+                        const formData = new FormData();
+                        formData.append('bio', organizer.bio);
+                        formData.append('name', organizer.name);
+                        formData.append('email', organizer.email);
+                        formData.append('phone', organizer.phone);
+                        formData.append('instagram', organizer.instagram);
+                        formData.append('twitter', organizer.twitter);
+                        formData.append('website', organizer.website);
+                        formData.append('url', organizer.url);
+
+                        await axios.put(`${url}/update-organizer/${oragnizerId}`, formData, {
+                            headers: {
+                                'Content-Type': 'multipart/form-data',
+                            },
+                        });
+
+                        console.log("Organizer updated successfully!");
+                    } catch (error) {
+                        console.error("Error updating organizer:", error);
+                        alert("Failed to update organizer. Please try again.");
+                    }
+                };
+
+                const debounceTimeout = setTimeout(updateOrganizer, 500);
+                setTimeout(() => setEditedField(null), 3000);
+                return () => clearTimeout(debounceTimeout);
+            }
+        }
+    }, [organizer, oragnizerId]);
 
     return (
         <SidebarLayout>
@@ -253,214 +433,270 @@ const OrganizerProfile = () => {
                 <SidebarToggle />
             </div>
 
-            <div className="min-h-screen text-white p-4 @container">
-                <div className="max-w-7xl mx-auto flex flex-col @4xl:flex-row gap-6">
-                    {/* Profile Card */}
-                    <div className="w-full @3xl:w-80 lg:flex-shrink-0">
-                        <div className="border border-white/5 p-6 rounded-[20px] flex flex-col gap-4">
-                            <div className="flex flex-col gap-y-6">
-                                <div className="flex justify-center lg:justify-start">
-                                    <div className="w-20 h-20 rounded-full overflow-hidden bg-[#10b981] flex items-center justify-center">
-                                        <span className="text-xl font-semibold text-black">JD</span>
-                                    </div>
-                                </div>
-
-                                <div className="text-center lg:text-left">
-                                    <h1 className="text-2xl font-medium">John Doe</h1>
-                                    <div className="flex items-center justify-center lg:justify-start gap-2 mt-2">
-                                        <Icons.Calendar />
-                                        <p className="text-white/50 text-sm">
-                                            Joined on February 2025
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div className="flex bg-[#787878] p-1 rounded-full bg-opacity-25">
-                                    <button
-                                        className="flex-1 py-2 text-center transition-all text-sm duration-300 ease-in-out bg-[#787878] text-white font-medium rounded-full p-2 bg-opacity-25"
-                                        aria-pressed="true"
-                                    >
-                                        Attendee
-                                    </button>
-                                    <button
-                                        className="flex-1 py-2 text-center transition-all text-sm duration-300 ease-in-out text-gray-300"
-                                        aria-pressed="false"
-                                    >
-                                        Creator
-                                    </button>
-                                </div>
-                            </div>
-                            <button className="text-sm font-medium text-white border border-white/5 rounded-full h-10 px-4 w-full flex items-center justify-center gap-1.5 hover:bg-white/10 transition-all duration-300 ease-in-out">
-                                <Icons.Link />
-                                <span className="text-sm font-medium">Copy Profile Link</span>
-                            </button>
-
-                            <div className="border border-[#222222] rounded-xl p-3">
-                                <div className="flex justify-center items-center space-x-6">
-                                    <div className="flex flex-col items-center gap-1.5">
-                                        <span className="text-xs text-white/50">Live Tickets</span>
-                                        <span className="text-lg font-semibold text-white">10</span>
-                                    </div>
-                                    <div className="w-px bg-white/10 h-10"></div>
-                                    <div className="flex flex-col items-center gap-1.5">
-                                        <span className="text-xs text-white/50">Sold Tickets</span>
-                                        <span className="text-lg font-semibold text-white">
-                                            190
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+            {
+                loading ? (
+                    <div className='text-center mt-10'>
+                        <Spin size="large" />
                     </div>
+                ) : (
+                    <>
+                        <div className="min-h-screen text-white p-4 @container">
+                            <div className="max-w-7xl mx-auto flex flex-col @4xl:flex-row gap-6">
+                                {/* Profile Card */}
+                                <div className="w-full @3xl:w-80 lg:flex-shrink-0">
+                                    <div className="border border-white/5 p-6 rounded-[20px] flex flex-col gap-4">
+                                        <div className="flex flex-col gap-y-6">
+                                            <div className="flex justify-center lg:justify-start">
+                                                <div className="w-20 h-20 rounded-full overflow-hidden bg-[#10b981] flex items-center justify-center">
+                                                    <span className="text-xl font-semibold text-black">
+                                                        {organizer?.name?.slice(0, 2).toUpperCase() || ''}
+                                                    </span>
+                                                </div>
+                                            </div>
 
-                    {/* Main Content */}
-                    <div className="flex-1">
-                        <div className="space-y-6">
-                            {/* Business Info Section */}
-                            <ProfileSection
-                                icon={() => (
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        width="16"
-                                        height="16"
-                                        viewBox="0 0 16 16"
-                                        fill="none"
-                                    >
-                                        <path
-                                            fillRule="evenodd"
-                                            clipRule="evenodd"
-                                            d="M11 4V3C11 2.46957 10.7893 1.96086 10.4142 1.58579C10.0391 1.21071 9.53043 1 9 1H7C6.46957 1 5.96086 1.21071 5.58579 1.58579C5.21071 1.96086 5 2.46957 5 3V4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V9C2 9.53043 2.21071 10.0391 2.58579 10.4142C2.96086 10.7893 3.46957 11 4 11H12C12.5304 11 13.0391 10.7893 13.4142 10.4142C13.7893 10.0391 14 9.53043 14 9V6C14 5.46957 13.7893 4.96086 13.4142 4.58579C13.0391 4.21071 12.5304 4 12 4H11Z"
-                                            fill="white"
-                                            fillOpacity="0.5"
-                                        />
-                                    </svg>
-                                )}
-                                title="Business Info"
-                            >
-                                <div className="flex flex-col gap-8">
-                                    <InputField
-                                        label="Business Name"
-                                        description="Will be displayed on your event pages"
-                                        placeholder="Enter business name"
-                                    />
-                                    <PhoneInput />
-                                </div>
-                            </ProfileSection>
+                                            <div className="text-center lg:text-left">
+                                                <h1 className="text-2xl font-medium">{organizer.name}</h1>
+                                                <div className="flex items-center justify-center lg:justify-start gap-2 mt-2">
+                                                    <Icons.Calendar />
+                                                    <p className="text-white/50 text-sm">
+                                                        Joined on {formattedDate}
+                                                    </p>
+                                                </div>
+                                            </div>
 
-                            {/* Social Links Section */}
-                            <ProfileSection icon={Icons.Link} title="Social links">
-                                <div className="flex flex-col gap-8">
-                                    <SocialLinkInput
-                                        label="Instagram"
-                                        placeholder="instagram.com/alimamedgasanov"
-                                        icon={Icons.Link}
-                                        description="Your Instagram profile link"
-                                    />
-                                    <SocialLinkInput
-                                        label="X (Twitter)"
-                                        placeholder="x.com/alimamedgasanov"
-                                        icon={Icons.Link}
-                                        description="Your X (Twitter) profile link"
-                                    />
-                                    <SocialLinkInput
-                                        label="Website"
-                                        placeholder="alimamedgasanov.com"
-                                        icon={IoGlobeOutline}
-                                        description="Your personal or business website"
-                                    />
-                                </div>
-                            </ProfileSection>
-
-                            {/* Legal Section */}
-                            <ProfileSection icon={IoDocumentTextSharp} title="Legal">
-                                <div className="flex flex-col gap-8">
-                                    {/* Contact Support */}
-                                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                                        <div className="flex flex-col gap-3">
-                                            <span className="text-sm font-medium text-white">
-                                                Contact link
-                                            </span>
-                                            <span className="text-sm text-white/60">
-                                                Need help? We&apos;re here for you
-                                            </span>
+                                            <div className="flex bg-[#787878] p-1 rounded-full bg-opacity-25">
+                                                <button
+                                                    className="flex-1 py-2 text-center transition-all text-sm duration-300 ease-in-out text-gray-300 "
+                                                    aria-pressed="true"
+                                                >
+                                                    Attendee
+                                                </button>
+                                                <button
+                                                    className="flex-1 py-2 text-center transition-all text-sm duration-300 ease-in-out bg-[#787878] text-white font-medium rounded-full p-2 bg-opacity-25"
+                                                    aria-pressed="false"
+                                                >
+                                                    Creator
+                                                </button>
+                                            </div>
                                         </div>
-                                        <button className="bg-primary border text-sm text-center text-white border-white/10 rounded-full px-5 py-2.5 focus:outline-none w-full lg:w-auto flex items-center justify-center gap-2">
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                width="16"
-                                                height="16"
-                                                viewBox="0 0 16 16"
-                                                fill="none"
-                                            >
-                                                <path
-                                                    fillRule="evenodd"
-                                                    clipRule="evenodd"
-                                                    d="M1 8C1 4.57 4.262 2 8 2C11.738 2 15 4.57 15 8C15 11.43 11.738 14 8 14C7.577 14 7.162 13.968 6.759 13.906C5.859 14.48 4.818 14.854 3.699 14.966C3.55984 14.9799 3.41957 14.9547 3.29401 14.8931C3.16846 14.8315 3.06263 14.736 2.98847 14.6174C2.91431 14.4989 2.87478 14.3619 2.87435 14.2221C2.87391 14.0822 2.91258 13.945 2.986 13.826C3.218 13.448 3.381 13.022 3.455 12.566C1.979 11.486 1 9.86 1 8Z"
-                                                    fill="white"
-                                                    fillOpacity="0.5"
-                                                />
-                                            </svg>
-                                            Chat with support
+                                        <button className="text-sm font-medium text-white border border-white/5 rounded-full h-10 px-4 w-full flex items-center justify-center gap-1.5 hover:bg-white/10 transition-all duration-300 ease-in-out">
+                                            <Icons.Link />
+                                            <span className="text-sm font-medium">Copy Profile Link</span>
                                         </button>
-                                    </div>
 
-                                    {/* Terms and Privacy */}
-                                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                                        <div className="flex flex-col gap-3">
-                                            <span className="text-sm font-medium text-white">
-                                                Terms and privacy
-                                            </span>
-                                            <span className="text-sm text-white/60">
-                                                View legal documents
-                                            </span>
+                                        <div className="border border-[#222222] rounded-xl p-3">
+                                            <div className="flex justify-center items-center space-x-6">
+                                                <div className="flex flex-col items-center gap-1.5">
+                                                    <span className="text-xs text-white/50">Live Events</span>
+                                                    <span className="text-lg font-semibold text-white">{filteredEvents.length}</span>
+                                                </div>
+                                                <div className="w-px bg-white/10 h-10"></div>
+                                                <div className="flex flex-col items-center gap-1.5">
+                                                    <span className="text-xs text-white/50">Past Events</span>
+                                                    <span className="text-lg font-semibold text-white">
+                                                        {filteredPastEvents.length}
+                                                    </span>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <button className="bg-primary border text-sm text-center text-white border-white/10 rounded-full px-5 py-2.5 focus:outline-none w-full lg:w-auto flex items-center justify-center gap-2">
-                                            Terms and privacy
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                width="16"
-                                                height="16"
-                                                viewBox="0 0 16 16"
-                                                fill="none"
-                                            >
-                                                <path
-                                                    fillRule="evenodd"
-                                                    clipRule="evenodd"
-                                                    d="M4.22007 11.78C4.07962 11.6394 4.00073 11.4488 4.00073 11.25C4.00073 11.0512 4.07962 10.8606 4.22007 10.72L9.44007 5.5H5.75007C5.55116 5.5 5.36039 5.42098 5.21974 5.28033C5.07909 5.13968 5.00007 4.94891 5.00007 4.75C5.00007 4.55109 5.07909 4.36032 5.21974 4.21967C5.36039 4.07902 5.55116 4 5.75007 4H11.2501C11.449 4 11.6398 4.07902 11.7804 4.21967C11.9211 4.36032 12.0001 4.55109 12.0001 4.75V10.25C12.0001 10.4489 11.9211 10.6397 11.7804 10.7803C11.6398 10.921 11.449 11 11.2501 11C11.0512 11 10.8604 10.921 10.7197 10.7803C10.5791 10.6397 10.5001 10.4489 10.5001 10.25V6.56L5.28007 11.78C5.13945 11.9205 4.94882 11.9993 4.75007 11.9993C4.55132 11.9993 4.3607 11.9205 4.22007 11.78Z"
-                                                    fill="white"
-                                                    fillOpacity="0.5"
-                                                />
-                                            </svg>
-                                        </button>
                                     </div>
+                                </div>
 
-                                    {/* Logout */}
-                                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                                        <div className="flex flex-col gap-3">
-                                            <span className="text-sm font-medium">Logout</span>
-                                            <span className="text-sm text-white/60">
-                                                You will be logged out of your account
-                                            </span>
-                                        </div>
-                                        <button
-                                            onClick={() => setIsLogoutDialogOpen(true)}
-                                            className="bg-primary border text-sm text-center border-white/10 rounded-full px-5 py-2.5 focus:outline-none w-full lg:w-auto flex items-center justify-center gap-2"
+                                {/* Main Content */}
+                                <div className="flex-1">
+                                    <div className="space-y-6">
+                                        {/* Business Info Section */}
+                                        <ProfileSection
+                                            icon={() => (
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    width="16"
+                                                    height="16"
+                                                    viewBox="0 0 16 16"
+                                                    fill="none"
+                                                >
+                                                    <path
+                                                        fillRule="evenodd"
+                                                        clipRule="evenodd"
+                                                        d="M11 4V3C11 2.46957 10.7893 1.96086 10.4142 1.58579C10.0391 1.21071 9.53043 1 9 1H7C6.46957 1 5.96086 1.21071 5.58579 1.58579C5.21071 1.96086 5 2.46957 5 3V4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V9C2 9.53043 2.21071 10.0391 2.58579 10.4142C2.96086 10.7893 3.46957 11 4 11H12C12.5304 11 13.0391 10.7893 13.4142 10.4142C13.7893 10.0391 14 9.53043 14 9V6C14 5.46957 13.7893 4.96086 13.4142 4.58579C13.0391 4.21071 12.5304 4 12 4H11Z"
+                                                        fill="white"
+                                                        fillOpacity="0.5"
+                                                    />
+                                                </svg>
+                                            )}
+                                            title="Business Info"
                                         >
-                                            <Icons.Logout className="w-4 h-4" />
-                                            Logout of account
-                                        </button>
+                                            <div className="flex flex-col gap-8">
+                                                <InputField
+                                                    label="Business Name"
+                                                    description="Will be displayed on your event pages"
+                                                    placeholder="Enter business name"
+                                                    value={organizer.name === 'undefined' ? "" : organizer.name}
+                                                    onChange={(e) =>
+                                                        setOrganizer((prev) => ({ ...prev, name: e.target.value }))
+                                                    }
+                                                    fieldName="name"
+                                                    editedField={editedField}
+                                                />
+
+                                                <InputField
+                                                    label="Email Id"
+                                                    description="Will be displayed for enquiries from users"
+                                                    placeholder="Enter email id"
+                                                    value={organizer.email === 'undefined' ? "" : organizer.email}
+                                                    onChange={(e) =>
+                                                        setOrganizer((prev) => ({ ...prev, email: e.target.value }))
+                                                    }
+                                                    fieldName="email"
+                                                    editedField={editedField}
+                                                />
+
+                                                <PhoneInput
+                                                    value={organizer.phone === 'undefined' ? "" : organizer.phone}
+                                                    onChange={(e) =>
+                                                        setOrganizer((prev) => ({ ...prev, phone: e.target.value }))
+                                                    }
+                                                    fieldName="phone"
+                                                    editedField={editedField}
+                                                />
+                                            </div>
+                                        </ProfileSection>
+
+                                        {/* Social Links Section */}
+                                        <ProfileSection icon={Icons.Link} title="Social links">
+                                            <div className="flex flex-col gap-8">
+                                                <SocialLinkInput
+                                                    label="Instagram"
+                                                    placeholder="instagram.com/alimamedgasanov"
+                                                    icon={Icons.Link}
+                                                    description="Your Instagram profile link"
+                                                    value={organizer.instagram === 'undefined' ? "" : organizer.instagram}
+                                                    onChange={(e) =>
+                                                        setOrganizer((prev) => ({ ...prev, instagram: e.target.value }))
+                                                    }
+                                                    fieldName="instagram"
+                                                    editedField={editedField}
+                                                />
+                                                <SocialLinkInput
+                                                    label="X (Twitter)"
+                                                    placeholder="x.com/alimamedgasanov"
+                                                    icon={Icons.Link}
+                                                    description="Your X (Twitter) profile link"
+                                                    value={organizer.twitter === 'undefined' ? "" : organizer.twitter}
+                                                    onChange={(e) =>
+                                                        setOrganizer((prev) => ({ ...prev, twitter: e.target.value }))
+                                                    }
+                                                    fieldName="twitter"
+                                                    editedField={editedField}
+                                                />
+                                                <SocialLinkInput
+                                                    label="Website"
+                                                    placeholder="alimamedgasanov.com"
+                                                    icon={IoGlobeOutline}
+                                                    description="Your personal or business website"
+                                                    value={organizer.website === 'undefined' ? "" : organizer.website}
+                                                    onChange={(e) =>
+                                                        setOrganizer((prev) => ({ ...prev, website: e.target.value }))
+                                                    }
+                                                    fieldName="website"
+                                                    editedField={editedField}
+                                                />
+                                            </div>
+                                        </ProfileSection>
+
+                                        {/* Legal Section */}
+                                        <ProfileSection icon={IoDocumentTextSharp} title="Legal">
+                                            <div className="flex flex-col gap-8">
+                                                {/* Contact Support */}
+                                                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                                                    <div className="flex flex-col gap-3">
+                                                        <span className="text-sm font-medium text-white">
+                                                            Contact link
+                                                        </span>
+                                                        <span className="text-sm text-white/60">
+                                                            Need help? We&apos;re here for you
+                                                        </span>
+                                                    </div>
+                                                    <button className="bg-primary border text-sm text-center text-white border-white/10 rounded-full px-5 py-2.5 focus:outline-none w-full lg:w-auto flex items-center justify-center gap-2">
+                                                        <svg
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                            width="16"
+                                                            height="16"
+                                                            viewBox="0 0 16 16"
+                                                            fill="none"
+                                                        >
+                                                            <path
+                                                                fillRule="evenodd"
+                                                                clipRule="evenodd"
+                                                                d="M1 8C1 4.57 4.262 2 8 2C11.738 2 15 4.57 15 8C15 11.43 11.738 14 8 14C7.577 14 7.162 13.968 6.759 13.906C5.859 14.48 4.818 14.854 3.699 14.966C3.55984 14.9799 3.41957 14.9547 3.29401 14.8931C3.16846 14.8315 3.06263 14.736 2.98847 14.6174C2.91431 14.4989 2.87478 14.3619 2.87435 14.2221C2.87391 14.0822 2.91258 13.945 2.986 13.826C3.218 13.448 3.381 13.022 3.455 12.566C1.979 11.486 1 9.86 1 8Z"
+                                                                fill="white"
+                                                                fillOpacity="0.5"
+                                                            />
+                                                        </svg>
+                                                        Chat with support
+                                                    </button>
+                                                </div>
+
+                                                {/* Terms and Privacy */}
+                                                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                                                    <div className="flex flex-col gap-3">
+                                                        <span className="text-sm font-medium text-white">
+                                                            Terms and privacy
+                                                        </span>
+                                                        <span className="text-sm text-white/60">
+                                                            View legal documents
+                                                        </span>
+                                                    </div>
+                                                    <button className="bg-primary border text-sm text-center text-white border-white/10 rounded-full px-5 py-2.5 focus:outline-none w-full lg:w-auto flex items-center justify-center gap-2">
+                                                        Terms and privacy
+                                                        <svg
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                            width="16"
+                                                            height="16"
+                                                            viewBox="0 0 16 16"
+                                                            fill="none"
+                                                        >
+                                                            <path
+                                                                fillRule="evenodd"
+                                                                clipRule="evenodd"
+                                                                d="M4.22007 11.78C4.07962 11.6394 4.00073 11.4488 4.00073 11.25C4.00073 11.0512 4.07962 10.8606 4.22007 10.72L9.44007 5.5H5.75007C5.55116 5.5 5.36039 5.42098 5.21974 5.28033C5.07909 5.13968 5.00007 4.94891 5.00007 4.75C5.00007 4.55109 5.07909 4.36032 5.21974 4.21967C5.36039 4.07902 5.55116 4 5.75007 4H11.2501C11.449 4 11.6398 4.07902 11.7804 4.21967C11.9211 4.36032 12.0001 4.55109 12.0001 4.75V10.25C12.0001 10.4489 11.9211 10.6397 11.7804 10.7803C11.6398 10.921 11.449 11 11.2501 11C11.0512 11 10.8604 10.921 10.7197 10.7803C10.5791 10.6397 10.5001 10.4489 10.5001 10.25V6.56L5.28007 11.78C5.13945 11.9205 4.94882 11.9993 4.75007 11.9993C4.55132 11.9993 4.3607 11.9205 4.22007 11.78Z"
+                                                                fill="white"
+                                                                fillOpacity="0.5"
+                                                            />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+
+                                                {/* Logout */}
+                                                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                                                    <div className="flex flex-col gap-3">
+                                                        <span className="text-sm font-medium">Logout</span>
+                                                        <span className="text-sm text-white/60">
+                                                            You will be logged out of your account
+                                                        </span>
+                                                    </div>
+                                                    <button
+                                                        onClick={() => setIsLogoutDialogOpen(true)}
+                                                        className="bg-primary border text-sm text-center border-white/10 rounded-full px-5 py-2.5 focus:outline-none w-full lg:w-auto flex items-center justify-center gap-2"
+                                                    >
+                                                        <Icons.Logout className="w-4 h-4" />
+                                                        Logout of account
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </ProfileSection>
                                     </div>
                                 </div>
-                            </ProfileSection>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                            </div>
+                        </div >
+                    </>
+                )
+            }
             <LogoutDialog
                 isOpen={isLogoutDialogOpen}
                 onClose={() => setIsLogoutDialogOpen(false)}
             />
-        </SidebarLayout>
+        </SidebarLayout >
     );
 };
 
