@@ -280,7 +280,13 @@ const OrganizerDashboard = () => {
                   className="p-4 flex items-center justify-between relative before:absolute before:-left-1 before:top-0 before:z-10 before:h-screen before:w-px before:bg-[#212121] before:content-[''] after:absolute after:-top-1 after:left-0 after:z-10 after:h-px after:w-screen after:bg-[#212121] after:content-['']"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-purple-600 rounded-lg"></div>
+                    <div className="w-10 h-10 rounded-lg">
+                      <img
+                        src="https://images.unsplash.com/photo-1580757468214-c73f7062a5cb?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                        alt=""
+                        className="w-full h-full object-cover rounded-lg"
+                      />
+                    </div>
                     <div>
                       <p className="font-semibold">{event.title}</p>
                       <p className="text-white/70 flex items-center gap-x-2 text-sm">
