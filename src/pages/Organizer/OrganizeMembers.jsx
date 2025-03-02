@@ -195,6 +195,7 @@ export default function OrganizeMembers() {
   const [oragnizerId, setOragnizerId] = useState(null);
   const [members, setMembers] = useState([]);
   const [events, setEvents] = useState([]);
+  const [assignEvents, setAssignEvents] = useState([])
 
   const {
     register,
@@ -252,7 +253,7 @@ export default function OrganizeMembers() {
         organizer_id: oragnizerId,
         name: data.fullName,
         email: data.email,
-        phone_number: "",
+        phone_number: "+1" + data.phoneNumber,
         password: "123",
         role: data.role,
         events: data.events
@@ -280,7 +281,7 @@ export default function OrganizeMembers() {
         organizer_id: oragnizerId,
         name: data.fullName,
         email: data.email,
-        phone_number: "",
+        phone_number: "+1" + data.phoneNumber,
         password: "123",
         role: data.role,
         events: data.events,
@@ -313,6 +314,7 @@ export default function OrganizeMembers() {
     const matchesSearch =
       searchQuery.trim() === "" ||
       member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      member.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       member.phone_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
       member.role.toLowerCase().includes(searchQuery.toLowerCase())
     //member.assigned.toLowerCase().includes(searchQuery.toLowerCase());
@@ -364,6 +366,107 @@ export default function OrganizeMembers() {
     fetchEvents();
   }, [oragnizerId]);
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const month = date.toLocaleString('en-US', { month: 'short' });
+    const capitalizedMonth = month.charAt(0).toUpperCase() + month.slice(1);
+
+    let hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+
+    return `${capitalizedMonth} ${day}, ${hours}:${minutes} ${ampm}`;
+  };
+
+  const currentDate = new Date();
+  currentDate.setHours(0, 0, 0, 0);
+
+  const liveEvents = events.filter(event => {
+    const eventDate = new Date(event.start_date);
+    eventDate.setHours(0, 0, 0, 0);
+    return eventDate >= currentDate && event.explore === "YES";
+  });
+
+  const fetchAssignEvents = async (member) => {
+    setSelectedMember(member);
+    setAssignEventsDialogOpen(true);
+    try {
+      const response = await axios.get(`${url}/member/get-member-events/${member._id}`);
+      setAssignEvents(response?.data?.data?.events)
+    } catch (error) {
+      console.error('Error fetching events:', error);
+    }
+  }
+
+  const handleRemoveEvent = async (eventId, data) => {
+    try {
+      const updatedEvents = assignEvents.filter(event => event._id !== eventId);
+      setAssignEvents(updatedEvents);
+      const formData = {
+        organizer_id: oragnizerId,
+        name: data.name,
+        email: data.email,
+        phone_number: data.phone_number,
+        password: "123",
+        role: data.role,
+        events: updatedEvents.map(event => event._id),
+        status: "active"
+      };
+
+      console.log("Updating member with data:", formData);
+      const response = await fetch(`${url}/member/update-member/${data._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        console.log("Member updated successfully!");
+      } else {
+        console.error("Error updating member:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  const handleAddEvent = async (event, data) => {
+    try {
+      const updatedEvents = [...assignEvents, event];
+      setAssignEvents(updatedEvents);
+
+      const formData = {
+        organizer_id: oragnizerId,
+        name: data.name,
+        email: data.email,
+        phone_number: data.phone_number,
+        password: "123",
+        role: data.role,
+        events: updatedEvents.map(event => event._id),
+        status: "active"
+      };
+
+      console.log("Adding event and updating member:", formData);
+      const response = await fetch(`${url}/member/update-member/${data._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        console.log("Event added successfully!");
+      } else {
+        console.error("Error adding event:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+
   return (
     <SidebarLayout>
       <div className="m-4 mb-2 z-20">
@@ -375,7 +478,7 @@ export default function OrganizeMembers() {
           <p className="text-white/70">Manage your event staff</p>
         </div>
 
-        <div className="grid @4xl:grid-cols-3 gap-4 h-fit">
+        <div className="grid @4xl:grid-cols-2 gap-4 h-fit">
           <div className="border border-white/10 p-4 rounded-xl h-full flex flex-col gap-y-3">
             <h2 className="font-medium text-white/70 text-sm">Total members</h2>
             <p className="text-2xl font-medium">{members.length || 0}</p>
@@ -386,10 +489,10 @@ export default function OrganizeMembers() {
             </h2>
             <p className="text-2xl font-medium">{members.filter(member => member.status === 'active').length || 0}</p>
           </div>
-          <div className="border border-white/10 p-4 rounded-xl h-full flex flex-col gap-y-3">
+          {/*<div className="border border-white/10 p-4 rounded-xl h-full flex flex-col gap-y-3">
             <h2 className="font-medium text-white/70 text-sm">Door staff</h2>
             <p className="text-2xl font-medium">{members.filter(member => member.role === 'Door Staff').length || 0}</p>
-          </div>
+          </div>*/}
         </div>
 
         {/* Action buttons */}
@@ -533,6 +636,25 @@ export default function OrganizeMembers() {
                     <div className="flex items-center gap-2">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
+                        width="17"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                        <polyline points="22,6 12,13 2,6" />
+                      </svg>
+                      Email
+                    </div>
+                  </th>
+                  <th className="text-left p-4">
+                    <div className="flex items-center gap-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
                         width="16"
                         height="16"
                         viewBox="0 0 16 16"
@@ -546,7 +668,7 @@ export default function OrganizeMembers() {
                           fillOpacity="0.5"
                         />
                       </svg>
-                      Email
+                      Phone Number
                     </div>
                   </th>
                   <th className="text-left p-4">
@@ -630,6 +752,7 @@ export default function OrganizeMembers() {
                         </div>
                       </td>
                       <td className="py-4 pl-4">{member.email}</td>
+                      <td className="py-4 pl-4">{member.phone_number ? member.phone_number : "-"}</td>
                       <td className="py-4 pl-4">{member.role}</td>
                       <td className="py-4 pl-4">{member.events?.length + " events" || "-"}</td>
                       <td className="py-4 pl-4">
@@ -675,27 +798,18 @@ export default function OrganizeMembers() {
                             }}
                           >
                             <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="16"
-                                height="16"
-                                viewBox="0 0 16 16"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              >
-                                <path d="M11 4H4a2 2 0 0 0-2 2v6c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1"></path>
-                                <path d="M7 8h3"></path>
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <g id="Frame">
+                                  <path id="Vector" d="M13.4882 2.51263C13.3257 2.3501 13.1327 2.22118 12.9204 2.13323C12.7081 2.04527 12.4805 2 12.2507 2C12.0208 2 11.7933 2.04527 11.5809 2.13323C11.3686 2.22118 11.1757 2.3501 11.0132 2.51263L6.75017 6.77363C6.49487 7.02895 6.29235 7.33205 6.15417 7.66563L5.30617 9.71263C5.24937 9.84968 5.23449 10.0005 5.26342 10.146C5.29235 10.2915 5.36379 10.4252 5.46869 10.5301C5.5736 10.635 5.70726 10.7064 5.85278 10.7354C5.99829 10.7643 6.14911 10.7494 6.28617 10.6926L8.33317 9.84463C8.66675 9.70644 8.96985 9.50392 9.22517 9.24863L13.4862 4.98663C13.8141 4.65847 13.9983 4.21354 13.9983 3.74963C13.9983 3.28571 13.8141 2.84078 13.4862 2.51263H13.4882Z" fill="white" fill-opacity="0.5" />
+                                  <path id="Vector_2" d="M4.75 3.5C4.06 3.5 3.5 4.06 3.5 4.75V11.25C3.5 11.94 4.06 12.5 4.75 12.5H11.25C11.94 12.5 12.5 11.94 12.5 11.25V9C12.5 8.80109 12.579 8.61032 12.7197 8.46967C12.8603 8.32902 13.0511 8.25 13.25 8.25C13.4489 8.25 13.6397 8.32902 13.7803 8.46967C13.921 8.61032 14 8.80109 14 9V11.25C14 11.9793 13.7103 12.6788 13.1945 13.1945C12.6788 13.7103 11.9793 14 11.25 14H4.75C4.02065 14 3.32118 13.7103 2.80546 13.1945C2.28973 12.6788 2 11.9793 2 11.25V4.75C2 4.02065 2.28973 3.32118 2.80546 2.80546C3.32118 2.28973 4.02065 2 4.75 2H7C7.19891 2 7.38968 2.07902 7.53033 2.21967C7.67098 2.36032 7.75 2.55109 7.75 2.75C7.75 2.94891 7.67098 3.13968 7.53033 3.28033C7.38968 3.42098 7.19891 3.5 7 3.5H4.75Z" fill="white" fill-opacity="0.5" />
+                                </g>
                               </svg>
                               <span>Edit member info</span>
                             </div>
                           </MenuItem>
                           <MenuItem
                             onClick={() => {
-                              setSelectedMember(member);
-                              setAssignEventsDialogOpen(true);
+                              fetchAssignEvents(member)
                             }}
                           >
                             <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
@@ -722,22 +836,41 @@ export default function OrganizeMembers() {
                             }}
                           >
                             <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="16"
-                                height="16"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                className="text-yellow-500"
-                              >
-                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-                                <line x1="12" y1="9" x2="12" y2="13" />
-                                <line x1="12" y1="17" x2="12.01" y2="17" />
-                              </svg>
+                              {
+                                member.status === 'active' ? (
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    className="text-yellow-500"
+                                  >
+                                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                                    <line x1="12" y1="9" x2="12" y2="13" />
+                                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                                  </svg>
+                                ) : (
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="17"
+                                    height="16"
+                                    viewBox="0 0 17 16"
+                                    fill="none"
+                                  >
+                                    <path
+                                      fillRule="evenodd"
+                                      clipRule="evenodd"
+                                      d="M8.25 15C10.1065 15 11.887 14.2625 13.1997 12.9497C14.5125 11.637 15.25 9.85652 15.25 8C15.25 6.14348 14.5125 4.36301 13.1997 3.05025C11.887 1.7375 10.1065 1 8.25 1C6.39348 1 4.61301 1.7375 3.30025 3.05025C1.9875 4.36301 1.25 6.14348 1.25 8C1.25 9.85652 1.9875 11.637 3.30025 12.9497C4.61301 14.2625 6.39348 15 8.25 15ZM12.094 6.209C12.2157 6.05146 12.2699 5.85202 12.2446 5.65454C12.2193 5.45706 12.1165 5.27773 11.959 5.156C11.8015 5.03427 11.602 4.9801 11.4045 5.00542C11.2071 5.03073 11.0277 5.13346 10.906 5.291L7.206 10.081L5.557 8.248C5.49174 8.17247 5.41207 8.11073 5.32264 8.06639C5.23322 8.02205 5.13584 7.99601 5.03622 7.98978C4.9366 7.98356 4.83674 7.99729 4.7425 8.03016C4.64825 8.06303 4.56151 8.11438 4.48737 8.1812C4.41322 8.24803 4.35316 8.32898 4.31071 8.41931C4.26825 8.50965 4.24425 8.60755 4.24012 8.70728C4.23599 8.807 4.25181 8.90656 4.28664 9.00009C4.32148 9.09363 4.37464 9.17927 4.443 9.252L6.693 11.752C6.76649 11.8335 6.85697 11.8979 6.95806 11.9406C7.05915 11.9833 7.16838 12.0034 7.27805 11.9993C7.38772 11.9952 7.49515 11.967 7.59277 11.9169C7.69038 11.8667 7.7758 11.7958 7.843 11.709L12.094 6.209Z"
+                                      fill="#10B981"
+                                    />
+                                  </svg>
+                                )
+                              }
                               <span>{member.status === 'active' ? "Deactivate" : "Activate"} member</span>
                             </div>
                           </MenuItem>
@@ -834,7 +967,7 @@ export default function OrganizeMembers() {
                 </div>
               </div>
 
-              {/* <div className="flex flex-col items-start justify-between gap-4">
+              <div className="flex flex-col items-start justify-between gap-4">
                 <div className="flex flex-col gap-3 w-full">
                   <span className="text-sm font-medium text-white">
                     Phone Number
@@ -863,7 +996,7 @@ export default function OrganizeMembers() {
                     </span>
                   )}
                 </div>
-              </div> */}
+              </div>
 
               <div className="flex flex-col gap-4">
                 <label className="text-sm font-medium text-white">Role</label>
@@ -950,7 +1083,7 @@ export default function OrganizeMembers() {
                     </button>
                   </DropdownTrigger>
                   <DropdownContent className="w-full hide-scrollbar max-h-[200px] overflow-y-auto bg-[#151515] border border-white/10 tex-white rounded-lg shadow-lg overflow-hidden">
-                    {events
+                    {liveEvents
                       .filter(event => event.explore === 'YES')
                       .map((event) => (
                         <DropdownItem
@@ -1125,7 +1258,7 @@ export default function OrganizeMembers() {
                 </div>
               </div>
 
-              {/* <div className="flex flex-col items-start justify-between gap-4">
+              <div className="flex flex-col items-start justify-between gap-4">
                 <div className="flex flex-col gap-3 w-full">
                   <span className="text-sm font-medium text-white">
                     Phone Number
@@ -1154,7 +1287,7 @@ export default function OrganizeMembers() {
                     </span>
                   )}
                 </div>
-              </div> */}
+              </div>
 
               <div className="flex flex-col gap-4">
                 <label className="text-sm font-medium text-white">Role</label>
@@ -1241,7 +1374,7 @@ export default function OrganizeMembers() {
                     </button>
                   </DropdownTrigger>
                   <DropdownContent className="w-full overflow-y-auto hide-scrollbar max-h-[200px] bg-[#151515] border border-white/10 tex-white rounded-lg shadow-lg overflow-hidden">
-                    {events
+                    {liveEvents
                       .filter(event => event.explore === 'YES')
                       .map((event) => (
                         <DropdownItem
@@ -1306,113 +1439,91 @@ export default function OrganizeMembers() {
           </div>
           <div className="flex flex-col gap-4 p-6 pb-28 overflow-y-auto hide-scrollbar">
             <div className="flex flex-col gap-4">
+
+              {/* Assigned Events */}
               <div className="flex flex-col gap-2">
-                <span className="text-sm font-medium text-white">
-                  Currently assigned
-                </span>
-                {sampleEvents.slice(0, 2).map((event) => (
-                  <div
-                    key={event.id}
-                    className="flex items-center justify-between gap-3 p-3 bg-white/5 rounded-lg"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-white/10" />
-                      <div className="flex flex-col gap-y-2.5">
-                        <span className="text-sm font-medium text-white">
-                          {event.name}
-                        </span>
-                        <span className="text-xs text-white/50 flex items-center gap-2">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="15"
-                            height="14"
-                            viewBox="0 0 15 14"
-                            fill="none"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              clipRule="evenodd"
-                              d="M7.25 14C9.10652 14 10.887 13.2625 12.1997 11.9497C13.5125 10.637 14.25 8.85652 14.25 7C14.25 5.14348 13.5125 3.36301 12.1997 2.05025C10.887 0.737498 9.10652 0 7.25 0C5.39348 0 3.61301 0.737498 2.30025 2.05025C0.987498 3.36301 0.25 5.14348 0.25 7C0.25 8.85652 0.987498 10.637 2.30025 11.9497C3.61301 13.2625 5.39348 14 7.25 14ZM7.90625 2.625C7.90625 2.45095 7.83711 2.28403 7.71404 2.16096C7.59097 2.03789 7.42405 1.96875 7.25 1.96875C7.07595 1.96875 6.90903 2.03789 6.78596 2.16096C6.66289 2.28403 6.59375 2.45095 6.59375 2.625V7C6.59375 7.36225 6.88775 7.65625 7.25 7.65625H10.75C10.924 7.65625 11.091 7.58711 11.214 7.46404C11.3371 7.34097 11.4062 7.17405 11.4062 7C11.4062 6.82595 11.3371 6.65903 11.214 6.53596C11.091 6.41289 10.924 6.34375 10.75 6.34375H7.90625V2.625Z"
-                              fill="white"
-                              fillOpacity="0.4"
-                            />
-                          </svg>
-                          25 Dec 22:00
-                        </span>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => {
-                        console.log("Remove event:", event.id);
-                      }}
-                      className="text-white/50 hover:text-white transition-colors"
+                <span className="text-sm font-medium text-white">Currently assigned</span>
+                {assignEvents.length > 0 ? (
+                  assignEvents.map((event) => (
+                    <div
+                      key={event._id}
+                      className="flex items-center justify-between gap-3 p-3 bg-white/5 rounded-lg"
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="13"
-                        height="14"
-                        viewBox="0 0 13 14"
-                        fill="none"
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-white/10" />
+                        <div className="flex flex-col gap-y-2.5">
+                          <span className="text-sm font-medium text-white">{event.event_name}</span>
+                          <span className="text-xs text-white/50 flex items-center gap-2">
+                            {formatDate(event.start_date)}
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => handleRemoveEvent(event._id, selectedMember)}
+                        className="text-white/50 hover:text-white transition-colors"
                       >
-                        <path
-                          fillRule="evenodd"
-                          clipRule="evenodd"
-                          d="M3.75 2.25V3H1.5C1.30109 3 1.11032 3.07902 0.96967 3.21967C0.829018 3.36032 0.75 3.55109 0.75 3.75C0.75 3.94891 0.829018 4.13968 0.96967 4.28033C1.11032 4.42098 1.30109 4.5 1.5 4.5H1.8L2.615 12.65C2.65218 13.0199 2.8254 13.3628 3.10107 13.6123C3.37675 13.8617 3.73523 13.9999 4.107 14H9.392C9.76394 14.0001 10.1227 13.8621 10.3986 13.6126C10.6744 13.3631 10.8478 13.0201 10.885 12.65L11.7 4.5H12C12.1989 4.5 12.3897 4.42098 12.5303 4.28033C12.671 4.13968 12.75 3.94891 12.75 3.75C12.75 3.55109 12.671 3.36032 12.5303 3.21967C12.3897 3.07902 12.1989 3 12 3H9.75V2.25C9.75 1.65326 9.51295 1.08097 9.09099 0.65901C8.66903 0.237053 8.09674 0 7.5 0H6C5.40326 0 4.83097 0.237053 4.40901 0.65901C3.98705 1.08097 3.75 1.65326 3.75 2.25ZM6 1.5C5.80109 1.5 5.61032 1.57902 5.46967 1.71967C5.32902 1.86032 5.25 2.05109 5.25 2.25V3H8.25V2.25C8.25 2.05109 8.17098 1.86032 8.03033 1.71967C7.88968 1.57902 7.69891 1.5 7.5 1.5H6ZM4.8 5C4.89852 4.99502 4.99705 5.00952 5.08996 5.04268C5.18286 5.07584 5.26832 5.127 5.34142 5.19323C5.41453 5.25946 5.47385 5.33946 5.51599 5.42865C5.55813 5.51784 5.58226 5.61447 5.587 5.713L5.862 11.213C5.86933 11.4101 5.79872 11.6022 5.66546 11.7476C5.5322 11.893 5.34702 11.9801 5.15002 11.9899C4.95302 11.9998 4.76007 11.9317 4.61295 11.8003C4.46583 11.6689 4.37639 11.4849 4.364 11.288L4.089 5.788C4.08388 5.68956 4.09821 5.59107 4.13118 5.49818C4.16416 5.40528 4.21511 5.3198 4.28115 5.24661C4.34718 5.17343 4.427 5.11397 4.51603 5.07166C4.60506 5.02934 4.70155 5.00499 4.8 5ZM8.7 5C8.79844 5.00487 8.89496 5.02909 8.98404 5.07129C9.07312 5.11349 9.153 5.17283 9.21913 5.24592C9.28525 5.31901 9.33632 5.40442 9.36942 5.49726C9.40251 5.59011 9.41698 5.68856 9.412 5.787L9.137 11.287C9.12461 11.4839 9.03517 11.6679 8.88805 11.7993C8.74093 11.9307 8.54798 11.9988 8.35098 11.9889C8.15398 11.9791 7.9688 11.892 7.83554 11.7466C7.70228 11.6012 7.63167 11.4091 7.639 11.212L7.914 5.712C7.92409 5.51354 8.01253 5.32719 8.1599 5.19389C8.30727 5.06058 8.50152 4.99021 8.7 5Z"
-                          fill="#F43F5E"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-                ))}
+                        {/* Trash Icon */}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="14" viewBox="0 0 13 14" fill="none">
+                          <path
+                            fillRule="evenodd"
+                            clipRule="evenodd"
+                            d="M3.75 2.25V3H1.5C1.30109 3 1.11032 3.07902 0.96967 3.21967C0.829018 3.36032 0.75 3.55109 0.75 3.75C0.75 3.94891 0.829018 4.13968 0.96967 4.28033C1.11032 4.42098 1.30109 4.5 1.5 4.5H1.8L2.615 12.65C2.65218 13.0199 2.8254 13.3628 3.10107 13.6123C3.37675 13.8617 3.73523 13.9999 4.107 14H9.392C9.76394 14.0001 10.1227 13.8621 10.3986 13.6126C10.6744 13.3631 10.8478 13.0201 10.885 12.65L11.7 4.5H12C12.1989 4.5 12.3897 4.42098 12.5303 4.28033C12.671 4.13968 12.75 3.94891 12.75 3.75C12.75 3.55109 12.671 3.36032 12.5303 3.21967C12.3897 3.07902 12.1989 3 12 3H9.75V2.25C9.75 1.65326 9.51295 1.08097 9.09099 0.65901C8.66903 0.237053 8.09674 0 7.5 0H6C5.40326 0 4.83097 0.237053 4.40901 0.65901C3.98705 1.08097 3.75 1.65326 3.75 2.25Z"
+                            fill="#F43F5E"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-white/50">No assigned events</p>
+                )}
               </div>
 
+              {/* Not Assigned Events */}
               <div className="flex flex-col gap-2">
-                <span className="text-sm font-medium text-white">
-                  Not assigned
-                </span>
-                {sampleEvents.slice(2).map((event) => (
-                  <div
-                    key={event.id}
-                    className="flex items-center justify-between gap-3 p-3 bg-white/5 rounded-lg"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-white/10" />
-                      <div className="flex flex-col gap-y-2.5">
-                        <span className="text-sm font-medium text-white">
-                          {event.name}
-                        </span>
-                        <span className="text-xs text-white/50">
-                          25 Dec 22:00
-                        </span>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => {
-                        console.log("Add event:", event.id);
-                      }}
-                      className="text-white/50 hover:text-white transition-colors"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="17"
-                        height="16"
-                        viewBox="0 0 17 16"
-                        fill="none"
+                <span className="text-sm font-medium text-white">Not assigned</span>
+                {liveEvents.filter(event => !assignEvents.some(assigned => assigned._id === event._id)).length > 0 ? (
+                  liveEvents
+                    .filter(event => !assignEvents.some(assigned => assigned._id === event._id))
+                    .map((event) => (
+                      <div
+                        key={event._id}
+                        className="flex items-center justify-between gap-3 p-3 bg-white/5 rounded-lg"
                       >
-                        <path
-                          d="M9.5 3.75C9.5 3.55109 9.42098 3.36032 9.28033 3.21967C9.13968 3.07902 8.94891 3 8.75 3C8.55109 3 8.36032 3.07902 8.21967 3.21967C8.07902 3.36032 8 3.55109 8 3.75V7.25H4.5C4.30109 7.25 4.11032 7.32902 3.96967 7.46967C3.82902 7.61032 3.75 7.80109 3.75 8C3.75 8.19891 3.82902 8.38968 3.96967 8.53033C4.11032 8.67098 4.30109 8.75 4.5 8.75H8V12.25C8 12.4489 8.07902 12.6397 8.21967 12.7803C8.36032 12.921 8.55109 13 8.75 13C8.94891 13 9.13968 12.921 9.28033 12.7803C9.42098 12.6397 9.5 12.4489 9.5 12.25V8.75H13C13.1989 8.75 13.3897 8.67098 13.5303 8.53033C13.671 8.38968 13.75 8.19891 13.75 8C13.75 7.80109 13.671 7.61032 13.5303 7.46967C13.3897 7.32902 13.1989 7.25 13 7.25H9.5V3.75Z"
-                          fill="white"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-                ))}
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-white/10" />
+                          <div className="flex flex-col gap-y-2.5">
+                            <span className="text-sm font-medium text-white">{event.event_name}</span>
+                            <span className="text-xs text-white/50">{formatDate(event.start_date)}</span>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => handleAddEvent(event, selectedMember)}
+                          className="text-white/50 hover:text-white transition-colors"
+                        >
+                          {/* Plus Icon */}
+                          <svg xmlns="http://www.w3.org/2000/svg" width="17" height="16" viewBox="0 0 17 16" fill="none">
+                            <path
+                              d="M9.5 3.75C9.5 3.55109 9.42098 3.36032 9.28033 3.21967C9.13968 3.07902 8.94891 3 8.75 3C8.55109 3 8.36032 3.07902 8.21967 3.21967C8.07902 3.36032 8 3.55109 8 3.75V7.25H4.5C4.30109 7.25 4.11032 7.32902 3.96967 7.46967C3.82902 7.61032 3.75 7.80109 3.75 8C3.75 8.19891 3.82902 8.38968 3.96967 8.53033C4.11032 8.67098 4.30109 8.75 4.5 8.75H8V12.25C8 12.4489 8.07902 12.6397 8.21967 12.7803C8.36032 12.921 8.55109 13 8.75 13C8.94891 13 9.13968 12.921 9.28033 12.7803C9.42098 12.6397 9.5 12.4489 9.5 12.25V8.75H13C13.1989 8.75 13.3897 8.67098 13.5303 8.53033C13.671 8.38968 13.75 8.19891 13.75 8C13.75 7.80109 13.671 7.61032 13.5303 7.46967C13.3897 7.32902 13.1989 7.25 13 7.25H9.5V3.75Z"
+                              fill="white"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    ))
+                ) : (
+                  <p className="text-sm text-white/50">No available events</p>
+                )}
               </div>
             </div>
           </div>
+
           <div className="flex flex-col gap-3 p-6 absolute -bottom-0.5 left-0 right-0 bg-[#1A1A1A] border-t border-white/10">
             <button
-              onClick={() => setAssignEventsDialogOpen(false)}
+              onClick={() => {
+                window.location.reload()
+                //setAssignEventsDialogOpen(false)
+              }}
               className="w-full bg-white hover:bg-white/90 text-black border-white/10 border text-center rounded-full h-9 px-4 focus:outline-none flex items-center justify-center gap-2 font-semibold transition-colors text-sm"
             >
               Done
@@ -1430,7 +1541,7 @@ export default function OrganizeMembers() {
         <DialogContent className="flex flex-col gap-3 p-6">
           <DialogTitle className="flex items-center gap-2">
             {selectedMember?.status === 'active' ? "Deactivate" : "Activate"}{" "}
-            <span className="text-white bg-yellow-500/10 border border-white/10 border-dashed rounded-lg px-2 py-1 h-8 flex items-center justify-center text-sm w-fit">
+            <span className={`text-white ${selectedMember?.status === 'active' ? "bg-yellow-500/10" : "bg-[#10B981]/10"} border border-white/10 border-dashed rounded-lg px-2 py-1 h-8 flex items-center justify-center text-sm w-fit`}>
               {selectedMember?.name}
             </span>
             ?
@@ -1465,24 +1576,43 @@ export default function OrganizeMembers() {
                 }
               }}
 
-              className="w-full bg-yellow-700 text-white border-white/10 border text-center rounded-full h-10 px-4 focus:outline-none flex items-center justify-center gap-2 font-medium transition-colors"
+              className={`w-full ${selectedMember?.status === 'active' ? "bg-yellow-700" : "bg-[#10B981]"} text-white border-white/10 border text-center rounded-full h-10 px-4 focus:outline-none flex items-center justify-center gap-2 font-medium transition-colors`}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="text-yellow-500"
-              >
-                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-                <line x1="12" y1="9" x2="12" y2="13" />
-                <line x1="12" y1="17" x2="12.01" y2="17" />
-              </svg>
+              {
+                selectedMember?.status === 'active' ? (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="text-yellow-500"
+                  >
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                    <line x1="12" y1="9" x2="12" y2="13" />
+                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                  </svg>
+                ) : (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="17"
+                    height="16"
+                    viewBox="0 0 17 16"
+                    fill="none"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                      d="M8.25 15C10.1065 15 11.887 14.2625 13.1997 12.9497C14.5125 11.637 15.25 9.85652 15.25 8C15.25 6.14348 14.5125 4.36301 13.1997 3.05025C11.887 1.7375 10.1065 1 8.25 1C6.39348 1 4.61301 1.7375 3.30025 3.05025C1.9875 4.36301 1.25 6.14348 1.25 8C1.25 9.85652 1.9875 11.637 3.30025 12.9497C4.61301 14.2625 6.39348 15 8.25 15ZM12.094 6.209C12.2157 6.05146 12.2699 5.85202 12.2446 5.65454C12.2193 5.45706 12.1165 5.27773 11.959 5.156C11.8015 5.03427 11.602 4.9801 11.4045 5.00542C11.2071 5.03073 11.0277 5.13346 10.906 5.291L7.206 10.081L5.557 8.248C5.49174 8.17247 5.41207 8.11073 5.32264 8.06639C5.23322 8.02205 5.13584 7.99601 5.03622 7.98978C4.9366 7.98356 4.83674 7.99729 4.7425 8.03016C4.64825 8.06303 4.56151 8.11438 4.48737 8.1812C4.41322 8.24803 4.35316 8.32898 4.31071 8.41931C4.26825 8.50965 4.24425 8.60755 4.24012 8.70728C4.23599 8.807 4.25181 8.90656 4.28664 9.00009C4.32148 9.09363 4.37464 9.17927 4.443 9.252L6.693 11.752C6.76649 11.8335 6.85697 11.8979 6.95806 11.9406C7.05915 11.9833 7.16838 12.0034 7.27805 11.9993C7.38772 11.9952 7.49515 11.967 7.59277 11.9169C7.69038 11.8667 7.7758 11.7958 7.843 11.709L12.094 6.209Z"
+                      fill="#ffffff"
+                    />
+                  </svg>
+                )
+              }
               {selectedMember?.status === 'active' ? "Deactivate" : "Activate"} member
             </button>
           </div>

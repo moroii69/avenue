@@ -12,6 +12,7 @@ import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import url from "../../constants/url"
 import { Spin } from 'antd';
+import { Link } from "react-router-dom";
 
 const Icons = {
     Link: ({ className }) => (
@@ -105,26 +106,71 @@ const InputField = ({
                 placeholder={placeholder}
                 value={value}
                 onChange={onChange}
-                className="border bg-primary text-sm border-white/10 h-10 rounded-lg px-5 py-2.5 focus:outline-none w-full"
+                className="border bg-primary text-sm border-white/10 h-10 rounded-lg px-5 py-2.5 focus:outline-none w-full pr-14"
                 aria-label={label}
             />
             {editedField === fieldName && (
-                <p className="text-green-500 text-xs mt-1">Updated</p>
+                <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-500 text-xs">
+                    Saved
+                </span>
             )}
         </div>
     </div>
 );
+
+const UrlInputField = ({
+    label,
+    description,
+    type = "text",
+    placeholder,
+    value,
+    onChange,
+    fieldName,
+    editedField
+}) => {
+    const handleInputChange = (e) => {
+        const rawValue = e.target.value;
+        const sanitizedValue = rawValue.replace(/[^a-zA-Z0-9-]/g, "");
+        onChange({ target: { value: sanitizedValue } });
+    };
+
+    return (
+        <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
+            <div className="flex flex-col gap-3">
+                <span className="text-sm font-medium">{label}</span>
+                <span className="text-sm block text-white/60">{description}</span>
+            </div>
+            <div className="relative w-full lg:w-1/2">
+                <input
+                    type={type}
+                    placeholder={placeholder}
+                    value={value}
+                    onChange={handleInputChange}
+                    className="border bg-primary text-sm border-white/10 h-10 rounded-lg px-5 py-2.5 focus:outline-none w-full pr-14"
+                    aria-label={label}
+                />
+                {editedField === fieldName && (
+                    <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-500 text-xs">
+                        Saved
+                    </span>
+                )}
+            </div>
+        </div>
+    );
+};
+
+
 
 const PhoneInput = ({ value, onChange, fieldName, editedField }) => (
     <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
         <div className="flex flex-col gap-3">
             <span className="text-sm font-medium">Phone Number</span>
             <span className="text-sm block text-white/60">
-                Used to log in your account
+                Will be displayed for enquiries from users
             </span>
         </div>
         <div className="relative w-full lg:w-1/2">
-            <div className="flex items-center bg-primary border border-white/10 h-10 rounded-lg px-2 py-2.5 w-full">
+            <div className="flex items-center bg-primary border border-white/10 h-10 rounded-lg px-2 py-2.5 w-full relative">
                 <div className="flex items-center h-10 gap-1 px-1 pr-3 border-r border-white/10">
                     <img
                         src="https://flagcdn.com/w40/us.png"
@@ -138,16 +184,19 @@ const PhoneInput = ({ value, onChange, fieldName, editedField }) => (
                     placeholder="Enter phone number"
                     value={value}
                     onChange={onChange}
-                    className="bg-transparent text-sm flex-1 focus:outline-none px-2 text-white mx-3"
+                    className="bg-transparent text-sm flex-1 focus:outline-none px-2 text-white mx-3 pr-14"
                     aria-label="Phone number"
                 />
+                {editedField === fieldName && (
+                    <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-500 text-xs">
+                        Saved
+                    </span>
+                )}
             </div>
-            {editedField === fieldName && (
-                <p className="text-green-500 text-xs mt-1">Updated</p>
-            )}
         </div>
     </div>
 );
+
 
 const SocialLinkInput = ({
     label,
@@ -165,7 +214,7 @@ const SocialLinkInput = ({
             <span className="text-sm block text-white/60">{description}</span>
         </div>
         <div className="relative w-full lg:w-1/2">
-            <div className="flex items-center bg-primary border border-white/10 h-10 rounded-lg px-2 py-2.5 w-full">
+            <div className="flex items-center bg-primary border border-white/10 h-10 rounded-lg px-2 py-2.5 w-full relative">
                 <div className="flex items-center h-10 gap-1 px-1 pr-3 border-r border-white/10">
                     <Icon className="w-4 h-4 text-zinc-400" />
                 </div>
@@ -174,18 +223,21 @@ const SocialLinkInput = ({
                     placeholder={placeholder}
                     value={value}
                     onChange={onChange}
-                    className="bg-transparent text-sm flex-1 focus:outline-none px-2 text-white mx-3"
+                    className="bg-transparent text-sm flex-1 focus:outline-none px-2 text-white mx-3 pr-14"
                     aria-label={label}
                 />
+                {editedField === fieldName && (
+                    <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-500 text-xs">
+                        Saved
+                    </span>
+                )}
             </div>
-            {editedField === fieldName && (
-                <p className="text-green-500 text-xs mt-1 items-end">Updated</p>
-            )}
         </div>
     </div>
 );
 
-const LogoutDialog = ({ isOpen, onClose }) => {
+
+const LogoutDialog = ({ isOpen, onClose, organizer }) => {
     if (!isOpen) return null;
 
     return (
@@ -224,7 +276,9 @@ const LogoutDialog = ({ isOpen, onClose }) => {
                             <Icons.Logout />
                         </div>
                         <div className="bg-[#10B981]/10 p-2 rounded-xl z-[1] border-2 border-[#1A1A1A] -translate-x-2">
-                            <span className="text-lg font-medium text-[#10B981]">AM</span>
+                            <span className="text-lg font-medium text-[#10B981]">
+                                {organizer?.name?.slice(0, 2).toUpperCase() || ''}
+                            </span>
                         </div>
                     </div>
                     <div className=" flex flex-col gap-3">
@@ -236,7 +290,10 @@ const LogoutDialog = ({ isOpen, onClose }) => {
                         </p>
                     </div>
                     <button
-                        onClick={onClose}
+                        onClick={() => {
+                            localStorage.clear();
+                            window.location.href = "/";
+                        }}
                         className="w-full border text-center text-white bg-[#f43f5e] border-white/10 rounded-full h-10 focus:outline-none flex items-center justify-center gap-2 font-medium"
                     >
                         <svg
@@ -278,6 +335,7 @@ const OrganizerProfile = () => {
     const [filteredPastEvents, setFilteredPastEvents] = useState([]);
     const [loading, setLoading] = useState(false)
     const [editedField, setEditedField] = useState(null);
+    const [copied, setCopied] = useState(false);
 
     useEffect(() => {
         const loadFromLocalStorage = () => {
@@ -388,7 +446,7 @@ const OrganizerProfile = () => {
 
     useEffect(() => {
         if (oragnizerId) {
-            const fieldsToWatch = ["name", "email", "phone", "instagram", "twitter", "website"];
+            const fieldsToWatch = ["name", "email", "phone", "instagram", "twitter", "website", "url"];
             const hasChangedField = fieldsToWatch.find(field => prevValuesRef.current[field] !== organizer[field]);
 
             if (hasChangedField) {
@@ -426,6 +484,18 @@ const OrganizerProfile = () => {
             }
         }
     }, [organizer, oragnizerId]);
+
+    const handleCopy = async () => {
+        const profileUrl = `https://avenue.tickets/creater/${organizer.url}`;
+        try {
+            await navigator.clipboard.writeText(profileUrl);
+            setCopied(true);
+
+            setTimeout(() => setCopied(false), 3000);
+        } catch (error) {
+            console.error("Failed to copy URL:", error);
+        }
+    };
 
     return (
         <SidebarLayout>
@@ -465,12 +535,13 @@ const OrganizerProfile = () => {
                                             </div>
 
                                             <div className="flex bg-[#787878] p-1 rounded-full bg-opacity-25">
-                                                <button
+                                                <Link
+                                                    to="/profile"
                                                     className="flex-1 py-2 text-center transition-all text-sm duration-300 ease-in-out text-gray-300 "
                                                     aria-pressed="true"
                                                 >
                                                     Attendee
-                                                </button>
+                                                </Link>
                                                 <button
                                                     className="flex-1 py-2 text-center transition-all text-sm duration-300 ease-in-out bg-[#787878] text-white font-medium rounded-full p-2 bg-opacity-25"
                                                     aria-pressed="false"
@@ -479,24 +550,29 @@ const OrganizerProfile = () => {
                                                 </button>
                                             </div>
                                         </div>
-                                        <button className="text-sm font-medium text-white border border-white/5 rounded-full h-10 px-4 w-full flex items-center justify-center gap-1.5 hover:bg-white/10 transition-all duration-300 ease-in-out">
+                                        <button
+                                            className="text-sm font-medium text-white border border-white/5 rounded-full h-10 px-4 w-full flex items-center justify-center gap-1.5 hover:bg-white/10 transition-all duration-300 ease-in-out"
+                                            onClick={handleCopy}
+                                        >
                                             <Icons.Link />
-                                            <span className="text-sm font-medium">Copy Profile Link</span>
+                                            <span className="text-sm font-medium">
+                                                {copied ? "Link Copied!" : "Copy Profile Link"}
+                                            </span>
                                         </button>
 
                                         <div className="border border-[#222222] rounded-xl p-3">
                                             <div className="flex justify-center items-center space-x-6">
-                                                <div className="flex flex-col items-center gap-1.5">
+                                                <Link to="/organizer/events" className="flex flex-col items-center gap-1.5">
                                                     <span className="text-xs text-white/50">Live Events</span>
                                                     <span className="text-lg font-semibold text-white">{filteredEvents.length}</span>
-                                                </div>
+                                                </Link>
                                                 <div className="w-px bg-white/10 h-10"></div>
-                                                <div className="flex flex-col items-center gap-1.5">
+                                                <Link to="/organizer/events#past" className="flex flex-col items-center gap-1.5">
                                                     <span className="text-xs text-white/50">Past Events</span>
                                                     <span className="text-lg font-semibold text-white">
                                                         {filteredPastEvents.length}
                                                     </span>
-                                                </div>
+                                                </Link>
                                             </div>
                                         </div>
                                     </div>
@@ -557,6 +633,18 @@ const OrganizerProfile = () => {
                                                         setOrganizer((prev) => ({ ...prev, phone: e.target.value }))
                                                     }
                                                     fieldName="phone"
+                                                    editedField={editedField}
+                                                />
+
+                                                <UrlInputField
+                                                    label="Custom Profile Link"
+                                                    description="https://avenue.tickets/creater/"
+                                                    placeholder="Enter business name"
+                                                    value={organizer.url === 'undefined' ? "" : organizer.url}
+                                                    onChange={(e) =>
+                                                        setOrganizer((prev) => ({ ...prev, url: e.target.value }))
+                                                    }
+                                                    fieldName="url"
                                                     editedField={editedField}
                                                 />
                                             </div>
@@ -695,6 +783,7 @@ const OrganizerProfile = () => {
             <LogoutDialog
                 isOpen={isLogoutDialogOpen}
                 onClose={() => setIsLogoutDialogOpen(false)}
+                organizer={organizer}
             />
         </SidebarLayout >
     );

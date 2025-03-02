@@ -132,6 +132,15 @@ export default function OrganizerEvents() {
     const [soldTickets, setSoldTickets] = useState(0);
     const [remainCount, setRemainCount] = useState(0);
 
+    useEffect(() => {
+        const hash = window.location.hash.replace("#", "");
+        if (hash === "past") {
+            setActiveTab("past");
+        } else {
+            setActiveTab("live");
+        }
+    }, []);
+
     const filterEvents = (events) => {
         if (!searchQuery) return events;
         return events.filter((event) =>
@@ -177,7 +186,8 @@ export default function OrganizerEvents() {
     const formatDate = (dateString) => {
         const date = new Date(dateString);
         const day = date.getDate();
-        const month = date.toLocaleString('en-US', { month: 'short' }).toLowerCase();
+        const month = date.toLocaleString('en-US', { month: 'short' });
+        const capitalizedMonth = month.charAt(0).toUpperCase() + month.slice(1);
 
         let hours = date.getHours();
         const minutes = date.getMinutes().toString().padStart(2, '0');
@@ -185,7 +195,7 @@ export default function OrganizerEvents() {
         hours = hours % 12;
         hours = hours ? hours : 12;
 
-        return `${month} ${day}, ${hours}:${minutes} ${ampm}`;
+        return `${capitalizedMonth} ${day} at ${hours}:${minutes} ${ampm}`;
     };
 
     const earningFunc = async (id) => {
@@ -203,10 +213,10 @@ export default function OrganizerEvents() {
                 return acc + parseFloat(payoutAmount);
             }, 0);
 
-            return "$" + total || "$" + 0;
+            return "$" + total.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2, }) || "$" + 0;
         } catch (error) {
             console.error(`Error fetching events for id: ${id}`, error);
-            return 0;
+            return "No revenue";
         }
     };
 
@@ -239,8 +249,20 @@ export default function OrganizerEvents() {
         }
     };
 
-    const liveEvents =
-        events && filterEvents(events).filter((event) => event?.explore === "YES") || [];
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
+
+    const pastEvents = events.filter(event => {
+        const eventDate = new Date(event.start_date);
+        eventDate.setHours(0, 0, 0, 0);
+        return eventDate < currentDate && event.explore === "YES";
+    });
+
+    const liveEvents = events.filter(event => {
+        const eventDate = new Date(event.start_date);
+        eventDate.setHours(0, 0, 0, 0);
+        return eventDate >= currentDate && event.explore === "YES";
+    });
 
     return (
         <SidebarLayout>
@@ -278,7 +300,35 @@ export default function OrganizerEvents() {
                                 </svg>
                                 Live Events
                                 <span className="bg-[#151515] h-6 w-fit px-2 rounded-full flex items-center justify-center">
-                                    {liveEvents.length}
+                                    {liveEvents.filter(event => event.explore === 'YES').length}
+                                </span>
+                            </TabTrigger>
+                            <TabTrigger
+                                value="live"
+                                active={activeTab === "past"}
+                                onClick={() => setActiveTab("past")}
+                                className={`flex items-center gap-2 p-2 pl-2 pr-1 @4xl:rounded-full hover:bg-white/5 ${activeTab === "past" ? "bg-white/10" : ""
+                                    }`}
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 16 16"
+                                    fill="none"
+                                    className="shrink-0"
+                                >
+                                    <path
+                                        fillRule="evenodd"
+                                        clipRule="evenodd"
+                                        d="M3.757 4.5C3.937 4.717 4.133 4.92 4.343 5.108C4.496 4.498 4.697 3.933 4.939 3.43C4.49539 3.7277 4.09725 4.08811 3.757 4.5ZM8 1C7.08053 0.999213 6.16992 1.17974 5.32028 1.53124C4.47065 1.88274 3.69866 2.39833 3.0485 3.0485C2.39833 3.69866 1.88274 4.47065 1.53124 5.32028C1.17974 6.16992 0.999213 7.08053 1 8C1 9.38447 1.41055 10.7379 2.17972 11.889C2.94889 13.0401 4.04214 13.9373 5.32122 14.4672C6.6003 14.997 8.00777 15.1356 9.36563 14.8655C10.7235 14.5954 11.9708 13.9287 12.9497 12.9497C13.9287 11.9708 14.5954 10.7235 14.8655 9.36563C15.1356 8.00777 14.997 6.6003 14.4672 5.32122C13.9373 4.04214 13.0401 2.94889 11.889 2.17972C10.7379 1.41055 9.38447 1 8 1ZM8 2.5C7.524 2.5 6.909 2.886 6.367 3.927C6.074 4.491 5.836 5.194 5.684 5.99C6.40952 6.32701 7.20003 6.50109 8 6.5C8.79997 6.50109 9.59048 6.32701 10.316 5.99C10.164 5.194 9.926 4.491 9.633 3.927C9.09 2.886 8.476 2.5 8 2.5ZM11.657 5.108C11.5154 4.53 11.3157 3.96781 11.061 3.43C11.505 3.728 11.903 4.089 12.243 4.5C12.063 4.717 11.867 4.92 11.657 5.108ZM10.491 7.544C9.6954 7.84655 8.85119 8.00109 8 8C7.14915 8.00097 6.30529 7.84643 5.51 7.544C5.47111 8.41566 5.53894 9.28881 5.712 10.144C6.432 10.375 7.202 10.5 8 10.5C8.798 10.5 9.568 10.375 10.29 10.144C10.4624 9.28872 10.5295 8.41558 10.49 7.544H10.491ZM11.924 9.394C12.0199 8.52728 12.0259 7.65297 11.942 6.785C12.347 6.509 12.722 6.191 13.059 5.838C13.3643 6.55229 13.5143 7.32334 13.499 8.1C13.035 8.60032 12.5051 9.0353 11.924 9.393V9.394ZM9.752 11.829C8.59517 12.0574 7.40484 12.0574 6.248 11.829C6.287 11.913 6.326 11.995 6.368 12.073C6.907 13.114 7.523 13.5 8 13.5C8.477 13.5 9.091 13.114 9.633 12.073C9.673 11.995 9.713 11.913 9.753 11.829H9.752ZM11.062 12.569C11.2611 12.1505 11.4257 11.7164 11.554 11.271C12.011 11.074 12.447 10.841 12.861 10.575C12.4343 11.378 11.816 12.0632 11.061 12.57L11.062 12.569ZM4.939 12.569C4.73958 12.1505 4.57469 11.7164 4.446 11.271C3.99193 11.0754 3.55478 10.8426 3.139 10.575C3.56572 11.378 4.184 12.0622 4.939 12.569ZM2.5 8.1C2.963 8.6 3.493 9.035 4.075 9.393C3.97918 8.52661 3.97315 7.65263 4.057 6.785C3.65275 6.50904 3.27839 6.19166 2.94 5.838C2.63467 6.55229 2.48469 7.32334 2.5 8.1Z"
+                                        fill="white"
+                                        fillOpacity="0.5"
+                                    />
+                                </svg>
+                                Past
+                                <span className="bg-[#151515] h-6 w-fit px-2 rounded-full flex items-center justify-center">
+                                    {pastEvents.length}
                                 </span>
                             </TabTrigger>
                             <TabTrigger
@@ -379,16 +429,39 @@ export default function OrganizerEvents() {
                                                     <svg
                                                         xmlns="http://www.w3.org/2000/svg"
                                                         width="14"
-                                                        height="10"
-                                                        viewBox="0 0 14 10"
+                                                        height="14"
+                                                        viewBox="0 0 16 16"
                                                         fill="none"
                                                     >
                                                         <path
-                                                            fillRule="evenodd"
-                                                            clipRule="evenodd"
-                                                            d="M0 1.5C0 1.10218 0.158035 0.720644 0.43934 0.43934C0.720644 0.158035 1.10218 0 1.5 0H12.5C12.8978 0 13.2794 0.158035 13.5607 0.43934C13.842 0.720644 14 1.10218 14 1.5V2.5C14 2.776 13.773 2.994 13.505 3.062C13.0743 3.1718 12.6925 3.42192 12.4198 3.77286C12.1472 4.1238 11.9991 4.55557 11.9991 5C11.9991 5.44443 12.1472 5.8762 12.4198 6.22714C12.6925 6.57808 13.0743 6.8282 13.505 6.938C13.773 7.006 14 7.224 14 7.5V8.5C14 8.89782 13.842 9.27936 13.5607 9.56066C13.2794 9.84196 12.8978 10 12.5 10H1.5C1.10218 10 0.720644 9.84196 0.43934 9.56066C0.158035 9.27936 0 8.89782 0 8.5V7.5C0 7.224 0.227 7.006 0.495 6.938C0.925654 6.8282 1.30747 6.57808 1.58016 6.22714C1.85285 5.8762 2.00088 5.44443 2.00088 5C2.00088 4.55557 1.85285 4.1238 1.58016 3.77286C1.30747 3.42192 0.925654 3.1718 0.495 3.062C0.227 2.994 0 2.776 0 2.5V1.5ZM9 2.75C9 2.55109 9.07902 2.36032 9.21967 2.21967C9.36032 2.07902 9.55109 2 9.75 2C9.94891 2 10.1397 2.07902 10.2803 2.21967C10.421 2.36032 10.5 2.55109 10.5 2.75V3.75C10.5 3.94891 10.421 4.13968 10.2803 4.28033C10.1397 4.42098 9.94891 4.5 9.75 4.5C9.55109 4.5 9.36032 4.42098 9.21967 4.28033C9.07902 4.13968 9 3.94891 9 3.75V2.75ZM9.75 5.5C9.55109 5.5 9.36032 5.57902 9.21967 5.71967C9.07902 5.86032 9 6.05109 9 6.25V7.25C9 7.44891 9.07902 7.63968 9.21967 7.78033C9.36032 7.92098 9.55109 8 9.75 8C9.94891 8 10.1397 7.92098 10.2803 7.78033C10.421 7.63968 10.5 7.44891 10.5 7.25V6.25C10.5 6.05109 10.421 5.86032 10.2803 5.71967C10.1397 5.57902 9.94891 5.5 9.75 5.5Z"
-                                                            fill="white"
-                                                            fillOpacity="0.5"
+                                                            d="M11.4476 14.0671C11.2063 14.6032 10.9064 15.1283 10.5469 15.5826C13.5301 14.5771 15.7261 11.8605 15.9679 8.59998H14.9059C13.61 8.59998 12.569 9.6344 12.3584 10.9131C12.1642 12.0918 11.8535 13.1651 11.4476 14.0671Z"
+                                                            fill="#ffffff"
+                                                            fillOpacity="50%"
+                                                        />
+                                                        <path
+                                                            d="M9.09847 8.59998C10.4553 8.59998 11.5652 9.73192 11.316 11.0657C10.7747 13.9626 9.48934 15.9999 7.98984 15.9999C6.09247 15.9999 4.53794 12.7379 4.3999 8.59998H9.09847Z"
+                                                            fill="#ffffff"
+                                                            fillOpacity="50%"
+                                                        />
+                                                        <path
+                                                            d="M12.3859 5.25936C12.5844 6.55002 13.6301 7.59924 14.936 7.59924H15.9802C15.8153 4.25014 13.5909 1.44261 10.5469 0.416626C10.9064 0.870919 11.2063 1.39598 11.4476 1.93211C11.8733 2.87812 12.1942 4.01254 12.3859 5.25936Z"
+                                                            fill="#ffffff"
+                                                            fillOpacity="50%"
+                                                        />
+                                                        <path
+                                                            d="M11.3563 5.1582C11.5832 6.48521 10.4781 7.59987 9.13181 7.59987H4.39453C4.48829 3.3675 6.06222 0 7.99003 0C9.52789 0 10.8405 2.14285 11.3563 5.1582Z"
+                                                            fill="#ffffff"
+                                                            fillOpacity="50%"
+                                                        />
+                                                        <path
+                                                            d="M3.39431 7.59924C3.43975 5.43596 3.85245 3.44355 4.53261 1.93211C4.77385 1.39598 5.07376 0.870919 5.43336 0.416626C2.38936 1.44261 0.164915 4.25014 0 7.59924H3.39431Z"
+                                                            fill="#ffffff"
+                                                            fillOpacity="50%"
+                                                        />
+                                                        <path
+                                                            d="M0.012207 8.59998C0.253963 11.8605 2.45003 14.5771 5.43323 15.5826C5.07363 15.1283 4.77372 14.6032 4.53248 14.0671C3.87333 12.6024 3.46538 10.6859 3.39944 8.59998H0.012207Z"
+                                                            fill="#ffffff"
+                                                            fillOpacity="50%"
                                                         />
                                                     </svg>{" "}
                                                     Event
@@ -485,8 +558,8 @@ export default function OrganizerEvents() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {filterEvents(events).length > 0 ? (
-                                            filterEvents(events).filter(event => event.explore === "YES").map((event) => {
+                                        {filterEvents(liveEvents).length > 0 ? (
+                                            filterEvents(liveEvents).filter(event => event.explore === "YES").map((event) => {
                                                 const totalTickets = (soldTickets[event._id] || 0) + (remainCount[event._id] || 0);
                                                 const soldPercentage = totalTickets > 0 ? (soldTickets[event._id] || 0) / totalTickets * 100 : 0;
                                                 return (
@@ -611,6 +684,200 @@ export default function OrganizerEvents() {
                                                     className="text-center py-4 text-white/50 tracking-wider"
                                                 >
                                                     No events found
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </TabsContent>
+
+                    <TabsContent
+                        value="past"
+                        activeTab={activeTab}
+                        className="grid gap-6"
+                    >
+                        {/* relative overflow-hidden before:absolute before:top-1/2 before:-translate-y-1/2 before:left-1/2 before:-translate-x-1/2 before:w-[calc(100%-0.2rem)] before:h-[calc(100%-0.2rem)] before:border before:border-[#34B2DA]/20 before:rounded-lg */}
+                        {/* <div className="flex items-center bg-[#34B2DA1A] rounded-lg p-4 ">
+                                <div className="flex items-center gap-x-2">
+                                {[...Array(100)].map((_, i) => (
+                                <div
+                                    key={i}
+                                    className="absolute top-1/2 -translate-y-1/2 h-[calc(100%+1rem)] w-px bg-[#34B2DA]/10 rotate-[40deg]"
+                                    style={{ right: `${i * 15}px` }}
+                                />
+                                ))}
+                            </div>
+                            <div className="flex items-start justify-center gap-x-2">
+                                <div className="flex items-start lg:items-center gap-x-2 text-[#34B2DA] font-semibold text-sm">
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="16"
+                                        height="16"
+                                        viewBox="0 0 16 16"
+                                        fill="none"
+                                        className="shrink-0 mt-1 lg:mt-0"
+                                    >
+                                        <path
+                                            d="M3 2C2.73478 2 2.48043 2.10536 2.29289 2.29289C2.10536 2.48043 2 2.73478 2 3V4C2 4.26522 2.10536 4.51957 2.29289 4.70711C2.48043 4.89464 2.73478 5 3 5H13C13.2652 5 13.5196 4.89464 13.7071 4.70711C13.8946 4.51957 14 4.26522 14 4V3C14 2.73478 13.8946 2.48043 13.7071 2.29289C13.5196 2.10536 13.2652 2 13 2H3Z"
+                                            fill="#34B2DA"
+                                        />
+                                        <path
+                                            fillRule="evenodd"
+                                            clipRule="evenodd"
+                                            d="M3 6H13V12C13 12.5304 12.7893 13.0391 12.4142 13.4142C12.0391 13.7893 11.5304 14 11 14H5C4.46957 14 3.96086 13.7893 3.58579 13.4142C3.21071 13.0391 3 12.5304 3 12V6ZM6 8.75C6 8.55109 6.07902 8.36032 6.21967 8.21967C6.36032 8.07902 6.55109 8 6.75 8H9.25C9.44891 8 9.63968 8.07902 9.78033 8.21967C9.92098 8.36032 10 8.55109 10 8.75C10 8.94891 9.92098 9.13968 9.78033 9.28033C9.63968 9.42098 9.44891 9.5 9.25 9.5H6.75C6.55109 9.5 6.36032 9.42098 6.21967 9.28033C6.07902 9.13968 6 8.94891 6 8.75Z"
+                                            fill="#34B2DA"
+                                        />
+                                    </svg>
+                                    Drafts are your safe space. Events here won&apos;t be shown to
+                                    the public until you publish them
+                                </div>
+                            </div>
+                        </div> */}
+                        <div className="border rounded-xl border-white/10 overflow-hidden">
+                            <div className="overflow-x-auto w-full">
+                                <table className="w-full text-sm">
+                                    <thead>
+                                        <tr className="text-white/70 [&_th]:font-medium border-b border-white/5 bg-white/5 [&>th]:min-w-[180px] last:[&>th]:min-w-fit">
+                                            <th className="text-left p-4">Event</th>
+                                            <th className="text-left p-4">Event Date</th>
+                                            <th className="text-left p-4">Location</th>
+                                            <th className="text-left p-4">Revenue</th>
+                                            <th className="text-left p-4">Tickets sold</th>
+                                            <th className="text-left p-4">
+                                                {" "}
+                                                <Ellipsis />
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {filterEvents(pastEvents).length > 0 ? (
+                                            filterEvents(pastEvents).filter(event => event.explore === "YES").map((event) => {
+                                                const totalTickets = (soldTickets[event._id] || 0) + (remainCount[event._id] || 0);
+                                                const soldPercentage = totalTickets > 0 ? (soldTickets[event._id] || 0) / totalTickets * 100 : 0;
+                                                return (
+                                                    <tr
+                                                        key={event.id}
+                                                        className="border-b border-white/5 [&_td]:font-medium hover:bg-white/[2.5%] cursor-pointer transition-colors"
+                                                    >
+                                                        <td className="py-4 pl-4">{event.event_name}</td>
+                                                        <td className="py-4 pl-4">{formatDate(event.start_date)}</td>
+                                                        <td className="py-4 pl-4">{event.venue_name}</td>
+                                                        <td className="py-4 pl-4">
+                                                            {earnings[event._id] !== undefined ? earnings[event._id] : "Loading..."}
+                                                        </td>
+                                                        <td className="py-4 pl-4">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="flex gap-0.5">
+                                                                    {[...Array(4)].map((_, i) => {
+                                                                        const barFillPercentage = Math.min(
+                                                                            Math.max(soldPercentage - i * 25, 0),
+                                                                            25
+                                                                        );
+
+                                                                        let barColor;
+                                                                        if (soldPercentage <= 25) {
+                                                                            barColor = "#10B981";
+                                                                        } else if (soldPercentage <= 50) {
+                                                                            barColor = "#A3E635";
+                                                                        } else {
+                                                                            barColor = "#F97316";
+                                                                        }
+
+                                                                        return (
+                                                                            <div
+                                                                                key={i}
+                                                                                className="h-4 w-1.5 rounded-full bg-white/10 overflow-hidden"
+                                                                            >
+                                                                                <div
+                                                                                    className="h-full transition-all duration-300 ease-out"
+                                                                                    style={{
+                                                                                        transform: `scaleY(${barFillPercentage / 25})`,
+                                                                                        transformOrigin: "bottom",
+                                                                                        backgroundColor: barColor,
+                                                                                    }}
+                                                                                />
+                                                                            </div>
+                                                                        );
+                                                                    })}
+                                                                </div>
+                                                                {soldTickets[event._id] || 0}/{totalTickets || 100}
+                                                            </div>
+                                                        </td>
+                                                        <td className="py-4 pl-4">
+                                                            <DirectionAwareMenu>
+                                                                <MenuTrigger>
+                                                                    <Ellipsis />
+                                                                </MenuTrigger>
+                                                                <MenuItem
+                                                                    onClick={() => handleViewEvent(event._id)}
+                                                                >
+                                                                    <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
+                                                                        <svg
+                                                                            xmlns="http://www.w3.org/2000/svg"
+                                                                            width="16"
+                                                                            height="16"
+                                                                            viewBox="0 0 16 16"
+                                                                            fill="none"
+                                                                        >
+                                                                            <path
+                                                                                d="M8 9.5C8.39782 9.5 8.77936 9.34196 9.06066 9.06066C9.34196 8.77936 9.5 8.39782 9.5 8C9.5 7.60218 9.34196 7.22064 9.06066 6.93934C8.77936 6.65804 8.39782 6.5 8 6.5C7.60218 6.5 7.22064 6.65804 6.93934 6.93934C6.65804 7.22064 6.5 7.60218 6.5 8C6.5 8.39782 6.65804 8.77936 6.93934 9.06066C7.22064 9.34196 7.60218 9.5 8 9.5Z"
+                                                                                fill="white"
+                                                                                fillOpacity="0.5"
+                                                                            />
+                                                                            <path
+                                                                                fillRule="evenodd"
+                                                                                clipRule="evenodd"
+                                                                                d="M1.37996 8.28012C1.31687 8.09672 1.31687 7.89751 1.37996 7.71412C1.85633 6.33749 2.75014 5.14368 3.93692 4.29893C5.1237 3.45419 6.54437 3.00056 8.00109 3.00122C9.45782 3.00188 10.8781 3.4568 12.0641 4.30262C13.2501 5.14844 14.1428 6.34306 14.618 7.72012C14.681 7.90351 14.681 8.10273 14.618 8.28612C14.1418 9.6631 13.248 10.8573 12.0611 11.7023C10.8742 12.5473 9.4533 13.0011 7.99632 13.0005C6.53934 12.9998 5.11883 12.5447 3.9327 11.6986C2.74657 10.8525 1.85387 9.65753 1.37896 8.28012H1.37996ZM11 8.00012C11 8.79577 10.6839 9.55883 10.1213 10.1214C9.55867 10.684 8.79561 11.0001 7.99996 11.0001C7.20431 11.0001 6.44125 10.684 5.87864 10.1214C5.31603 9.55883 4.99996 8.79577 4.99996 8.00012C4.99996 7.20447 5.31603 6.44141 5.87864 5.8788C6.44125 5.31619 7.20431 5.00012 7.99996 5.00012C8.79561 5.00012 9.55867 5.31619 10.1213 5.8788C10.6839 6.44141 11 7.20447 11 8.00012Z"
+                                                                                fill="white"
+                                                                                fillOpacity="0.5"
+                                                                            />
+                                                                        </svg>
+                                                                        <span>View event</span>
+                                                                    </div>
+                                                                </MenuItem>
+                                                                <MenuSeparator />
+                                                                <MenuItem
+                                                                    onClick={() => {
+                                                                        setSelectedEvent(event);
+                                                                        setDeactivateDialogOpen(true);
+                                                                    }}
+                                                                >
+                                                                    <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
+                                                                        <svg
+                                                                            xmlns="http://www.w3.org/2000/svg"
+                                                                            width="16"
+                                                                            height="16"
+                                                                            viewBox="0 0 24 24"
+                                                                            fill="none"
+                                                                            stroke="currentColor"
+                                                                            strokeWidth="2"
+                                                                            strokeLinecap="round"
+                                                                            strokeLinejoin="round"
+                                                                            className="text-yellow-500"
+                                                                        >
+                                                                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                                                                            <line x1="12" y1="9" x2="12" y2="13" />
+                                                                            <line x1="12" y1="17" x2="12.01" y2="17" />
+                                                                        </svg>
+                                                                        <span className="text-yellow-500">
+                                                                            Deactivate event
+                                                                        </span>
+                                                                    </div>
+                                                                </MenuItem>
+                                                            </DirectionAwareMenu>
+                                                        </td>
+                                                    </tr>
+                                                )
+                                            })
+                                        ) : (
+                                            <tr>
+                                                <td
+                                                    colSpan={6}
+                                                    className="text-center py-4 text-white/50 tracking-wider"
+                                                >
+                                                    No past found
                                                 </td>
                                             </tr>
                                         )}
