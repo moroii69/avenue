@@ -32,12 +32,12 @@ const Info = () => {
         e.preventDefault();
         const ticketsSection = document.getElementById('tickets');
         if (ticketsSection) {
-          ticketsSection.scrollIntoView({ 
-            behavior: 'smooth',
-            block: 'start'
-          });
+            ticketsSection.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
         }
-      };
+    };
 
     const toggleDropdown = () => {
         setIsDropdownOpen((prev) => !prev);
@@ -530,6 +530,13 @@ const Info = () => {
                                         }
                                         if (!shouldShow) return null;
 
+                                        const currentDate = new Date();
+                                        currentDate.setHours(0, 0, 0, 0);
+
+                                        const eventDate = new Date(event.start_date);
+                                        eventDate.setHours(0, 0, 0, 0);
+                                        const isPast = eventDate < currentDate ? true : false
+
                                         const remainingTicket = remain.find(r => r.ticket_name === ticket.ticket_name);
                                         const isSoldOut = remainingTicket && remainingTicket.remaining_tickets <= 0;
 
@@ -573,7 +580,7 @@ const Info = () => {
                                                             </>
                                                         )}
                                                     </div>
-                                                    {!isSoldOut && (
+                                                    {!isSoldOut && !isPast && (
                                                         <div className="flex items-center mt-4 bg-primary px-1 py-1 rounded-full w-max">
                                                             <button
                                                                 onClick={() => handleDecrement(index)}
