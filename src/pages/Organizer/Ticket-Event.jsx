@@ -146,6 +146,7 @@ export default function TicketEvent() {
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [originalImage, setOriginalImage] = useState(null);
+  const [imageDimensions, setImageDimensions] = useState(null);
   const [isCropperOpen, setIsCropperOpen] = useState(false);
   const [tempImageFile, setTempImageFile] = useState(null);
   const [isDateModalOpen, setIsDateModalOpen] = useState(false);
@@ -258,9 +259,15 @@ export default function TicketEvent() {
     },
   ];
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
+  const handleImageUpload = (event) => {
+    if (event.target.files && event.target.files[0]) {
+      const file = event.target.files[0];
+
+      // Reset previous image states to ensure clean state
+      setImageFile(null);
+      setImagePreview(null);
+
+      // Set the new temp file and open the cropper
       setTempImageFile(file);
       setIsCropperOpen(true);
     }
@@ -272,16 +279,20 @@ export default function TicketEvent() {
     previewUrl,
     dimensions,
   }) => {
-    console.log("Received cropped image:", previewUrl);
-    console.log("Dimensions:", dimensions);
-
+    // Store the cropped image blob
     setImageFile(croppedImage);
+
+    // Store the original image file
     setOriginalImage(fullImage);
+
+    // Store the preview URL for display
     setImagePreview(previewUrl);
 
-    // If you're storing the image in a form or state, make sure it's using the correct URL
-    // For example, if you're using a form library like Formik or React Hook Form:
-    // form.setValue('eventImage', previewUrl);
+    // Store dimensions if needed
+    setImageDimensions(dimensions);
+
+    // Close the cropper
+    setIsCropperOpen(false);
   };
 
   const removeImage = () => {
@@ -354,6 +365,7 @@ export default function TicketEvent() {
                 type="file"
                 accept="image/*"
                 onChange={handleImageUpload}
+                key={imageFile ? "has-image" : "no-image"}
                 className="hidden"
                 id="image-upload"
               />
@@ -1024,7 +1036,7 @@ export default function TicketEvent() {
         {/* Fixed right side preview */}
         <div className="w-full order-1 md:order-2 md:w-1/2 md:h-[calc(100vh-64px)] bg-[#141414] flex items-center justify-center p-8 md:sticky top-16">
           <div className="bg-white/[0.03] mx-auto rounded-3xl grid grid-rows-[1fr_70px] p-2">
-            <div className="bg-[#0F0F0F] rounded-2xl flex items-center justify-center">
+            <div className="bg-[#0F0F0F] rounded-2xl h-[350px] w-[350px] xl:h-[450px] xl:w-[450px] flex items-center justify-center">
               {imagePreview ? (
                 <div className="w-full h-full flex items-center justify-center rounded-xl overflow-hidden">
                   <img
