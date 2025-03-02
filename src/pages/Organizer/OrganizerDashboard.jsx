@@ -220,7 +220,7 @@ const OrganizerDashboard = () => {
   const statsData = [
     {
       title: "Revenue",
-      amount: `$${totalAmount.toFixed(2)}`,
+      amount: `$${totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       change: "+6%",
       isPositive: true,
       redirection: "/organizer/wallet",
@@ -297,7 +297,7 @@ const OrganizerDashboard = () => {
     },
     {
       title: "Total Visits",
-      amount: `${visitTotal.totalCount}`,
+      amount: `${visitTotal?.totalCount?.toLocaleString('en-US')}`,
       change: "+8%",
       isPositive: true,
       redirection: "",
@@ -407,33 +407,57 @@ const OrganizerDashboard = () => {
                   {statsData.map((stat, index) => (
                     <Link
                       key={index}
-                      className="p-4 rounded-xl border border-white/5 bg-opacity-5 backdrop-blur-sm cursor-pointer"
+                      className={`p-4 rounded-xl border border-white/5 bg-opacity-5 backdrop-blur-sm ${stat.title === "Revenue" || stat.title === "Currently Live" ? "" : "cursor-default"}`}
                       to={stat.redirection}
                     >
                       <div className="flex justify-between items-center">
                         <div className="flex items-start justify-between w-full">
                           <div className="flex flex-col items-start gap-3">
-                            <p className="text-gray-400">{stat.title}</p>
+                            <p className="text-gray-400 flex items-center">
+                              <span className={`${stat.title === "Revenue" || stat.title === "Currently Live" ? "hover:underline" : ""}`}>{stat.title}</span>
+                              {
+                                stat.title === "Revenue" || stat.title === "Currently Live" ? (
+                                  <span className="ml-1">
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="16"
+                                      height="16"
+                                      viewBox="0 0 16 16"
+                                      fill="none"
+                                    >
+                                      <path
+                                        fillRule="evenodd"
+                                        clipRule="evenodd"
+                                        d="M4.22007 11.78C4.07962 11.6394 4.00073 11.4488 4.00073 11.25C4.00073 11.0512 4.07962 10.8606 4.22007 10.72L9.44007 5.5H5.75007C5.55116 5.5 5.36039 5.42098 5.21974 5.28033C5.07909 5.13968 5.00007 4.94891 5.00007 4.75C5.00007 4.55109 5.07909 4.36032 5.21974 4.21967C5.36039 4.07902 5.55116 4 5.75007 4H11.2501C11.449 4 11.6398 4.07902 11.7804 4.21967C11.9211 4.36032 12.0001 4.55109 12.0001 4.75V10.25C12.0001 10.4489 11.9211 10.6397 11.7804 10.7803C11.6398 10.921 11.449 11 11.2501 11C11.0512 11 10.8604 10.921 10.7197 10.7803C10.5791 10.6397 10.5001 10.4489 10.5001 10.25V6.56L5.28007 11.78C5.13945 11.9205 4.94882 11.9993 4.75007 11.9993C4.55132 11.9993 4.3607 11.9205 4.22007 11.78Z"
+                                        fill="white"
+                                        fillOpacity="0.5"
+                                      />
+                                    </svg>
+                                  </span>
+                                ) : (
+                                  ""
+                                )
+                              }
+                            </p>
                             <div className="flex items-center gap-2">
                               <p className="text-2xl font-bold">{stat.amount}</p>
                               {/* <div
                                 className={`${stat.isPositive
-                                  ? "text-green-500 bg-green-500/10 border-green-500/20"
-                                  : "text-red-500 bg-red-500/10 border-red-500/20"
+                                    ? "text-green-500 bg-green-500/10 border-green-500/20"
+                                    : "text-red-500 bg-red-500/10 border-red-500/20"
                                   } border h-6 px-2 flex items-center justify-center rounded-full text-xs`}
                               >
                                 {stat.change}
                               </div> */}
                             </div>
                           </div>
-                          <div
-                            className={`w-8 h-8 bg-white/5 rounded-full flex items-center justify-center`}
-                          >
+                          <div className="w-8 h-8 bg-white/5 rounded-full flex items-center justify-center">
                             {stat.icon}
                           </div>
                         </div>
                       </div>
                     </Link>
+
                   ))}
                 </div>
 
@@ -492,7 +516,7 @@ const OrganizerDashboard = () => {
                             </div>
                           </div>
                           <div className="text-white/70 text-sm flex flex-col gap-y-2">
-                            <span className="text-xs">Tickets Left</span>
+                            <span className="text-xs">Tickets Sold</span>
                             <span className="text-white">
                               {soldTickets[event._id] || 0}/{totalTickets || 100}
                             </span>
