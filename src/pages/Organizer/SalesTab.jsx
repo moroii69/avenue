@@ -1,4 +1,4 @@
-import { MoreHorizontal } from "lucide-react";
+import { Ellipsis, MoreHorizontal } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   Dropdown,
@@ -6,8 +6,10 @@ import {
   DropdownContent,
   DropdownItem,
 } from "../../components/ui/Dropdown";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import url from "../../constants/url"
+import { Spin } from 'antd';
 
 const ticketTypesIcons = {
   regular: (
@@ -87,8 +89,8 @@ const statusIcons = {
       <path
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M8 15C9.85652 15 11.637 14.2625 12.9497 12.9497C14.2625 11.637 15 9.85652 15 8C15 6.14348 14.2625 4.36301 12.9497 3.05025C11.637 1.7375 9.85652 1 8 1C6.14348 1 4.36301 1.7375 3.05025 3.05025C1.7375 4.36301 1 6.14348 1 8C1 9.85652 1.7375 11.637 3.05025 12.9497C4.36301 14.2625 6.14348 15 8 15ZM11.844 6.209C11.9657 6.05146 12.0199 5.85202 11.9946 5.65454C11.9693 5.45706 11.8665 5.27773 11.709 5.156C11.5515 5.03427 11.352 4.9801 11.1545 5.00542C10.9571 5.03073 10.7777 5.13346 10.656 5.291L6.956 10.081L5.307 8.248C5.24174 8.17247 5.16207 8.11073 5.07264 8.06639C4.98322 8.02205 4.88584 7.99601 4.78622 7.98978C4.6866 7.98356 4.58674 7.99729 4.4925 8.03016C4.39825 8.06303 4.31151 8.11438 4.23737 8.1812C4.16322 8.24803 4.10316 8.32898 4.06071 8.41931C4.01825 8.50965 3.99425 8.60755 3.99012 8.70728C3.98599 8.807 4.00181 8.90656 4.03664 9.00009C4.07148 9.09363 4.12464 9.17927 4.193 9.252L6.443 11.752C6.51649 11.8335 6.60697 11.8979 6.70806 11.9406C6.80915 11.9833 6.91838 12.0034 7.02805 11.9993C7.13772 11.9952 7.24515 11.967 7.34277 11.9169C7.44038 11.8667 7.5258 11.7958 7.593 11.709L11.844 6.209Z"
-        fill="#10B981"
+        d="M12.4993 9.75009C12.4993 9.38896 12.4282 9.03136 12.29 8.69771C12.1518 8.36407 11.9492 8.06091 11.6939 7.80555C11.4385 7.55019 11.1354 7.34762 10.8017 7.20942C10.4681 7.07122 10.1105 7.00009 9.74934 7.00009H4.55934L6.77934 9.22009C6.85303 9.28875 6.91213 9.37155 6.95312 9.46355C6.99411 9.55555 7.01615 9.65487 7.01793 9.75557C7.01971 9.85627 7.00118 9.9563 6.96346 10.0497C6.92574 10.1431 6.8696 10.2279 6.79838 10.2991C6.72716 10.3703 6.64233 10.4265 6.54894 10.4642C6.45555 10.5019 6.35552 10.5205 6.25482 10.5187C6.15411 10.5169 6.0548 10.4949 5.9628 10.4539C5.8708 10.4129 5.788 10.3538 5.71934 10.2801L2.21934 6.78009C2.07889 6.63947 2 6.44884 2 6.25009C2 6.05134 2.07889 5.86072 2.21934 5.72009L5.71934 2.22009C5.86151 2.08761 6.04956 2.01549 6.24386 2.01892C6.43816 2.02234 6.62355 2.10106 6.76096 2.23847C6.89838 2.37588 6.97709 2.56127 6.98052 2.75557C6.98394 2.94987 6.91182 3.13792 6.77934 3.28009L4.55934 5.50009H9.74934C10.8765 5.50009 11.9575 5.94786 12.7545 6.74489C13.5516 7.54192 13.9993 8.62292 13.9993 9.75009C13.9993 10.8773 13.5516 11.9583 12.7545 12.7553C11.9575 13.5523 10.8765 14.0001 9.74934 14.0001H8.74934C8.55043 14.0001 8.35966 13.9211 8.21901 13.7804C8.07836 13.6398 7.99934 13.449 7.99934 13.2501C7.99934 13.0512 8.07836 12.8604 8.21901 12.7198C8.35966 12.5791 8.55043 12.5001 8.74934 12.5001H9.74934C10.1105 12.5001 10.4681 12.429 10.8017 12.2908C11.1354 12.1526 11.4385 11.95 11.6939 11.6946C11.9492 11.4393 12.1518 11.1361 12.29 10.8025C12.4282 10.4688 12.4993 10.1112 12.4993 9.75009Z"
+        fill="#F97316"
       />
     </svg>
   ),
@@ -103,9 +105,8 @@ const statusIcons = {
       <path
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M1 8C1 6.14348 1.7375 4.36301 3.05025 3.05025C4.36301 1.7375 6.14348 1 8 1C9.85652 1 11.637 1.7375 12.9497 3.05025C14.2625 4.36301 15 6.14348 15 8C15 9.85652 14.2625 11.637 12.9497 12.9497C11.637 14.2625 9.85652 15 8 15C6.14348 15 4.36301 14.2625 3.05025 12.9497C1.7375 11.637 1 9.85652 1 8ZM8.75 3.75C8.75 3.55109 8.67098 3.36032 8.53033 3.21967C8.38968 3.07902 8.19891 3 8 3C7.80109 3 7.61032 3.07902 7.46967 3.21967C7.32902 3.36032 7.25 3.55109 7.25 3.75V8C7.25 8.414 7.586 8.75 8 8.75H11.25C11.4489 8.75 11.6397 8.67098 11.7803 8.53033C11.921 8.38968 12 8.19891 12 8C12 7.80109 11.921 7.61032 11.7803 7.46967C11.6397 7.32902 11.4489 7.25 11.25 7.25H8.75V3.75Z"
-        fill="white"
-        fillOpacity="0.5"
+        d="M12.4993 9.75009C12.4993 9.38896 12.4282 9.03136 12.29 8.69771C12.1518 8.36407 11.9492 8.06091 11.6939 7.80555C11.4385 7.55019 11.1354 7.34762 10.8017 7.20942C10.4681 7.07122 10.1105 7.00009 9.74934 7.00009H4.55934L6.77934 9.22009C6.85303 9.28875 6.91213 9.37155 6.95312 9.46355C6.99411 9.55555 7.01615 9.65487 7.01793 9.75557C7.01971 9.85627 7.00118 9.9563 6.96346 10.0497C6.92574 10.1431 6.8696 10.2279 6.79838 10.2991C6.72716 10.3703 6.64233 10.4265 6.54894 10.4642C6.45555 10.5019 6.35552 10.5205 6.25482 10.5187C6.15411 10.5169 6.0548 10.4949 5.9628 10.4539C5.8708 10.4129 5.788 10.3538 5.71934 10.2801L2.21934 6.78009C2.07889 6.63947 2 6.44884 2 6.25009C2 6.05134 2.07889 5.86072 2.21934 5.72009L5.71934 2.22009C5.86151 2.08761 6.04956 2.01549 6.24386 2.01892C6.43816 2.02234 6.62355 2.10106 6.76096 2.23847C6.89838 2.37588 6.97709 2.56127 6.98052 2.75557C6.98394 2.94987 6.91182 3.13792 6.77934 3.28009L4.55934 5.50009H9.74934C10.8765 5.50009 11.9575 5.94786 12.7545 6.74489C13.5516 7.54192 13.9993 8.62292 13.9993 9.75009C13.9993 10.8773 13.5516 11.9583 12.7545 12.7553C11.9575 13.5523 10.8765 14.0001 9.74934 14.0001H8.74934C8.55043 14.0001 8.35966 13.9211 8.21901 13.7804C8.07836 13.6398 7.99934 13.449 7.99934 13.2501C7.99934 13.0512 8.07836 12.8604 8.21901 12.7198C8.35966 12.5791 8.55043 12.5001 8.74934 12.5001H9.74934C10.1105 12.5001 10.4681 12.429 10.8017 12.2908C11.1354 12.1526 11.4385 11.95 11.6939 11.6946C11.9492 11.4393 12.1518 11.1361 12.29 10.8025C12.4282 10.4688 12.4993 10.1112 12.4993 9.75009Z"
+        fill="#F97316"
       />
     </svg>
   ),
@@ -245,41 +246,32 @@ const eventSalesHistory = [
   },
 ];
 
-export default function SalesTab({ eventId }) {
+export default function SalesTab({ eventId, event }) {
   const [timeFilter, setTimeFilter] = useState("All time");
   const [typeFilter, setTypeFilter] = useState("All types");
   const [ticketFilter, setTicketFilter] = useState("All tickets");
   const [searchQuery, setSearchQuery] = useState("");
 
   const [book, setBook] = useState([]);
+  const [loading, setLoading] = useState(false)
 
-  const fetchBook = async () => {
-    try {
-      const response = await axios.get(`${url}/get-event-payment-list/${eventId}`);
-      setBook(response.data);
-    } catch (error) {
-      console.error('Error fetching events:', error);
-    }
-  }
-
-  useEffect(() => {
-    fetchBook()
-  }, [eventId])
-
-  const filteredSalesHistory = eventSalesHistory.filter((sale) => {
+  const filteredSalesHistory = book.filter((sale) => {
+    const isRefund = sale.refund === "true";
     if (
       ticketFilter !== "All tickets" &&
-      sale.ticket.toLowerCase() !== ticketFilter.toLowerCase()
+      sale?.tickets?.ticket_name.toLowerCase() !== ticketFilter.toLowerCase()
     ) {
       return false;
     }
 
     if (
       typeFilter !== "All types" &&
-      sale.type.toLowerCase() !== typeFilter.toLowerCase()
+      ((typeFilter.toLowerCase() === "refund" && !isRefund) ||
+        (typeFilter.toLowerCase() === "sale" && isRefund))
     ) {
       return false;
     }
+
 
     const saleDate = new Date(
       sale.date
@@ -300,48 +292,196 @@ export default function SalesTab({ eventId }) {
       return false;
     }
 
+    // Filter by search query
     const searchLower = searchQuery.toLowerCase();
     return (
       searchQuery === "" ||
-      (sale.name?.toLowerCase() || "").includes(searchLower) ||
-      (sale.email?.toLowerCase() || "").includes(searchLower) ||
-      (sale.type?.toLowerCase() || "").includes(searchLower) ||
-      (sale.ticket?.toLowerCase() || "").includes(searchLower) ||
-      (sale.status?.toLowerCase() || "").includes(searchLower) ||
-      (sale.date?.toLowerCase() || "").includes(searchLower) ||
-      (sale.amount?.toString() || "").includes(searchLower)
+      (sale.firstName?.toLowerCase() || "").includes(searchLower) ||
+      (sale.email?.toLowerCase() || "").includes(searchLower)
     );
   });
 
+  const totalAmount = filteredSalesHistory
+    .filter(payment => payment.refund !== "true")
+    .reduce((sum, sale) => {
+      if (!sale.amount) return sum;
+      const amountAfterFee = (Number(sale.amount / 100) - 0.89) / 1.09;
+      return sum + amountAfterFee;
+    }, 0);
+
+  const totalRefundAmount = filteredSalesHistory.reduce((sum, sale) => {
+    if (sale.refund === "true" && sale.amount) {
+      const amountAfterFee = (Number(sale.amount) / 100 - 0.89) / 1.09;
+      return sum + amountAfterFee;
+    }
+    return sum;
+  }, 0);
+
+  const totalSalesAmount = totalAmount + totalRefundAmount;
+  const successRate = totalSalesAmount > 0
+    ? ((totalAmount / totalSalesAmount) * 100).toFixed(2)
+    : 0;
+
+
+  const statsData = [
+    {
+      title: "Total Transactions",
+      amount: `$${totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      change: "+6%",
+      isPositive: true,
+      redirection: "/organizer/wallet",
+      icon: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="17"
+          height="16"
+          viewBox="0 0 17 16"
+          fill="none"
+        >
+          <path
+            d="M7.125 5.5H8V7.25H7.125C7.01009 7.25 6.89631 7.22737 6.79015 7.18339C6.68399 7.13942 6.58753 7.07497 6.50628 6.99372C6.42503 6.91247 6.36058 6.81601 6.31661 6.70985C6.27263 6.60369 6.25 6.48991 6.25 6.375C6.25 6.26009 6.27263 6.14631 6.31661 6.04015C6.36058 5.93399 6.42503 5.83753 6.50628 5.75628C6.58753 5.67503 6.68399 5.61058 6.79015 5.56661C6.89631 5.52263 7.01009 5.5 7.125 5.5ZM9.5 10.5V8.75H10.375C10.6071 8.75 10.8296 8.84219 10.9937 9.00628C11.1578 9.17038 11.25 9.39294 11.25 9.625C11.25 9.85706 11.1578 10.0796 10.9937 10.2437C10.8296 10.4078 10.6071 10.5 10.375 10.5H9.5Z"
+            fill="white"
+            fillOpacity="0.5"
+          />
+          <path
+            fillRule="evenodd"
+            clipRule="evenodd"
+            d="M15.75 8C15.75 9.85652 15.0125 11.637 13.6997 12.9497C12.387 14.2625 10.6065 15 8.75 15C6.89348 15 5.11301 14.2625 3.80025 12.9497C2.4875 11.637 1.75 9.85652 1.75 8C1.75 6.14348 2.4875 4.36301 3.80025 3.05025C5.11301 1.7375 6.89348 1 8.75 1C10.6065 1 12.387 1.7375 13.6997 3.05025C15.0125 4.36301 15.75 6.14348 15.75 8ZM8 3.75C8 3.55109 8.07902 3.36032 8.21967 3.21967C8.36032 3.07902 8.55109 3 8.75 3C8.94891 3 9.13968 3.07902 9.28033 3.21967C9.42098 3.36032 9.5 3.55109 9.5 3.75V4H12C12.1989 4 12.3897 4.07902 12.5303 4.21967C12.671 4.36032 12.75 4.55109 12.75 4.75C12.75 4.94891 12.671 5.13968 12.5303 5.28033C12.3897 5.42098 12.1989 5.5 12 5.5H9.5V7.25H10.375C11.0049 7.25 11.609 7.50022 12.0544 7.94562C12.4998 8.39102 12.75 8.99511 12.75 9.625C12.75 10.2549 12.4998 10.859 12.0544 11.3044C11.609 11.7498 11.0049 12 10.375 12H9.5V12.25C9.5 12.4489 9.42098 12.6397 9.28033 12.7803C9.13968 12.921 8.94891 13 8.75 13C8.55109 13 8.36032 12.921 8.21967 12.7803C8.07902 12.6397 8 12.4489 8 12.25V12H5.5C5.30109 12 5.11032 11.921 4.96967 11.7803C4.82902 11.6397 4.75 11.4489 4.75 11.25C4.75 11.0511 4.82902 10.8603 4.96967 10.7197C5.11032 10.579 5.30109 10.5 5.5 10.5H8V8.75H7.125C6.49511 8.75 5.89102 8.49978 5.44562 8.05438C5.00022 7.60898 4.75 7.00489 4.75 6.375C4.75 5.74511 5.00022 5.14102 5.44562 4.69562C5.89102 4.25022 6.49511 4 7.125 4H8V3.75Z"
+            fill="white"
+            fillOpacity="0.5"
+          />
+        </svg>
+      ),
+    },
+    {
+      title: "Refunded amount",
+      amount: `$${totalRefundAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      change: "-4%",
+      isPositive: false,
+      redirection: "",
+      icon: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="17"
+          height="16"
+          viewBox="0 0 17 16"
+          fill="none"
+        >
+          <path
+            fillRule="evenodd"
+            clipRule="evenodd"
+            d="M13.2501 9.74985C13.2501 9.38871 13.1789 9.03111 13.0407 8.69747C12.9025 8.36382 12.7 8.06066 12.4446 7.8053C12.1893 7.54994 11.8861 7.34738 11.5525 7.20918C11.2188 7.07098 10.8612 6.99985 10.5001 6.99985H5.31007L7.53007 9.21985C7.60376 9.28851 7.66286 9.37131 7.70385 9.46331C7.74485 9.55531 7.76689 9.65462 7.76866 9.75532C7.77044 9.85603 7.75192 9.95606 7.7142 10.0494C7.67647 10.1428 7.62033 10.2277 7.54911 10.2989C7.47789 10.3701 7.39306 10.4262 7.29967 10.464C7.20628 10.5017 7.10625 10.5202 7.00555 10.5184C6.90485 10.5167 6.80553 10.4946 6.71353 10.4536C6.62154 10.4126 6.53873 10.3535 6.47007 10.2798L2.97007 6.77985C2.82962 6.63922 2.75073 6.4486 2.75073 6.24985C2.75073 6.0511 2.82962 5.86047 2.97007 5.71985L6.47007 2.21985C6.61225 2.08737 6.80029 2.01524 6.9946 2.01867C7.1889 2.0221 7.37428 2.10081 7.51169 2.23822C7.64911 2.37564 7.72782 2.56102 7.73125 2.75532C7.73468 2.94963 7.66255 3.13767 7.53007 3.27985L5.31007 5.49985H10.5001C11.6272 5.49985 12.7082 5.94761 13.5053 6.74464C14.3023 7.54167 14.7501 8.62268 14.7501 9.74985C14.7501 10.877 14.3023 11.958 13.5053 12.7551C12.7082 13.5521 11.6272 13.9998 10.5001 13.9998H9.50007C9.30116 13.9998 9.11039 13.9208 8.96974 13.7802C8.82909 13.6395 8.75007 13.4488 8.75007 13.2498C8.75007 13.0509 8.82909 12.8602 8.96974 12.7195C9.11039 12.5789 9.30116 12.4998 9.50007 12.4998H10.5001C10.8612 12.4998 11.2188 12.4287 11.5525 12.2905C11.8861 12.1523 12.1893 11.9498 12.4446 11.6944C12.7 11.439 12.9025 11.1359 13.0407 10.8022C13.1789 10.4686 13.2501 10.111 13.2501 9.74985Z"
+            fill="white"
+            fillOpacity="0.5"
+          />
+        </svg>
+      ),
+    },
+    {
+      title: "Success rate",
+      amount: `${successRate} %`,
+      change: "+8%",
+      isPositive: true,
+      redirection: "/organizer/events",
+      icon: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="17"
+          height="16"
+          viewBox="0 0 17 16"
+          fill="none"
+        >
+          <path
+            fillRule="evenodd"
+            clipRule="evenodd"
+            d="M8.25 15C10.1065 15 11.887 14.2625 13.1997 12.9497C14.5125 11.637 15.25 9.85652 15.25 8C15.25 6.14348 14.5125 4.36301 13.1997 3.05025C11.887 1.7375 10.1065 1 8.25 1C6.39348 1 4.61301 1.7375 3.30025 3.05025C1.9875 4.36301 1.25 6.14348 1.25 8C1.25 9.85652 1.9875 11.637 3.30025 12.9497C4.61301 14.2625 6.39348 15 8.25 15ZM12.094 6.209C12.2157 6.05146 12.2699 5.85202 12.2446 5.65454C12.2193 5.45706 12.1165 5.27773 11.959 5.156C11.8015 5.03427 11.602 4.9801 11.4045 5.00542C11.2071 5.03073 11.0277 5.13346 10.906 5.291L7.206 10.081L5.557 8.248C5.49174 8.17247 5.41207 8.11073 5.32264 8.06639C5.23322 8.02205 5.13584 7.99601 5.03622 7.98978C4.9366 7.98356 4.83674 7.99729 4.7425 8.03016C4.64825 8.06303 4.56151 8.11438 4.48737 8.1812C4.41322 8.24803 4.35316 8.32898 4.31071 8.41931C4.26825 8.50965 4.24425 8.60755 4.24012 8.70728C4.23599 8.807 4.25181 8.90656 4.28664 9.00009C4.32148 9.09363 4.37464 9.17927 4.443 9.252L6.693 11.752C6.76649 11.8335 6.85697 11.8979 6.95806 11.9406C7.05915 11.9833 7.16838 12.0034 7.27805 11.9993C7.38772 11.9952 7.49515 11.967 7.59277 11.9169C7.69038 11.8667 7.7758 11.7958 7.843 11.709L12.094 6.209Z"
+            fill="white"
+            fillOpacity="0.5"
+          />
+        </svg>
+      ),
+    },
+  ];
+
+  const fetchBook = async () => {
+    setLoading(true)
+    try {
+      const response = await axios.get(`${url}/get-event-payment-list/${eventId}`);
+      setBook(response.data);
+    } catch (error) {
+      console.error('Error fetching events:', error);
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchBook()
+  }, [eventId])
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
+    const dayOfWeek = date.toLocaleString('en-US', { weekday: 'short' });
     const day = date.getDate();
-    const month = date.toLocaleString('en-US', { month: 'short' }).toLowerCase();
-
+    const month = date.toLocaleString('en-US', { month: 'short' });
+    const year = "20" + date.getFullYear().toString().slice(-2);
     let hours = date.getHours();
     const minutes = date.getMinutes().toString().padStart(2, '0');
     const ampm = hours >= 12 ? 'PM' : 'AM';
     hours = hours % 12;
     hours = hours ? hours : 12;
 
-    return `${month} ${day}, ${hours}:${minutes} ${ampm}`;
+    return `${dayOfWeek}, ${day} ${month} ${hours}:${minutes} ${ampm}`;
   };
 
   return (
     <div className="@container grid gap-6">
-      <div className="grid @4xl:grid-cols-3 gap-4 h-fit">
-        <div className="border border-white/10 p-4 rounded-xl h-full flex flex-col gap-y-3">
-          <h2 className="font-medium text-white/70 text-sm">Total members</h2>
-          <p className="text-2xl font-medium">12</p>
-        </div>
-        <div className="border border-white/10 p-4 rounded-xl h-full flex flex-col gap-y-3">
-          <h2 className="font-medium text-white/70 text-sm">Active members</h2>
-          <p className="text-2xl font-medium">10</p>
-        </div>
-        <div className="border border-white/10 p-4 rounded-xl h-full flex flex-col gap-y-3">
-          <h2 className="font-medium text-white/70 text-sm">Door staff</h2>
-          <p className="text-2xl font-medium">8</p>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        {statsData.map((stat, index) => (
+          <Link
+            key={index}
+            className={`p-4 rounded-xl border border-white/5 bg-opacity-5 backdrop-blur-sm cursor-default`}
+          >
+            <div className="flex justify-between items-center">
+              <div className="flex items-start justify-between w-full">
+                <div className="flex flex-col items-start gap-3">
+                  <p className="text-gray-400 flex items-center">
+                    <span>{stat.title}</span>
+                    {
+                      stat.title === "Revenue" || stat.title === "Currently Live" ? (
+                        <span className="ml-1">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              clipRule="evenodd"
+                              d="M4.22007 11.78C4.07962 11.6394 4.00073 11.4488 4.00073 11.25C4.00073 11.0512 4.07962 10.8606 4.22007 10.72L9.44007 5.5H5.75007C5.55116 5.5 5.36039 5.42098 5.21974 5.28033C5.07909 5.13968 5.00007 4.94891 5.00007 4.75C5.00007 4.55109 5.07909 4.36032 5.21974 4.21967C5.36039 4.07902 5.55116 4 5.75007 4H11.2501C11.449 4 11.6398 4.07902 11.7804 4.21967C11.9211 4.36032 12.0001 4.55109 12.0001 4.75V10.25C12.0001 10.4489 11.9211 10.6397 11.7804 10.7803C11.6398 10.921 11.449 11 11.2501 11C11.0512 11 10.8604 10.921 10.7197 10.7803C10.5791 10.6397 10.5001 10.4489 10.5001 10.25V6.56L5.28007 11.78C5.13945 11.9205 4.94882 11.9993 4.75007 11.9993C4.55132 11.9993 4.3607 11.9205 4.22007 11.78Z"
+                              fill="white"
+                              fillOpacity="0.5"
+                            />
+                          </svg>
+                        </span>
+                      ) : (
+                        ""
+                      )
+                    }
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-2xl font-bold">{stat.amount}</p>
+                  </div>
+                </div>
+                <div className="w-8 h-8 bg-white/5 rounded-full flex items-center justify-center">
+                  {stat.icon}
+                </div>
+              </div>
+            </div>
+          </Link>
+        ))}
       </div>
 
       {/* Filter Buttons */}
@@ -524,15 +664,13 @@ export default function SalesTab({ eventId }) {
               >
                 All tickets
               </DropdownItem>
-              {Array.from(
-                new Set(eventSalesHistory.map((sale) => sale.ticket))
-              ).map((ticket, index) => (
+              {event?.tickets?.map((ticket, index) => (
                 <DropdownItem
                   key={index}
-                  onClick={() => setTicketFilter(ticket)}
+                  onClick={() => setTicketFilter(ticket.ticket_name)}
                   className="px-4 py-2 hover:bg-white/5 text-white"
                 >
-                  {ticket}
+                  {ticket.ticket_name}
                 </DropdownItem>
               ))}
             </DropdownContent>
@@ -563,7 +701,6 @@ export default function SalesTab({ eventId }) {
           </svg>
         </div>
       </div>
-
       <div className="border rounded-xl h-fit border-white/10 overflow-hidden">
         <div className="overflow-x-auto w-full">
           <table className="w-full text-sm">
@@ -587,131 +724,79 @@ export default function SalesTab({ eventId }) {
                 <th className="p-4 text-sm font-medium text-white/70 text-left">
                   Status
                 </th>
-                <th className="p-4 text-sm font-medium text-white/70 text-left"></th>
+                <th className="p-4 text-sm font-medium text-white/70 text-left">
+                  <Ellipsis />
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {book.map((payout, index) => (
-                <tr key={index} className="hover:bg-white/[0.01]">
-                  <td className="p-4">{formatDate(payout.date)}</td>
-                  <td className="p-4">
-                    <div className="flex items-center gap-2 capitalize">
-                      {/* {saleTypesIcons[payout.type]} */}
-                      {/* {payout.type} */}
-                      Sale
-                    </div>
-                  </td>
-                  <td className="p-4">
-                    <div className="flex items-center gap-2 capitalize">
-                      {/* {ticketTypesIcons[payout.ticket]} */}
-                      {payout?.tickets?.ticket_name} x {payout.count}
-                    </div>
-                  </td>
-                  <td className="p-4">
-                    <div className="flex flex-col">
-                      <span>{payout.firstName}</span>
-                      <span className="text-white/50 text-xs">
-                        {payout.email}
-                      </span>
-                    </div>
-                  </td>
-                  <td
-                    className={`p-4 ${payout.amount < 0 ? "text-white/50" : ""
-                      }`}
-                  >
-                    {payout.amount < 0
-                      ? `-$${Math.abs(payout.amount / 100)}`
-                      : `$${payout.amount / 100}`}
-                  </td>
-                  <td className="p-4">
-                    <span className="flex items-center gap-2 capitalize">
-                      {statusIcons[payout.status]}
-                      {payout.status}
-                    </span>
-                  </td>
-                  <td className="p-4">
-                    <button className="hover:bg-white/10 p-1 rounded">
-                      <MoreHorizontal className="w-4 h-4 text-white/50" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-            {filteredSalesHistory.length > 0 && (
-              <tfoot className="border-t border-white/10 bg-white/[0.02]">
-                <tr>
-                  <td colSpan={3} className="p-4 font-medium">
-                    <span className="text-xs border border-white/10 bg-white/5 px-2 py-1 rounded">
-                      Summary ({filteredSalesHistory.length} transactions)
-                    </span>
-                  </td>
-                  <td className="p-4">
-                    <div className="flex flex-col gap-2">
-                      <span className="font-medium">Total Amount</span>
-                      <span className="text-green-500 border border-green-500/10 border-dashed bg-green-500/5 px-2 py-1 rounded">
-                        Sales: $
-                        {book
-                          // .filter((sale) => sale.type === "sale")
-                          .reduce((sum, sale) => (sum + sale.amount / 100), 0)}
-                      </span>
-                      <span className="text-red-500 border border-red-500/10 border-dashed bg-red-500/5 px-2 py-1 rounded">
-                        Refunds: $0.00
-                        {/* {Math.abs(
-                          filteredSalesHistory
-                            .filter((sale) => sale.type === "refund")
-                            .reduce((sum, sale) => sum + sale.amount, 0)
-                        )} */}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="p-4 font-medium">
-                    <span
-                      className={`border border-white/10 px-2 py-1 rounded border-dashed ${book.reduce(
-                        (sum, sale) => (sum + sale.amount / 100),
-                        0
-                      ) < 0
-                        ? "bg-red-500/10"
-                        : "bg-green-500/10"
-                        }`}
+              {
+                loading ? (
+                  <tr>
+                    <td
+                      colSpan={8}
+                      className="text-center p-4 text-white/50"
                     >
-                      $
-                      {book.reduce(
-                        (sum, sale) => (sum + sale.amount / 100 ),
-                        0
-                      )}
-                    </span>
-                  </td>
-                  <td colSpan={2} className="p-4">
-                    <div className="flex flex-col gap-2">
-                      <span className="font-medium">Tickets Sold</span>
-                      {Object.entries(
-                        filteredSalesHistory.reduce((acc, sale) => {
-                          if (!acc[sale.ticket]) acc[sale.ticket] = 0;
-                          acc[sale.ticket] +=
-                            parseInt(sale.totalTicketHeadCount) *
-                            (sale.type === "refund" ? -1 : 1);
-                          return acc;
-                        }, {})
-                      ).map(([ticket, count]) => (
-                        <div
-                          key={ticket}
-                          className="flex items-center gap-1 border border-white/10 px-2 py-1 rounded border-dashed w-fit"
-                        >
-                          {ticketTypesIcons[ticket] && (
-                            <span className="w-4 h-4">
-                              {ticketTypesIcons[ticket]}
+                      <Spin size="small" />
+                    </td>
+                  </tr>
+                ) : (
+                  <>
+                    {filteredSalesHistory.slice().reverse().map((payout, index) => (
+                      <tr key={index} className="hover:bg-white/[0.01]">
+                        <td className="p-4">{formatDate(payout.date)}</td>
+                        <td className="p-4">
+                          <div className="flex items-center gap-2 capitalize">
+                            {payout.refund === 'true' ? saleTypesIcons['refund'] : saleTypesIcons['sale']}
+                            {payout.refund === 'true' ? "Refund" : "Sale"}
+                          </div>
+                        </td>
+                        <td className="p-4">
+                          <div className="flex items-center gap-2 capitalize">
+                            {/* {ticketTypesIcons[payout.ticket]} */}
+                            {payout?.tickets?.ticket_name} x {payout.count}
+                          </div>
+                        </td>
+                        <td className="p-4">
+                          <div className="flex flex-col">
+                            <span>{payout.firstName}</span>
+                            <span className="text-white/50 text-xs">
+                              {payout.email}
                             </span>
-                          )}
-                          <span className="text-white/50 text-xs capitalize">
-                            {ticket}: {count}
+                          </div>
+                        </td>
+                        <td
+                          className={`p-4 ${payout.amount < 0 ? "text-white/50" : ""
+                            }`}
+                        >
+                          {payout.amount < 0
+                            ? `-$${(Math.abs((payout.amount / 100) - 0.89) / 1.09).toLocaleString("en-US", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}`
+                            : `$${(Math.abs((payout.amount / 100) - 0.89) / 1.09).toLocaleString("en-US", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}`}
+                        </td>
+                        <td className="p-4">
+                          <span className="flex items-center gap-2 capitalize">
+                            {payout.refund === 'true' ? statusIcons['refunded'] : statusIcons['completed']}
+                            {payout.refund === 'true' ? "Refunded" : "Completed"}
                           </span>
-                        </div>
-                      ))}
-                    </div>
-                  </td>
-                </tr>
-              </tfoot>
-            )}
+                        </td>
+                        <td className="p-4">
+                          <button className="hover:bg-white/10 p-1 rounded">
+                            <MoreHorizontal className="w-4 h-4 text-white/50" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </>
+                )
+              }
+
+            </tbody>
           </table>
         </div>
       </div>

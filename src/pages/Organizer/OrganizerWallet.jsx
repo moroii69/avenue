@@ -511,9 +511,11 @@ export default function OrganizerWallet() {
                 .replace(",", "")
                 .toLowerCase();
 
+            const ticketName = sale?.tickets?.ticket_name || "Complimentary Ticket";
+
             const matchesSearch =
                 sale?.party?.event_name.toLowerCase().includes(searchLower) ||
-                sale?.tickets?.ticket_name.toLowerCase().includes(searchLower) ||
+                ticketName.toLowerCase().includes(searchLower) ||
                 sale?.firstName.toLowerCase().includes(searchLower) ||
                 (sale?.amount / 100).toString().includes(searchLower) ||
                 formattedDate.includes(searchLower);
@@ -584,8 +586,13 @@ export default function OrganizerWallet() {
 
         // Handle numeric sorting
         if (sortColumn === "amount") {
-            aValue = parseFloat(aValue);
-            bValue = parseFloat(bValue);
+            const getNumericValue = (sale) => {
+                if (!sale.transaction_id) return -Infinity; // Treat "Comp" as lowest value
+                return (Math.abs((sale.amount / 100) - 0.89) / 1.09);
+            };
+
+            aValue = getNumericValue(a);
+            bValue = getNumericValue(b);
         }
 
         // Handle string sorting (firstName, event_name, etc.)
@@ -1477,7 +1484,7 @@ export default function OrganizerWallet() {
                                                 </div>
                                             </th>
                                             <th className="p-4" onClick={() => handleSort("date")}>
-                                                <div className="flex items-center gap-2">
+                                                <div className="flex items-center gap-2 cursor-pointer">
                                                     <svg
                                                         xmlns="http://www.w3.org/2000/svg"
                                                         width="16"
@@ -1498,20 +1505,20 @@ export default function OrganizerWallet() {
                                                         {/* Up Arrow */}
                                                         <svg
                                                             xmlns="http://www.w3.org/2000/svg"
-                                                            width="10"
-                                                            height="10"
+                                                            width="14"
+                                                            height="14"
                                                             viewBox="0 0 24 24"
-                                                            fill={"gray"}
+                                                            fill={sortColumn === "date" && sortOrder === "asc" ? "white" : "gray"}
                                                         >
                                                             <path d="M7 14l5-5 5 5H7z" />
                                                         </svg>
                                                         {/* Down Arrow */}
                                                         <svg
                                                             xmlns="http://www.w3.org/2000/svg"
-                                                            width="10"
-                                                            height="10"
+                                                            width="14"
+                                                            height="14"
                                                             viewBox="0 0 24 24"
-                                                            fill={"gray"}
+                                                            fill={sortColumn === "date" && sortOrder === "desc" ? "white" : "gray"}
                                                         >
                                                             <path d="M7 10l5 5 5-5H7z" />
                                                         </svg>
@@ -1539,7 +1546,7 @@ export default function OrganizerWallet() {
                                                 </div>
                                             </th>
                                             <th className="p-4" onClick={() => handleSort("amount")}>
-                                                <div className="flex items-center gap-2">
+                                                <div className="flex items-center gap-2 cursor-pointer">
                                                     <svg
                                                         xmlns="http://www.w3.org/2000/svg"
                                                         width="17"
@@ -1565,20 +1572,20 @@ export default function OrganizerWallet() {
                                                         {/* Up Arrow */}
                                                         <svg
                                                             xmlns="http://www.w3.org/2000/svg"
-                                                            width="10"
-                                                            height="10"
+                                                            width="14"
+                                                            height="14"
                                                             viewBox="0 0 24 24"
-                                                            fill={"gray"}
+                                                            fill={sortColumn === "amount" && sortOrder === "asc" ? "white" : "gray"}
                                                         >
                                                             <path d="M7 14l5-5 5 5H7z" />
                                                         </svg>
                                                         {/* Down Arrow */}
                                                         <svg
                                                             xmlns="http://www.w3.org/2000/svg"
-                                                            width="10"
-                                                            height="10"
+                                                            width="14"
+                                                            height="14"
                                                             viewBox="0 0 24 24"
-                                                            fill={"gray"}
+                                                            fill={sortColumn === "amount" && sortOrder === "desc" ? "white" : "gray"}
                                                         >
                                                             <path d="M7 10l5 5 5-5H7z" />
                                                         </svg>
@@ -1797,7 +1804,9 @@ export default function OrganizerWallet() {
                                                                         <td className="p-4">
                                                                             <div className="flex items-center gap-2">
                                                                                 {statusIcons["refund"]}
-                                                                                <span>Refunded</span>
+                                                                                <span>
+                                                                                    <FetchRefundStatus transactionId={sale.transaction_id} />
+                                                                                </span>
                                                                             </div>
                                                                         </td>
                                                                         <td className="py-4 pl-4"></td>
@@ -2139,6 +2148,32 @@ export default function OrganizerWallet() {
                 </DialogContent>
             </Dialog>
 
+
+
         </SidebarLayout>
     );
 }
+
+const FetchRefundStatus = ({ transactionId }) => {
+    const [status, setStatus] = useState("Loading...");
+
+    useEffect(() => {
+        const fetchStatus = async () => {
+            if (!transactionId) return;
+            const cleanTransactionId = transactionId.split("_secret")[0]; // Remove _secret part
+
+            try {
+                const response = await axios.get(`${url}/refund-status/${cleanTransactionId}`);
+                console.log(response.data)
+                setStatus(response.data?.data ? response.data.data[0]?.status : "No Refund");
+            } catch (error) {
+                console.error("Error fetching refund status:", error);
+                setStatus("Error");
+            }
+        };
+
+        fetchStatus();
+    }, [transactionId]);
+
+    return <>{status === "succeeded" ? "Refunded" : status}</>;
+};
