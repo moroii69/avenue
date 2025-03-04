@@ -16,6 +16,8 @@ import { Ellipsis } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import axios from "axios";
+import url from "../../constants/url"
 
 const statusIcons = {
     active: (
@@ -96,18 +98,21 @@ const sampleMembers = [
 
 const newMemberSchema = z.object({
     fullName: z.string().min(1, "Full name is required"),
+    email: z.string().min(1, "Email Id is required"),
     phoneNumber: z.string().min(1, "Phone number is required"),
     role: z.string().min(1, "Role is required"),
 });
 
 const editMemberSchema = z.object({
+    id: z.string(),
     fullName: z.string().min(1, "Full name is required"),
+    email: z.string().optional(),
     phoneNumber: z.string().min(1, "Phone number is required"),
     role: z.string().min(1, "Role is required"),
 });
 
-export default function TeamTab() {
-    const [members] = useState(sampleMembers);
+export default function TeamTab({ eventId }) {
+    //const [members] = useState(sampleMembers);
     const [selectedMember, setSelectedMember] = useState(null);
     const [deactivateDialogOpen, setDeactivateDialogOpen] = useState(false);
     const [selectedStatus, setSelectedStatus] = useState("all");
@@ -116,6 +121,10 @@ export default function TeamTab() {
 
     const [searchQuery, setSearchQuery] = useState("");
     const [removeMemberDialogOpen, setRemoveMemberDialogOpen] = useState(false);
+
+    const [oragnizerId, setOragnizerId] = useState(null);
+    const [members, setMembers] = useState([])
+    const [loading, setLoading] = useState(false)
 
     const {
         register,
@@ -151,22 +160,87 @@ export default function TeamTab() {
     });
 
     useEffect(() => {
+        const loadFromLocalStorage = () => {
+            const storedUserOrganizerId = localStorage.getItem("organizerId");
+            setOragnizerId(storedUserOrganizerId || null);
+        };
+        loadFromLocalStorage();
+
+        const handleStorageChange = () => {
+            loadFromLocalStorage();
+        };
+
+        window.addEventListener("storage", handleStorageChange);
+        return () => {
+            window.removeEventListener("storage", handleStorageChange);
+        };
+    }, []);
+
+    useEffect(() => {
         if (selectedMember && editMemberDialogOpen) {
             resetEdit({
+                id: selectedMember._id,
                 fullName: selectedMember.name,
-                phoneNumber: selectedMember.phone.replace("+1", ""),
+                phoneNumber: selectedMember.phone_number.replace("+1", ""),
                 role: selectedMember.role,
             });
         }
     }, [selectedMember, editMemberDialogOpen, resetEdit]);
 
-    const onSubmit = (data) => {
-        console.log("Form data:", data);
+    const onSubmit = async (data) => {
+        try {
+            const formData = {
+                organizer_id: oragnizerId,
+                name: data.fullName,
+                email: data.email,
+                phone_number: "+1" + data.phoneNumber,
+                password: "123",
+                role: data.role,
+                events: [eventId]
+            }
+            const response = await fetch(`${url}/member/add-member`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(formData),
+            });
+            if (response.ok) {
+                alert("Member added successfully!");
+                window.location.reload()
+            }
+        } catch (error) {
+            console.error("Error:", error);
+        }
         setNewMemberDialogOpen(false);
     };
 
-    const onEditSubmit = (data) => {
-        console.log("Edit member data:", data);
+    const onEditSubmit = async (data) => {
+        try {
+            const formData = {
+                organizer_id: oragnizerId,
+                name: data.fullName,
+                email: data.email,
+                phone_number: "+1" + data.phoneNumber,
+                password: "123",
+                role: data.role,
+                events: data.events,
+                status: "active"
+            }
+            const response = await fetch(`${url}/member/update-member/${data.id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(formData),
+            });
+            if (response.ok) {
+                alert("Member updated successfully!");
+                window.location.reload()
+            }
+        } catch (error) {
+            console.error("Error:", error);
+        } console.log("Edit member data:", data);
         setEditMemberDialogOpen(false);
     };
 
@@ -176,30 +250,42 @@ export default function TeamTab() {
         const matchesSearch =
             searchQuery.trim() === "" ||
             member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            member.phone.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            member.phone_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
             member.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
             member.status.toLowerCase().includes(searchQuery.toLowerCase());
 
-        return matchesStatus && matchesSearch;
+        return matchesSearch;
     });
+
+    const fetchMembers = async () => {
+        setLoading(true)
+        try {
+            const response = await axios.get(`${url}/member/get-event-members/${eventId}`);
+            setMembers(response.data);
+        } catch (error) {
+            console.error('Error fetching events:', error);
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    useEffect(() => {
+        fetchMembers()
+    }, [eventId])
 
     return (
         <div>
             <div className="@container grid gap-9">
-                <div className="grid @4xl:grid-cols-3 gap-4 h-fit">
+                <div className="grid @4xl:grid-cols-2 gap-4 h-fit">
                     <div className="border border-white/10 p-4 rounded-xl h-full flex flex-col gap-y-3">
                         <h2 className="font-medium text-white/70 text-sm">Total members</h2>
-                        <p className="text-2xl font-medium">12</p>
+                        <p className="text-2xl font-medium">{members.length}</p>
                     </div>
                     <div className="border border-white/10 p-4 rounded-xl h-full flex flex-col gap-y-3">
                         <h2 className="font-medium text-white/70 text-sm">
                             Active members
                         </h2>
-                        <p className="text-2xl font-medium">10</p>
-                    </div>
-                    <div className="border border-white/10 p-4 rounded-xl h-full flex flex-col gap-y-3">
-                        <h2 className="font-medium text-white/70 text-sm">Door staff</h2>
-                        <p className="text-2xl font-medium">8</p>
+                        <p className="text-2xl font-medium">{members.filter(member => member.status === 'active').length}</p>
                     </div>
                 </div>
 
@@ -285,7 +371,7 @@ export default function TeamTab() {
                                                     <span>{member.name}</span>
                                                 </div>
                                             </td>
-                                            <td className="p-4">{member.phone}</td>
+                                            <td className="p-4">{member.phone_number}</td>
                                             <td className="p-4">{member.role}</td>
                                             <td className="p-4">
                                                 <div className="flex items-center gap-2">
@@ -428,6 +514,24 @@ export default function TeamTab() {
                             <div className="flex flex-col items-start justify-between gap-4">
                                 <div className="flex flex-col gap-3 w-full">
                                     <span className="text-sm font-medium text-white">
+                                        Email Id
+                                    </span>
+                                    <input
+                                        {...register("email")}
+                                        placeholder="jogndoe@gmail.com"
+                                        className="border bg-primary text-white text-sm border-white/10 h-10 rounded-lg px-5 py-2.5 focus:outline-none w-full"
+                                    />
+                                    {errors.email && (
+                                        <span className="text-xs text-red-500">
+                                            {errors.email.message}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col items-start justify-between gap-4">
+                                <div className="flex flex-col gap-3 w-full">
+                                    <span className="text-sm font-medium text-white">
                                         Phone Number
                                     </span>
                                     <div className="relative w-full">
@@ -489,8 +593,8 @@ export default function TeamTab() {
                                                         }
                                                     }}
                                                     className={`h-8 w-fit flex items-center gap-2 border-2 pr-4  rounded-full text-sm font-medium transition-colors ${isSelected
-                                                            ? "border-[#34B2DA] pl-2"
-                                                            : "border-dashed border-white/10 text-white hover:bg-white/10 pl-4"
+                                                        ? "border-[#34B2DA] pl-2"
+                                                        : "border-dashed border-white/10 text-white hover:bg-white/10 pl-4"
                                                         }`}
                                                 >
                                                     {isSelected && (
@@ -734,12 +838,12 @@ export default function TeamTab() {
                                                         }
                                                     }}
                                                     className={`h-8 w-fit flex items-center gap-2 border-2 pr-4 rounded-full text-sm font-medium transition-colors ${isSelected
-                                                            ? "border-[#34B2DA] pl-2"
-                                                            : isNewRole &&
-                                                                !roles.includes(inputValue) &&
-                                                                inputValue !== ""
-                                                                ? "border-dashed border-white/10 text-white hover:bg-white/10 pl-4"
-                                                                : "border border-white/10 text-white hover:bg-white/10 pl-4"
+                                                        ? "border-[#34B2DA] pl-2"
+                                                        : isNewRole &&
+                                                            !roles.includes(inputValue) &&
+                                                            inputValue !== ""
+                                                            ? "border-dashed border-white/10 text-white hover:bg-white/10 pl-4"
+                                                            : "border border-white/10 text-white hover:bg-white/10 pl-4"
                                                         }`}
                                                 >
                                                     {isSelected && (

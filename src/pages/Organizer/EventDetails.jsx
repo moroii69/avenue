@@ -17,6 +17,7 @@ import SettingTab from "./SettingTab";
 import TeamTab from "./TeamTab";
 import axios from "axios";
 import url from "../../constants/url"
+import { Spin } from 'antd';
 
 // Mock data structure (you should replace this with actual data fetching)
 const eventData = {
@@ -275,7 +276,7 @@ export default function EventDetails() {
           />
         </svg>
       ),
-      content: <PromosTab />,
+      content: <PromosTab eventId={event._id} event={event} />,
     },
     {
       id: "team",
@@ -295,7 +296,7 @@ export default function EventDetails() {
           />
         </svg>
       ),
-      content: <TeamTab />,
+      content: <TeamTab eventId={event._id} event={event} />,
     },
     {
       id: "settings",
@@ -343,187 +344,195 @@ export default function EventDetails() {
       <div className="m-4 mb-2">
         <SidebarToggle />
       </div>
-      <div className="grid gap-12 text-white p-6 max-w-7xl mx-auto">
-        <div className="grid gap-6">
-          <div className="flex items-center gap-4 text-sm h-8 w-fit rounded-md border border-white/10 border-dashed px-2">
-            <button
-              onClick={() => window.history.back()}
-              className="flex items-center gap-2 text-white/70 hover:text-white transition-colors"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M19 12H5M12 19l-7-7 7-7" />
-              </svg>
-              Back to Events
-            </button>
-            <div className="h-7 w-px bg-white/10" />
-            <span className="text-white/50">Event Details</span>
+      {
+        loading ? (
+          <div className='text-center'>
+            <Spin size="default" />
           </div>
+        ) : (
+          <div className="grid gap-12 text-white p-6 max-w-7xl mx-auto">
+            <div className="grid gap-6">
+              <div className="flex items-center gap-4 text-sm h-8 w-fit rounded-md border border-white/10 border-dashed px-2">
+                <button
+                  onClick={() => window.history.back()}
+                  className="flex items-center gap-2 text-white/70 hover:text-white transition-colors"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M19 12H5M12 19l-7-7 7-7" />
+                  </svg>
+                  Back to Events
+                </button>
+                <div className="h-7 w-px bg-white/10" />
+                <span className="text-white/50">Event Details</span>
+              </div>
 
-          <div className="grid gap-6 @container">
-            <div className="h-24 w-24 rounded-xl bg-white/10 flex items-center justify-center"></div>
-            <div>
-              <div className="flex flex-col @4xl:flex-row items-start @4xl:items-end justify-between w-full gap-6">
-                <div className="grid gap-y-3">
-                  <div className="flex items-center gap-3">
-                    <h2 className="text-2xl font-bold">{event.event_name}</h2>
-                    <div className="flex items-center justify-center gap-2 text-sm bg-white/[0.05] px-2 h-6 w-fit rounded-full">
-                      <div className="h-2 w-2 rounded-full bg-[#10B981]"></div>
-                      <span className="text-white/50">Live</span>
+              <div className="grid gap-6 @container">
+                <div className="h-24 w-24 rounded-xl bg-white/10 flex items-center justify-center"></div>
+                <div>
+                  <div className="flex flex-col @4xl:flex-row items-start @4xl:items-end justify-between w-full gap-6">
+                    <div className="grid gap-y-3">
+                      <div className="flex items-center gap-3">
+                        <h2 className="text-2xl font-bold">{event.event_name}</h2>
+                        <div className="flex items-center justify-center gap-2 text-sm bg-white/[0.05] px-2 h-6 w-fit rounded-full">
+                          <div className="h-2 w-2 rounded-full bg-[#10B981]"></div>
+                          <span className="text-white/50">Live</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              clipRule="evenodd"
+                              d="M4 1.75C4 1.55109 4.07902 1.36032 4.21967 1.21967C4.36032 1.07902 4.55109 1 4.75 1C4.94891 1 5.13968 1.07902 5.28033 1.21967C5.42098 1.36032 5.5 1.55109 5.5 1.75V3H10.5V1.75C10.5 1.55109 10.579 1.36032 10.7197 1.21967C10.8603 1.07902 11.0511 1 11.25 1C11.4489 1 11.6397 1.07902 11.7803 1.21967C11.921 1.36032 12 1.55109 12 1.75V3C12.5304 3 13.0391 3.21071 13.4142 3.58579C13.7893 3.96086 14 4.46957 14 5V12C14 12.5304 13.7893 13.0391 13.4142 13.4142C13.0391 13.7893 12.5304 14 12 14H4C3.46957 14 2.96086 13.7893 2.58579 13.4142C2.21071 13.0391 2 12.5304 2 12V5C2 4.46957 2.21071 3.96086 2.58579 3.58579C2.96086 3.21071 3.46957 3 4 3V1.75ZM4.5 6C4.23478 6 3.98043 6.10536 3.79289 6.29289C3.60536 6.48043 3.5 6.73478 3.5 7V11.5C3.5 11.7652 3.60536 12.0196 3.79289 12.2071C3.98043 12.3946 4.23478 12.5 4.5 12.5H11.5C11.7652 12.5 12.0196 12.3946 12.2071 12.2071C12.3946 12.0196 12.5 11.7652 12.5 11.5V7C12.5 6.73478 12.3946 6.48043 12.2071 6.29289C12.0196 6.10536 11.7652 6 11.5 6H4.5Z"
+                              fill="white"
+                              fillOpacity="0.4"
+                            />
+                          </svg>
+                          <span className="text-white/50">{formatDate(event.start_date)}</span>
+                        </div>
+                        {event.location && (
+                          <div className="h-2 w-2 rounded-full bg-white/[0.03]"></div>
+                        )}
+                        <div className="flex items-center gap-2">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              clipRule="evenodd"
+                              d="M7.539 14.841L7.542 14.844L7.544 14.846C7.67522 14.9454 7.83535 14.9993 8 14.9993C8.16465 14.9993 8.32478 14.9454 8.456 14.846L8.458 14.844L8.461 14.841L8.473 14.832C8.53744 14.7824 8.60079 14.7314 8.663 14.679C9.40862 14.0505 10.0936 13.3535 10.709 12.597C11.81 11.235 13 9.255 13 7C13 5.67392 12.4732 4.40215 11.5355 3.46447C10.5979 2.52678 9.32608 2 8 2C6.67392 2 5.40215 2.52678 4.46447 3.46447C3.52678 4.40215 3 5.67392 3 7C3 9.255 4.19 11.235 5.292 12.597C5.90739 13.3535 6.59239 14.0505 7.338 14.679C7.4003 14.7309 7.46331 14.7819 7.527 14.832L7.539 14.842V14.841ZM8 8.5C8.19698 8.5 8.39204 8.4612 8.57403 8.38582C8.75601 8.31044 8.92137 8.19995 9.06066 8.06066C9.19995 7.92137 9.31044 7.75601 9.38582 7.57403C9.4612 7.39204 9.5 7.19698 9.5 7C9.5 6.80302 9.4612 6.60796 9.38582 6.42597C9.31044 6.24399 9.19995 6.07863 9.06066 5.93934C8.92137 5.80005 8.75601 5.68956 8.57403 5.61418C8.39204 5.5388 8.19698 5.5 8 5.5C7.60218 5.5 7.22064 5.65804 6.93934 5.93934C6.65804 6.22064 6.5 6.60218 6.5 7C6.5 7.39782 6.65804 7.77936 6.93934 8.06066C7.22064 8.34196 7.60218 8.5 8 8.5Z"
+                              fill="white"
+                              fillOpacity="0.4"
+                            />
+                          </svg>
+                          <span className="text-white/50">{event.venue_name}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <button className="bg-transparent flex items-center gap-1 justify-center border border-white/10 text-white text-sm md:text-base h-8 md:h-10 px-4 rounded-full hover:bg-white/10 transition">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                        >
+                          <path
+                            d="M13.4872 2.51299C13.3247 2.35047 13.1318 2.22155 12.9194 2.13359C12.7071 2.04564 12.4795 2.00037 12.2497 2.00037C12.0199 2.00037 11.7923 2.04564 11.58 2.13359C11.3676 2.22155 11.1747 2.35047 11.0122 2.51299L6.74919 6.77399C6.49389 7.02932 6.29137 7.33242 6.15319 7.66599L5.30519 9.71299C5.24839 9.85005 5.23351 10.0009 5.26244 10.1464C5.29137 10.2919 5.36281 10.4256 5.46772 10.5305C5.57262 10.6354 5.70629 10.7068 5.8518 10.7357C5.99731 10.7647 6.14814 10.7498 6.28519 10.693L8.33219 9.84499C8.66577 9.70681 8.96887 9.50429 9.22419 9.24899L13.4852 4.98699C13.8131 4.65884 13.9973 4.21391 13.9973 3.74999C13.9973 3.28608 13.8131 2.84115 13.4852 2.51299H13.4872Z"
+                            fill="white"
+                            fillOpacity="0.5"
+                          />
+                          <path
+                            d="M4.75 3.5C4.06 3.5 3.5 4.06 3.5 4.75V11.25C3.5 11.94 4.06 12.5 4.75 12.5H11.25C11.94 12.5 12.5 11.94 12.5 11.25V9C12.5 8.80109 12.579 8.61032 12.7197 8.46967C12.8603 8.32902 13.0511 8.25 13.25 8.25C13.4489 8.25 13.6397 8.32902 13.7803 8.46967C13.921 8.61032 14 8.80109 14 9V11.25C14 11.9793 13.7103 12.6788 13.1945 13.1945C12.6788 13.7103 11.9793 14 11.25 14H4.75C4.02065 14 3.32118 13.7103 2.80546 13.1945C2.28973 12.6788 2 11.9793 2 11.25V4.75C2 4.02065 2.28973 3.32118 2.80546 2.80546C3.32118 2.28973 4.02065 2 4.75 2H7C7.19891 2 7.38968 2.07902 7.53033 2.21967C7.67098 2.36032 7.75 2.55109 7.75 2.75C7.75 2.94891 7.67098 3.13968 7.53033 3.28033C7.38968 3.42098 7.19891 3.5 7 3.5H4.75Z"
+                            fill="white"
+                            fillOpacity="0.5"
+                          />
+                        </svg>
+                        Edit
+                      </button>
+                      <button className="bg-transparent flex items-center gap-1 justify-center border border-white/10 text-white text-sm md:text-base h-8 md:h-10 px-4 rounded-full hover:bg-white/10 transition">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                        >
+                          <path
+                            d="M8 9.5C8.39782 9.5 8.77936 9.34196 9.06066 9.06066C9.34196 8.77936 9.5 8.39782 9.5 8C9.5 7.60218 9.34196 7.22064 9.06066 6.93934C8.77936 6.65804 8.39782 6.5 8 6.5C7.60218 6.5 7.22064 6.65804 6.93934 6.93934C6.65804 7.22064 6.5 7.60218 6.5 8C6.5 8.39782 6.65804 8.77936 6.93934 9.06066C7.22064 9.34196 7.60218 9.5 8 9.5Z"
+                            fill="white"
+                            fillOpacity="0.5"
+                          />
+                          <path
+                            fillRule="evenodd"
+                            clipRule="evenodd"
+                            d="M1.37935 8.28C1.31626 8.0966 1.31626 7.89739 1.37935 7.714C1.85572 6.33737 2.74953 5.14356 3.93631 4.29881C5.12309 3.45407 6.54376 3.00044 8.00048 3.0011C9.45721 3.00176 10.8775 3.45667 12.0635 4.3025C13.2495 5.14832 14.1422 6.34294 14.6173 7.72C14.6804 7.90339 14.6804 8.1026 14.6173 8.286C14.1412 9.66298 13.2474 10.8572 12.0605 11.7022C10.8736 12.5472 9.45269 13.001 7.99571 13.0003C6.53872 12.9997 5.11822 12.5446 3.93209 11.6985C2.74596 10.8524 1.85326 9.65741 1.37835 8.28H1.37935ZM10.9993 8C10.9993 8.79565 10.6833 9.55871 10.1207 10.1213C9.55806 10.6839 8.795 11 7.99935 11C7.2037 11 6.44064 10.6839 5.87803 10.1213C5.31542 9.55871 4.99935 8.79565 4.99935 8C4.99935 7.20435 5.31542 6.44129 5.87803 5.87868C6.44064 5.31607 7.2037 5 7.99935 5C8.795 5 9.55806 5.31607 10.1207 5.87868C10.6833 6.44129 10.9993 7.20435 10.9993 8Z"
+                            fill="white"
+                            fillOpacity="0.5"
+                          />
+                        </svg>
+                        Preview
+                      </button>
+                      <button className="bg-transparent flex items-center gap-1 justify-center border border-white/10 text-white text-sm md:text-base h-8 md:h-10 px-4 rounded-full hover:bg-white/10 transition">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                        >
+                          <path
+                            d="M5 6.5C5 6.10218 5.15804 5.72064 5.43934 5.43934C5.72064 5.15804 6.10218 5 6.5 5H12.5C12.8978 5 13.2794 5.15804 13.5607 5.43934C13.842 5.72064 14 6.10218 14 6.5V12.5C14 12.8978 13.842 13.2794 13.5607 13.5607C13.2794 13.842 12.8978 14 12.5 14H6.5C6.10218 14 5.72064 13.842 5.43934 13.5607C5.15804 13.2794 5 12.8978 5 12.5V6.5Z"
+                            fill="white"
+                            fillOpacity="0.5"
+                          />
+                          <path
+                            d="M3.5 2C3.10218 2 2.72064 2.15804 2.43934 2.43934C2.15804 2.72064 2 3.10218 2 3.5V9.5C2 9.89782 2.15804 10.2794 2.43934 10.5607C2.72064 10.842 3.10218 11 3.5 11V6.5C3.5 5.70435 3.81607 4.94129 4.37868 4.37868C4.94129 3.81607 5.70435 3.5 6.5 3.5H11C11 3.10218 10.842 2.72064 10.5607 2.43934C10.2794 2.15804 9.89782 2 9.5 2H3.5Z"
+                            fill="white"
+                            fillOpacity="0.5"
+                          />
+                        </svg>
+                        Link
+                      </button>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 16 16"
-                        fill="none"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          clipRule="evenodd"
-                          d="M4 1.75C4 1.55109 4.07902 1.36032 4.21967 1.21967C4.36032 1.07902 4.55109 1 4.75 1C4.94891 1 5.13968 1.07902 5.28033 1.21967C5.42098 1.36032 5.5 1.55109 5.5 1.75V3H10.5V1.75C10.5 1.55109 10.579 1.36032 10.7197 1.21967C10.8603 1.07902 11.0511 1 11.25 1C11.4489 1 11.6397 1.07902 11.7803 1.21967C11.921 1.36032 12 1.55109 12 1.75V3C12.5304 3 13.0391 3.21071 13.4142 3.58579C13.7893 3.96086 14 4.46957 14 5V12C14 12.5304 13.7893 13.0391 13.4142 13.4142C13.0391 13.7893 12.5304 14 12 14H4C3.46957 14 2.96086 13.7893 2.58579 13.4142C2.21071 13.0391 2 12.5304 2 12V5C2 4.46957 2.21071 3.96086 2.58579 3.58579C2.96086 3.21071 3.46957 3 4 3V1.75ZM4.5 6C4.23478 6 3.98043 6.10536 3.79289 6.29289C3.60536 6.48043 3.5 6.73478 3.5 7V11.5C3.5 11.7652 3.60536 12.0196 3.79289 12.2071C3.98043 12.3946 4.23478 12.5 4.5 12.5H11.5C11.7652 12.5 12.0196 12.3946 12.2071 12.2071C12.3946 12.0196 12.5 11.7652 12.5 11.5V7C12.5 6.73478 12.3946 6.48043 12.2071 6.29289C12.0196 6.10536 11.7652 6 11.5 6H4.5Z"
-                          fill="white"
-                          fillOpacity="0.4"
-                        />
-                      </svg>
-                      <span className="text-white/50">{formatDate(event.start_date)}</span>
-                    </div>
-                    {event.location && (
-                      <div className="h-2 w-2 rounded-full bg-white/[0.03]"></div>
-                    )}
-                    <div className="flex items-center gap-2">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 16 16"
-                        fill="none"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          clipRule="evenodd"
-                          d="M7.539 14.841L7.542 14.844L7.544 14.846C7.67522 14.9454 7.83535 14.9993 8 14.9993C8.16465 14.9993 8.32478 14.9454 8.456 14.846L8.458 14.844L8.461 14.841L8.473 14.832C8.53744 14.7824 8.60079 14.7314 8.663 14.679C9.40862 14.0505 10.0936 13.3535 10.709 12.597C11.81 11.235 13 9.255 13 7C13 5.67392 12.4732 4.40215 11.5355 3.46447C10.5979 2.52678 9.32608 2 8 2C6.67392 2 5.40215 2.52678 4.46447 3.46447C3.52678 4.40215 3 5.67392 3 7C3 9.255 4.19 11.235 5.292 12.597C5.90739 13.3535 6.59239 14.0505 7.338 14.679C7.4003 14.7309 7.46331 14.7819 7.527 14.832L7.539 14.842V14.841ZM8 8.5C8.19698 8.5 8.39204 8.4612 8.57403 8.38582C8.75601 8.31044 8.92137 8.19995 9.06066 8.06066C9.19995 7.92137 9.31044 7.75601 9.38582 7.57403C9.4612 7.39204 9.5 7.19698 9.5 7C9.5 6.80302 9.4612 6.60796 9.38582 6.42597C9.31044 6.24399 9.19995 6.07863 9.06066 5.93934C8.92137 5.80005 8.75601 5.68956 8.57403 5.61418C8.39204 5.5388 8.19698 5.5 8 5.5C7.60218 5.5 7.22064 5.65804 6.93934 5.93934C6.65804 6.22064 6.5 6.60218 6.5 7C6.5 7.39782 6.65804 7.77936 6.93934 8.06066C7.22064 8.34196 7.60218 8.5 8 8.5Z"
-                          fill="white"
-                          fillOpacity="0.4"
-                        />
-                      </svg>
-                      <span className="text-white/50">{event.venue_name}</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <button className="bg-transparent flex items-center gap-1 justify-center border border-white/10 text-white text-sm md:text-base h-8 md:h-10 px-4 rounded-full hover:bg-white/10 transition">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                    >
-                      <path
-                        d="M13.4872 2.51299C13.3247 2.35047 13.1318 2.22155 12.9194 2.13359C12.7071 2.04564 12.4795 2.00037 12.2497 2.00037C12.0199 2.00037 11.7923 2.04564 11.58 2.13359C11.3676 2.22155 11.1747 2.35047 11.0122 2.51299L6.74919 6.77399C6.49389 7.02932 6.29137 7.33242 6.15319 7.66599L5.30519 9.71299C5.24839 9.85005 5.23351 10.0009 5.26244 10.1464C5.29137 10.2919 5.36281 10.4256 5.46772 10.5305C5.57262 10.6354 5.70629 10.7068 5.8518 10.7357C5.99731 10.7647 6.14814 10.7498 6.28519 10.693L8.33219 9.84499C8.66577 9.70681 8.96887 9.50429 9.22419 9.24899L13.4852 4.98699C13.8131 4.65884 13.9973 4.21391 13.9973 3.74999C13.9973 3.28608 13.8131 2.84115 13.4852 2.51299H13.4872Z"
-                        fill="white"
-                        fillOpacity="0.5"
-                      />
-                      <path
-                        d="M4.75 3.5C4.06 3.5 3.5 4.06 3.5 4.75V11.25C3.5 11.94 4.06 12.5 4.75 12.5H11.25C11.94 12.5 12.5 11.94 12.5 11.25V9C12.5 8.80109 12.579 8.61032 12.7197 8.46967C12.8603 8.32902 13.0511 8.25 13.25 8.25C13.4489 8.25 13.6397 8.32902 13.7803 8.46967C13.921 8.61032 14 8.80109 14 9V11.25C14 11.9793 13.7103 12.6788 13.1945 13.1945C12.6788 13.7103 11.9793 14 11.25 14H4.75C4.02065 14 3.32118 13.7103 2.80546 13.1945C2.28973 12.6788 2 11.9793 2 11.25V4.75C2 4.02065 2.28973 3.32118 2.80546 2.80546C3.32118 2.28973 4.02065 2 4.75 2H7C7.19891 2 7.38968 2.07902 7.53033 2.21967C7.67098 2.36032 7.75 2.55109 7.75 2.75C7.75 2.94891 7.67098 3.13968 7.53033 3.28033C7.38968 3.42098 7.19891 3.5 7 3.5H4.75Z"
-                        fill="white"
-                        fillOpacity="0.5"
-                      />
-                    </svg>
-                    Edit
-                  </button>
-                  <button className="bg-transparent flex items-center gap-1 justify-center border border-white/10 text-white text-sm md:text-base h-8 md:h-10 px-4 rounded-full hover:bg-white/10 transition">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                    >
-                      <path
-                        d="M8 9.5C8.39782 9.5 8.77936 9.34196 9.06066 9.06066C9.34196 8.77936 9.5 8.39782 9.5 8C9.5 7.60218 9.34196 7.22064 9.06066 6.93934C8.77936 6.65804 8.39782 6.5 8 6.5C7.60218 6.5 7.22064 6.65804 6.93934 6.93934C6.65804 7.22064 6.5 7.60218 6.5 8C6.5 8.39782 6.65804 8.77936 6.93934 9.06066C7.22064 9.34196 7.60218 9.5 8 9.5Z"
-                        fill="white"
-                        fillOpacity="0.5"
-                      />
-                      <path
-                        fillRule="evenodd"
-                        clipRule="evenodd"
-                        d="M1.37935 8.28C1.31626 8.0966 1.31626 7.89739 1.37935 7.714C1.85572 6.33737 2.74953 5.14356 3.93631 4.29881C5.12309 3.45407 6.54376 3.00044 8.00048 3.0011C9.45721 3.00176 10.8775 3.45667 12.0635 4.3025C13.2495 5.14832 14.1422 6.34294 14.6173 7.72C14.6804 7.90339 14.6804 8.1026 14.6173 8.286C14.1412 9.66298 13.2474 10.8572 12.0605 11.7022C10.8736 12.5472 9.45269 13.001 7.99571 13.0003C6.53872 12.9997 5.11822 12.5446 3.93209 11.6985C2.74596 10.8524 1.85326 9.65741 1.37835 8.28H1.37935ZM10.9993 8C10.9993 8.79565 10.6833 9.55871 10.1207 10.1213C9.55806 10.6839 8.795 11 7.99935 11C7.2037 11 6.44064 10.6839 5.87803 10.1213C5.31542 9.55871 4.99935 8.79565 4.99935 8C4.99935 7.20435 5.31542 6.44129 5.87803 5.87868C6.44064 5.31607 7.2037 5 7.99935 5C8.795 5 9.55806 5.31607 10.1207 5.87868C10.6833 6.44129 10.9993 7.20435 10.9993 8Z"
-                        fill="white"
-                        fillOpacity="0.5"
-                      />
-                    </svg>
-                    Preview
-                  </button>
-                  <button className="bg-transparent flex items-center gap-1 justify-center border border-white/10 text-white text-sm md:text-base h-8 md:h-10 px-4 rounded-full hover:bg-white/10 transition">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                    >
-                      <path
-                        d="M5 6.5C5 6.10218 5.15804 5.72064 5.43934 5.43934C5.72064 5.15804 6.10218 5 6.5 5H12.5C12.8978 5 13.2794 5.15804 13.5607 5.43934C13.842 5.72064 14 6.10218 14 6.5V12.5C14 12.8978 13.842 13.2794 13.5607 13.5607C13.2794 13.842 12.8978 14 12.5 14H6.5C6.10218 14 5.72064 13.842 5.43934 13.5607C5.15804 13.2794 5 12.8978 5 12.5V6.5Z"
-                        fill="white"
-                        fillOpacity="0.5"
-                      />
-                      <path
-                        d="M3.5 2C3.10218 2 2.72064 2.15804 2.43934 2.43934C2.15804 2.72064 2 3.10218 2 3.5V9.5C2 9.89782 2.15804 10.2794 2.43934 10.5607C2.72064 10.842 3.10218 11 3.5 11V6.5C3.5 5.70435 3.81607 4.94129 4.37868 4.37868C4.94129 3.81607 5.70435 3.5 6.5 3.5H11C11 3.10218 10.842 2.72064 10.5607 2.43934C10.2794 2.15804 9.89782 2 9.5 2H3.5Z"
-                        fill="white"
-                        fillOpacity="0.5"
-                      />
-                    </svg>
-                    Link
-                  </button>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-        <div>
-          <Tabs>
-            <TabsList className="rounded-none relative w-full">
-              <div className="hidden @4xl:block absolute bottom-1 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
-              {TABS.map((tab) => (
-                <TabTrigger
-                  key={tab.id}
-                  value={tab.id}
-                  active={activeTab === tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 hover:bg-white/[0.03] @4xl:hover:bg-transparent p-2 @4xl:border-b-2 @4xl:rounded-none ${activeTab === tab.id ? "border-white" : "border-transparent"
-                    }`}
-                >
-                  <div className="flex items-center gap-2">
-                    {tab.icon}
-                    <span>{tab.label}</span>
-                  </div>
-                </TabTrigger>
-              ))}
-            </TabsList>
-            <div className="mt-8">
-              {TABS.map((tab) => (
-                <TabsContent key={tab.id} value={tab.id} activeTab={activeTab}>
-                  {tab.content}
-                </TabsContent>
-              ))}
+            <div>
+              <Tabs>
+                <TabsList className="rounded-none relative w-full">
+                  <div className="hidden @4xl:block absolute bottom-1 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+                  {TABS.map((tab) => (
+                    <TabTrigger
+                      key={tab.id}
+                      value={tab.id}
+                      active={activeTab === tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`flex items-center gap-2 hover:bg-white/[0.03] @4xl:hover:bg-transparent p-2 @4xl:border-b-2 @4xl:rounded-none ${activeTab === tab.id ? "border-white" : "border-transparent"
+                        }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        {tab.icon}
+                        <span>{tab.label}</span>
+                      </div>
+                    </TabTrigger>
+                  ))}
+                </TabsList>
+                <div className="mt-8">
+                  {TABS.map((tab) => (
+                    <TabsContent key={tab.id} value={tab.id} activeTab={activeTab}>
+                      {tab.content}
+                    </TabsContent>
+                  ))}
+                </div>
+              </Tabs>
             </div>
-          </Tabs>
-        </div>
-      </div>
+          </div>
+        )
+      }
     </SidebarLayout>
   );
 }
