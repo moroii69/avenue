@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import { DropdownContext, useDropdown } from "../../contexts/dropdown-context";
 
@@ -50,102 +50,89 @@ DropdownTrigger.propTypes = {
 export function DropdownContent({
   children,
   className = "",
+  align = "left",
   preferredPlacement = "bottom",
 }) {
-  const { open, setPlacement } = useDropdown();
+  const { open, placement, setPlacement } = useDropdown();
   const contentRef = useRef(null);
   const [mounted, setMounted] = useState(false);
+  const [position, setPosition] = useState({ left: 0, right: "auto" });
 
-  const updatePosition = useCallback(() => {
-    if (contentRef.current) {
+  useEffect(() => {
+    if (open && contentRef.current) {
+      setMounted(true);
       const rect = contentRef.current.getBoundingClientRect();
       const parentRect =
         contentRef.current.parentElement.getBoundingClientRect();
       const viewportWidth = window.innerWidth;
-      const viewportHeight = window.innerHeight;
-
-      // Check vertical placement
       const spaceAbove = parentRect.top;
-      const spaceBelow = viewportHeight - parentRect.bottom;
+      const spaceBelow = window.innerHeight - parentRect.bottom;
       const contentHeight = rect.height;
 
+      // Handle vertical placement
       let newPlacement = preferredPlacement;
       if (
         preferredPlacement === "bottom" &&
         spaceBelow < contentHeight &&
-        spaceAbove > contentHeight
+        spaceAbove > spaceBelow
       ) {
         newPlacement = "top";
       } else if (
         preferredPlacement === "top" &&
         spaceAbove < contentHeight &&
-        spaceBelow > contentHeight
+        spaceBelow > spaceAbove
       ) {
         newPlacement = "bottom";
       }
       setPlacement(newPlacement);
 
-      // Get trigger button element
-      const triggerButton =
-        contentRef.current.parentElement.querySelector("button");
-      if (triggerButton) {
-        const triggerRect = triggerButton.getBoundingClientRect();
+      // Handle horizontal position to prevent overflow
+      let leftPosition = 0;
+      if (align === "right") {
+        leftPosition = "auto";
+      } else if (align === "center") {
+        leftPosition = -rect.width / 2 + parentRect.width / 2;
+      }
 
-        // Calculate horizontal position
-        let leftPosition = triggerRect.left;
-        if (leftPosition + rect.width > viewportWidth - 16) {
-          // If dropdown would overflow right edge, align to right edge with padding
-          leftPosition = viewportWidth - rect.width - 16;
+      // Ensure the dropdown doesn't overflow the screen
+      if (align !== "right" && typeof leftPosition === "number") {
+        const dropdownRight = parentRect.left + leftPosition + rect.width;
+        const dropdownLeft = parentRect.left + leftPosition;
+
+        if (dropdownRight > viewportWidth - 16) {
+          // If overflowing right, align to right edge with padding
+          setPosition({ left: "auto", right: 0 });
+        } else if (dropdownLeft < 16) {
+          // If overflowing left, align to left edge with padding
+          setPosition({ left: 0, right: "auto" });
+        } else {
+          setPosition({ left: leftPosition, right: "auto" });
         }
-        // Ensure dropdown doesn't overflow left edge
-        leftPosition = Math.max(16, leftPosition);
-
-        // Calculate vertical position
-        const topPosition =
-          newPlacement === "bottom"
-            ? triggerRect.bottom + 8
-            : triggerRect.top - contentHeight - 8;
-
-        // Apply the position
-        contentRef.current.style.position = "fixed";
-        contentRef.current.style.left = `${leftPosition}px`;
-        contentRef.current.style.top = `${topPosition}px`;
-
-        // Ensure the content is visible
-        contentRef.current.style.opacity = "1";
-        contentRef.current.style.transform = "none";
+      } else {
+        setPosition({
+          left: leftPosition,
+          right: align === "right" ? 0 : "auto",
+        });
       }
     }
-  }, [preferredPlacement, setPlacement]);
-
-  useEffect(() => {
-    if (open) {
-      setMounted(true);
-      // Small delay to ensure the content is rendered before measuring
-      requestAnimationFrame(() => {
-        updatePosition();
-      });
-
-      // Add resize and scroll listeners
-      window.addEventListener("resize", updatePosition);
-      window.addEventListener("scroll", updatePosition, true);
-
-      return () => {
-        window.removeEventListener("resize", updatePosition);
-        window.removeEventListener("scroll", updatePosition, true);
-      };
-    }
-  }, [open, updatePosition]);
+  }, [open, preferredPlacement, setPlacement, align]);
 
   if (!open) return null;
+
+  const placementClasses = {
+    top: "bottom-full mb-2",
+    bottom: "top-full mt-2",
+  };
 
   return (
     <div
       ref={contentRef}
-      className={`fixed z-50 min-w-[200px] ${className}`}
+      className={`absolute z-50 min-w-[200px] ${placementClasses[placement]} ${className}`}
       style={{
         visibility: mounted ? "visible" : "hidden",
-        opacity: 0,
+        left: position.left,
+        right: position.right,
+        opacity: mounted ? 1 : 0,
         transition: "opacity 150ms ease-out",
       }}
     >
@@ -157,6 +144,7 @@ export function DropdownContent({
 DropdownContent.propTypes = {
   children: PropTypes.node.isRequired,
   className: PropTypes.string,
+  align: PropTypes.oneOf(["left", "right", "center"]),
   preferredPlacement: PropTypes.oneOf(["top", "bottom"]),
 };
 
@@ -178,7 +166,7 @@ export function DropdownItem({
   return (
     <div
       onClick={handleClick}
-      className={`cursor-pointer text-sm border-b last:border-b-0 border-white/10 ${
+      className={`cursor-pointer text-sm ${
         disabled ? "opacity-50 cursor-not-allowed" : ""
       } ${className}`}
     >

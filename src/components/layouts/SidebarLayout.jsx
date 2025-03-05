@@ -226,7 +226,7 @@ const SidebarLayout = ({ children }) => {
           className={`hidden md:flex fixed top-0 left-0 h-screen w-64 bg-[#1A1A1A] text-white flex-col z-40 transition-transform duration-300 ease-in-out 
             ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
         >
-          <div className="p-4">
+          <div className="p-4 grid gap-5">
             <Link
               to="/"
               className="text-base font-bold flex items-center gap-2.5"
@@ -264,6 +264,12 @@ const SidebarLayout = ({ children }) => {
                 />
               </svg>
               Avenue
+            </Link>
+            <Link
+              to="/organizer/create-ticket"
+              className="w-full px-4 py-2 text-sm bg-white rounded-full text-black font-semibold h-10 flex items-center justify-center"
+            >
+              Create Event
             </Link>
           </div>
 

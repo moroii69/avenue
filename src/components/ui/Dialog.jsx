@@ -115,14 +115,18 @@ export const DialogDescription = ({ children, className = "" }) => {
   return <p className={`text-sm text-white/60 ${className}`}>{children}</p>;
 };
 
-export const DialogContent = ({ children, className = "" }) => {
+export const DialogContent = ({
+  children,
+  className = "",
+  closeClassName = "",
+}) => {
   const { onClose } = useDialog();
 
   return (
     <div className={`flex flex-col gap-3 relative ${className}`}>
       <button
         onClick={onClose}
-        className="absolute right-2 top-2 text-white/60 hover:text-white border border-white/10 rounded-lg p-1 transition-colors"
+        className={`absolute right-2 top-2 text-white/60 hover:text-white border border-white/10 rounded-lg p-1 transition-colors ${closeClassName}`}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

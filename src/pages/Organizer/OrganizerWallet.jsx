@@ -705,8 +705,8 @@ export default function OrganizerWallet() {
 
           <div className="flex flex-col gap-4">
             {/* Filter Buttons */}
-            <div className="flex flex-col @4xl:flex-row gap-3 w-full justify-between items-start @4xl:items-center">
-              <div className="flex gap-3 items-center">
+            <div className="flex flex-col @4xl:flex-row gap-3 w-full justify-between items-start @4xl:items-center mt-8">
+              <div className="flex gap-3 flex-wrap items-center">
                 {/* All time filter */}
                 <Dropdown>
                   <DropdownTrigger>
