@@ -199,6 +199,12 @@ const SidebarLayout = ({ children }) => {
             </div>
 
             <nav className="max-h-[70vh] overflow-y-auto flex-1 flex flex-col gap-3 p-3">
+              <Link
+                to="/organizer/create-ticket"
+                className="w-full px-4 py-2 text-sm bg-white rounded-full text-black font-semibold h-10 flex items-center justify-center"
+              >
+                Create Event
+              </Link>
               {menuItems.map((item) => (
                 <Link
                   key={item.path}
