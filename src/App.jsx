@@ -27,6 +27,8 @@ import OrganizerEvents from "./pages/Organizer/OrganizerEvents";
 import OrganizerWallet from "./pages/Organizer/OrganizerWallet";
 import EventDetails from "./pages/Organizer/EventDetails";
 import OrganizeMembers from "./pages/Organizer/OrganizeMembers";
+import CreateEvent from "./pages/Organizer/CreateEvent";
+import TicketEvent from "./pages/Organizer/TicketEvent"
 
 function App() {
   const location = useLocation();
@@ -40,6 +42,8 @@ function App() {
     "/organizer/events",
     "/organizer/wallet",
     "/organizer/members",
+    "/organizer/create-event",
+    "/organizer/create-ticket/ticketedevent"
   ];
   const hideFooter = [
     "/login",
@@ -56,6 +60,9 @@ function App() {
     "/organizer/events",
     "/organizer/wallet",
     "/organizer/members",
+    "/organizer/create-event",
+    "/organizer/create-ticket/ticketedevent"
+
   ];
 
   const shouldHideNavbarAndFooter = hideHeader.some((path) =>
@@ -111,9 +118,18 @@ function App() {
           <Route path="/organizer/wallet" element={<OrganizerWallet />} />
           <Route path="/organizer/events/:id" element={<EventDetails />} />
           <Route path="/organizer/members" element={<OrganizeMembers />} />
+          <Route path="/organizer/create-event" element={<CreateEvent />} />
+          <Route
+            path="/organizer/create-ticket/ticketedevent/:id"
+            element={<TicketEvent />}
+          />
+          <Route
+            path="/organizer/create-ticket/:id"
+            element={<TicketEvent />}
+          />
         </Routes>
         {!shouldHideFooter && <Footer />}
-      </div>
+      </div >
     </>
   );
 }

@@ -204,8 +204,8 @@ const SidebarLayout = ({ children }) => {
                   key={item.path}
                   to={item.path}
                   className={`menu-item group flex items-center text-sm hover:text-white font-medium gap-2 p-2 px-2.5 rounded-[10px] transition-colors ${location.pathname === item.path
-                      ? "selected bg-white/5 text-white"
-                      : "text-white/50"
+                    ? "selected bg-white/5 text-white"
+                    : "text-white/50"
                     }`}
                   onClick={() => setIsSidebarOpen(false)}
                 >
@@ -228,7 +228,7 @@ const SidebarLayout = ({ children }) => {
           <div className="p-4">
             <Link
               to="/"
-              className="text-base font-bold flex items-center gap-2.5"
+              className="text-base font-bold flex items-center gap-2.5 mb-5"
             >
               {/* <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -278,6 +278,12 @@ const SidebarLayout = ({ children }) => {
                 </defs>
               </svg>
             </Link>
+            <Link
+              to="/organizer/create-event"
+              className="w-full px-4 py-2 text-sm bg-white rounded-full text-black font-semibold h-10 flex items-center justify-center"
+            >
+              Create Event
+            </Link>
           </div>
 
           <nav className="flex-1 flex flex-col gap-3 p-3">
@@ -289,8 +295,8 @@ const SidebarLayout = ({ children }) => {
                   location.pathname === item.path ? "true" : "false"
                 }
                 className={`menu-item group flex items-center text-sm hover:text-white font-medium gap-2 p-2 px-2.5 rounded-[10px] transition-colors ${location.pathname === item.path
-                    ? "selected bg-white/5 text-white"
-                    : "text-white/50"
+                  ? "selected bg-white/5 text-white"
+                  : "text-white/50"
                   }`}
               >
                 <div>{item.icon}</div>

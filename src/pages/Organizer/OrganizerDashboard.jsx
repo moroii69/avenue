@@ -500,7 +500,11 @@ const OrganizerDashboard = () => {
                               />
                             </div>
                             <div>
-                              <p className="font-semibold">{event.event_name}</p>
+                              <p className="font-semibold">
+                                <Link to={`/organizer/events/${event._id}`}>
+                                  {event.event_name}
+                                </Link>
+                              </p>
                               <p className="text-white/70 flex items-center gap-x-2 text-sm">
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg"

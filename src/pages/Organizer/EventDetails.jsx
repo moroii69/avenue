@@ -185,7 +185,7 @@ export default function EventDetails() {
           />
         </svg>
       ),
-      content: <AnalyticsTab />,
+      content: <AnalyticsTab eventId={event._id} />,
     },
     {
       id: "sales",

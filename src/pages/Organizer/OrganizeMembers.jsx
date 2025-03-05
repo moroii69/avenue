@@ -200,6 +200,7 @@ export default function OrganizeMembers() {
   const [showAddNotification, setShowAddNotification] = useState(false)
   const [showEditNotification, setShowEditNotification] = useState(false)
   const [showActivateNotification, setShowActivateNotification] = useState(false);
+  const [showDeleteNotification, setShowDeleteNotification] = useState(false);
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(false);
 
@@ -263,7 +264,8 @@ export default function OrganizeMembers() {
         password: "123",
         role: data.role,
         events: data.events
-      }
+      };
+
       const response = await fetch(`${url}/member/add-member`, {
         method: "POST",
         headers: {
@@ -271,13 +273,22 @@ export default function OrganizeMembers() {
         },
         body: JSON.stringify(formData),
       });
+
       if (response.ok) {
-        setNewMemberDialogOpen(false)
-        setShowAddNotification(true)
-        setLoading(true)
+        const responseData = await response.json();
+        const savedMember = responseData.newMember;
+        if (!savedMember || !savedMember.name) {
+          console.error("Invalid member data:", savedMember);
+          return;
+        }
+        setMembers((prevMembers) => [...prevMembers, savedMember]);
+        setNewMemberDialogOpen(false);
+        setShowAddNotification(true);
         setTimeout(() => {
-          window.location.reload()
-        }, [3000])
+          setShowAddNotification(false)
+        },[3000])
+      } else {
+        console.error("Failed to add member");
       }
     } catch (error) {
       console.error("Error:", error);
@@ -295,7 +306,8 @@ export default function OrganizeMembers() {
         role: data.role,
         events: data.events,
         status: "active"
-      }
+      };
+
       const response = await fetch(`${url}/member/update-member/${data.id}`, {
         method: "PUT",
         headers: {
@@ -303,13 +315,27 @@ export default function OrganizeMembers() {
         },
         body: JSON.stringify(formData),
       });
+
       if (response.ok) {
-        setEditMemberDialogOpen(false)
-        setShowEditNotification(true)
-        setLoading(true)
+        const updatedMember = await response.json();
+
+        if (!updatedMember || !updatedMember.name) {
+          console.error("Invalid updated member data:", updatedMember);
+          return;
+        }
+        setMembers((prevMembers) =>
+          prevMembers.map((member) =>
+            member._id === updatedMember._id ? updatedMember : member
+          )
+        );
+
+        setEditMemberDialogOpen(false);
+        setShowEditNotification(true);
         setTimeout(() => {
-          window.location.reload()
+          setShowEditNotification(false);
         }, [3000])
+      } else {
+        console.error("Failed to update member");
       }
     } catch (error) {
       console.error("Error:", error);
@@ -1195,22 +1221,33 @@ export default function OrganizeMembers() {
           </DialogDescription>
           <div className="flex flex-col gap-3 mt-3">
             <button
-              onClick={
-                async () => {
-                  if (!selectedMember?._id) return;
+              onClick={async () => {
+                if (!selectedMember?._id) return;
 
-                  try {
-                    const response = await axios.delete(
-                      `${url}/member/delete-member/${selectedMember._id}`
+                try {
+                  const response = await axios.delete(
+                    `${url}/member/delete-member/${selectedMember._id}`
+                  );
+
+                  if (response.status === 200) {
+                    setRemoveDialogOpen(false);
+                    setShowDeleteNotification(true)
+
+                    setMembers((prevMembers) =>
+                      prevMembers.filter((member) => member._id !== selectedMember._id)
                     );
-                    alert("Member deleted successfully")
-                    window.location.reload()
-                    setDeactivateDialogOpen(false);
-                  } catch (error) {
-                    console.error("Error deleting member:", error);
+                    setTimeout(() => {
+                      setShowDeleteNotification(false)
+                    },[3000])
+                  } else {
+                    console.error("Failed to delete member");
                   }
+                } catch (error) {
+                  console.error("Error deleting member:", error);
+                  alert("Failed to delete member. Please try again.");
                 }
-              }
+              }}
+
               className="w-full bg-[#f43f5e] hover:bg-[#f43f5e]/90 text-white border-white/10 border text-center rounded-full h-10 px-4 focus:outline-none flex items-center justify-center gap-2 font-medium transition-colors"
             >
               <svg
@@ -1603,22 +1640,32 @@ export default function OrganizeMembers() {
 
                 try {
                   const newStatus = selectedMember.status === "active" ? "inactive" : "active";
-
                   const response = await axios.patch(
                     `${url}/member/status-change-member/${selectedMember._id}`,
                     { status: newStatus }
                   );
-                  setDeactivateDialogOpen(false);
-                  setShowActivateNotification(true);
-                  setLoading(true)
-                  setTimeout(() => {
-                    window.location.reload()
-                  }, [3000])
+
+                  if (response.status === 200) {
+                    setMembers((prevMembers) =>
+                      prevMembers.map((member) =>
+                        member._id === selectedMember._id ? { ...member, status: newStatus } : member
+                      )
+                    );
+
+                    setDeactivateDialogOpen(false);
+                    setShowActivateNotification(true);
+                    setTimeout(() => {
+                      setShowActivateNotification(false);
+                    },[3000])
+                  } else {
+                    console.error("Failed to change member status");
+                  }
                 } catch (error) {
                   console.error("Error updating member status:", error);
                   alert("Failed to change member status. Please try again.");
                 }
               }}
+
 
               className={`w-full ${selectedMember?.status === 'active' ? "bg-yellow-700" : "bg-[#10B981]"} text-white border-white/10 border text-center rounded-full h-10 px-4 focus:outline-none flex items-center justify-center gap-2 font-medium transition-colors`}
             >
@@ -1767,6 +1814,47 @@ export default function OrganizeMembers() {
             </div>
             <button
               onClick={() => setShowActivateNotification(false)}
+              className="ml-2 text-white/60 hover:text-white flex items-center justify-center border border-white/10 rounded-full p-1 flex-shrink-0 transition-colors"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+              >
+                <path
+                  d="M5.28033 4.21967C4.98744 3.92678 4.51256 3.92678 4.21967 4.21967C3.92678 4.51256 3.92678 4.98744 4.21967 5.28033L6.93934 8L4.21967 10.7197C3.92678 11.0126 3.92678 11.4874 4.21967 11.7803C4.51256 12.0732 4.98744 12.0732 5.28033 11.7803L8 9.06066L10.7197 11.7803C11.0126 12.0732 11.4874 12.0732 11.7803 11.7803C12.0732 11.4874 12.0732 11.0126 11.7803 10.7197L9.06066 8L11.7803 5.28033C12.0732 4.98744 12.0732 4.51256 11.7803 4.21967C11.4874 3.92678 11.0126 3.92678 10.7197 4.21967L8 6.93934L5.28033 4.21967Z"
+                  fill="white"
+                />
+              </svg>
+            </button>
+          </div>
+        )
+      }
+
+      {
+        showDeleteNotification && (
+          <div className="fixed top-5 left-1/2 transform -translate-x-1/2 backdrop-blur-md text-white p-2 pl-3 rounded-lg flex items-center gap-2 border border-white/10 shadow-lg max-w-[400px] w-full justify-between">
+            <div className="flex items-center gap-2">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+              >
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M8 15C9.85652 15 11.637 14.2625 12.9497 12.9497C14.2625 11.637 15 9.85652 15 8C15 6.14348 14.2625 4.36301 12.9497 3.05025C11.637 1.7375 9.85652 1 8 1C6.14348 1 4.36301 1.7375 3.05025 3.05025C1.7375 4.36301 1 6.14348 1 8C1 9.85652 1.7375 11.637 3.05025 12.9497C4.36301 14.2625 6.14348 15 8 15ZM11.844 6.209C11.9657 6.05146 12.0199 5.85202 11.9946 5.65454C11.9693 5.45706 11.8665 5.27773 11.709 5.156C11.5515 5.03427 11.352 4.9801 11.1545 5.00542C10.9571 5.03073 10.7777 5.13346 10.656 5.291L6.956 10.081L5.307 8.248C5.24174 8.17247 5.16207 8.11073 5.07264 8.06639C4.98322 8.02205 4.88584 7.99601 4.78622 7.98978C4.6866 7.98356 4.58674 7.99729 4.4925 8.03016C4.39825 8.06303 4.31151 8.11438 4.23737 8.1812C4.16322 8.24803 4.10316 8.32898 4.06071 8.41931C4.01825 8.50965 3.99425 8.60755 3.99012 8.70728C3.98599 8.807 4.00181 8.90656 4.03664 9.00009C4.07148 9.09363 4.12464 9.17927 4.193 9.252L6.443 11.752C6.51649 11.8335 6.60697 11.8979 6.70806 11.9406C6.80915 11.9833 6.91838 12.0034 7.02805 11.9993C7.13772 11.9952 7.24515 11.967 7.34277 11.9169C7.44038 11.8667 7.5258 11.7958 7.593 11.709L11.844 6.209Z"
+                  fill="#10B981"
+                />
+              </svg>
+              <p className="text-sm">Member deleted successfully</p>
+            </div>
+            <button
+              onClick={() => setShowDeleteNotification(false)}
               className="ml-2 text-white/60 hover:text-white flex items-center justify-center border border-white/10 rounded-full p-1 flex-shrink-0 transition-colors"
             >
               <svg
