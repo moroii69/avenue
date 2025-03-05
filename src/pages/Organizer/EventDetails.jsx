@@ -339,6 +339,12 @@ export default function EventDetails() {
     );
   }
 
+  const currentDate = new Date();
+  currentDate.setHours(0, 0, 0, 0);
+
+  const eventDate = new Date(event.start_date);
+  eventDate.setHours(0, 0, 0, 0);
+
   return (
     <SidebarLayout>
       <div className="m-4 mb-2">
@@ -377,15 +383,25 @@ export default function EventDetails() {
               </div>
 
               <div className="grid gap-6 @container">
-                <div className="h-24 w-24 rounded-xl bg-white/10 flex items-center justify-center"></div>
+                <div className="w-32 h-32 rounded-lg">
+                  <img
+                    src={`${event.flyer}`}
+                    alt=""
+                    className="w-full h-full object-cover rounded-lg"
+                  />
+                </div>
                 <div>
                   <div className="flex flex-col @4xl:flex-row items-start @4xl:items-end justify-between w-full gap-6">
                     <div className="grid gap-y-3">
                       <div className="flex items-center gap-3">
                         <h2 className="text-2xl font-bold">{event.event_name}</h2>
                         <div className="flex items-center justify-center gap-2 text-sm bg-white/[0.05] px-2 h-6 w-fit rounded-full">
-                          <div className="h-2 w-2 rounded-full bg-[#10B981]"></div>
-                          <span className="text-white/50">Live</span>
+                          <div className={`h-2 w-2 rounded-full ${eventDate < currentDate && event.explore === "YES" ? "bg-[#FF5733]" : "bg-[#10B981]" }`}></div>
+                          <span className="text-white/50">
+                            {
+                              eventDate < currentDate && event.explore === "YES" ? "Past" : "Live"
+                            }
+                          </span>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">

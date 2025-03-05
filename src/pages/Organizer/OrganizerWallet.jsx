@@ -1643,7 +1643,16 @@ export default function OrganizerWallet() {
                                                                             <div className="flex items-center gap-3">{sale?.firstName ? sale?.firstName : sale?.email}</div>
                                                                         </td>
                                                                         <td className="p-4">
-                                                                            <div className="flex items-center gap-3">{sale?.party?.event_name}</div>
+                                                                            <div className="flex items-center gap-3">
+                                                                                <div className="w-8 h-8 rounded-lg">
+                                                                                    <img
+                                                                                        src={`${sale?.party?.flyer}`}
+                                                                                        alt=""
+                                                                                        className="w-full h-full object-cover rounded-lg"
+                                                                                    />
+                                                                                </div>
+                                                                                {sale?.party?.event_name}
+                                                                            </div>
                                                                         </td>
                                                                         <td className="p-4">
                                                                             <div className="flex items-center gap-3">
@@ -1762,7 +1771,16 @@ export default function OrganizerWallet() {
                                                                             <div className="flex items-center gap-3">{sale?.firstName}</div>
                                                                         </td>
                                                                         <td className="p-4">
-                                                                            <div className="flex items-center gap-3">{sale?.party?.event_name}</div>
+                                                                            <div className="flex items-center gap-3">
+                                                                                <div className="w-8 h-8 rounded-lg">
+                                                                                    <img
+                                                                                        src={`${sale?.party?.flyer}`}
+                                                                                        alt=""
+                                                                                        className="w-full h-full object-cover rounded-lg"
+                                                                                    />
+                                                                                </div>
+                                                                                {sale?.party?.event_name}
+                                                                            </div>
                                                                         </td>
                                                                         <td className="p-4">
                                                                             <div className="flex items-center gap-3">

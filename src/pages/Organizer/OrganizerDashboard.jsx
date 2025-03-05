@@ -492,7 +492,13 @@ const OrganizerDashboard = () => {
                           className="p-4 flex items-center justify-between relative before:absolute before:-left-1 before:top-0 before:z-10 before:h-screen before:w-px before:bg-[#212121] before:content-[''] after:absolute after:-top-1 after:left-0 after:z-10 after:h-px after:w-screen after:bg-[#212121] after:content-['']"
                         >
                           <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 bg-purple-600 rounded-lg"></div>
+                            <div className="w-10 h-10 rounded-lg">
+                              <img
+                                src={`${event.flyer}`}
+                                alt=""
+                                className="w-full h-full object-cover rounded-lg"
+                              />
+                            </div>
                             <div>
                               <p className="font-semibold">{event.event_name}</p>
                               <p className="text-white/70 flex items-center gap-x-2 text-sm">
@@ -724,7 +730,13 @@ const OrganizerDashboard = () => {
                             </td>
                             <td className="p-4 w-full ">
                               <div className="flex items-center gap-3">
-                                <div className="w-6 h-6 bg-purple-600 rounded-md"></div>
+                                <div className="w-8 h-8 rounded-lg">
+                                  <img
+                                    src={`${sale?.party?.flyer}`}
+                                    alt=""
+                                    className="w-full h-full object-cover rounded-lg"
+                                  />
+                                </div>
                                 {sale?.party?.event_name}
                               </div>
                             </td>

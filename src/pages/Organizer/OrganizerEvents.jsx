@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import SidebarLayout from "../../components/layouts/SidebarLayout";
 import SidebarToggle from "../../components/layouts/SidebarToggle";
 import {
@@ -15,7 +15,7 @@ import {
     MenuSeparator,
     MenuTrigger,
 } from "../../components/ui/DirectionAwareMenu";
-import { Ellipsis } from "lucide-react";
+import { ArrowRight, Ellipsis } from "lucide-react";
 import {
     Dialog,
     DialogContent,
@@ -639,7 +639,16 @@ export default function OrganizerEvents() {
                                                                 key={event.id}
                                                                 className="border-b border-white/5 [&_td]:font-medium hover:bg-white/[2.5%] cursor-pointer transition-colors"
                                                             >
-                                                                <td className="py-4 pl-4">{event.event_name}</td>
+                                                                <td className="py-4 px-4 flex items-center gap-x-2">
+                                                                    {event.event_name}
+
+                                                                    <Link
+                                                                        to={`/organizer/events/${event._id}`}
+                                                                        className="ml-auto h-8 w-8 flex items-center justify-center rounded-md border border-white/5"
+                                                                    >
+                                                                        <ArrowRight className="w-4 h-4 text-white/50" />
+                                                                    </Link>
+                                                                </td>
                                                                 <td className="py-4 pl-4">{formatDate(event.start_date)}</td>
                                                                 <td className="py-4 pl-4">{event.venue_name}</td>
                                                                 <td className="py-4 pl-4">
@@ -796,7 +805,16 @@ export default function OrganizerEvents() {
                                                                 key={event.id}
                                                                 className="border-b border-white/5 [&_td]:font-medium hover:bg-white/[2.5%] cursor-pointer transition-colors"
                                                             >
-                                                                <td className="py-4 pl-4">{event.event_name}</td>
+                                                                <td className="py-4 px-4 flex items-center gap-x-2">
+                                                                    {event.event_name}
+
+                                                                    <Link
+                                                                        to={`/organizer/events/${event._id}`}
+                                                                        className="ml-auto h-8 w-8 flex items-center justify-center rounded-md border border-white/5"
+                                                                    >
+                                                                        <ArrowRight className="w-4 h-4 text-white/50" />
+                                                                    </Link>
+                                                                </td>
                                                                 <td className="py-4 pl-4">{formatDate(event.start_date)}</td>
                                                                 <td className="py-4 pl-4">{event.venue_name}</td>
                                                                 <td className="py-4 pl-4">
@@ -980,7 +998,16 @@ export default function OrganizerEvents() {
                                                             key={event.id}
                                                             className="border-b last:border-b-0 border-white/10 [&_td]:font-medium hover:bg-white/[2.5%] cursor-pointer transition-colors"
                                                         >
-                                                            <td className="py-4 pl-4">{event.event_name}</td>
+                                                            <td className="py-4 px-4 flex items-center gap-x-2">
+                                                                {event.event_name}
+
+                                                                <Link
+                                                                    to={`/organizer/events/${event._id}`}
+                                                                    className="ml-auto h-8 w-8 flex items-center justify-center rounded-md border border-white/5"
+                                                                >
+                                                                    <ArrowRight className="w-4 h-4 text-white/50" />
+                                                                </Link>
+                                                            </td>
                                                             <td className="py-4 pl-4">{formatDate(event.start_date)}</td>
                                                             <td className="py-4 pl-4">{formatDate(event.updatedAt)}</td>
                                                             <td className="py-4 pl-4">{event.venue_name}</td>
@@ -1228,7 +1255,16 @@ export default function OrganizerEvents() {
                                                             key={event.id}
                                                             className="border-b last:border-b-0 border-white/10 [&_td]:font-medium hover:bg-white/[2.5%] cursor-pointer transition-colors"
                                                         >
-                                                            <td className="py-4 pl-4">{event.event_name}</td>
+                                                            <td className="py-4 px-4 flex items-center gap-x-2">
+                                                                {event.event_name}
+
+                                                                <Link
+                                                                    to={`/organizer/events/${event._id}`}
+                                                                    className="ml-auto h-8 w-8 flex items-center justify-center rounded-md border border-white/5"
+                                                                >
+                                                                    <ArrowRight className="w-4 h-4 text-white/50" />
+                                                                </Link>
+                                                            </td>
                                                             <td className="py-4 pl-4">{formatDate(event.start_date)}</td>
                                                             <td className="py-4 pl-4">{formatDate(event.updatedAt)}</td>
                                                             <td className="py-4 pl-4">{event.venue_name}</td>
