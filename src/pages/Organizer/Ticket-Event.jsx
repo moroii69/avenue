@@ -10,6 +10,13 @@ import {
   DropdownItem,
 } from "../../components/ui/Dropdown";
 import ImageCropper from "../../components/ImageCropper";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogTitle,
+  DialogDescription,
+  DialogContent,
+} from "../../components/ui/Dialog";
 
 const ticketTypes = [
   {
@@ -156,6 +163,12 @@ export default function TicketEvent() {
   const [endDate, setEndDate] = useState(null);
   const [eventTime, setEventTime] = useState("");
   const [doorsOpenTime, setDoorsOpenTime] = useState("");
+  const [ticketStartDate, setTicketStartDate] = useState(null);
+  const [ticketStartTime, setTicketStartTime] = useState("");
+  const [isTicketStartDateModalOpen, setIsTicketStartDateModalOpen] =
+    useState(false);
+  const [isTicketStartTimeModalOpen, setIsTicketStartTimeModalOpen] =
+    useState(false);
 
   // Location states
   const [venueName, setVenueName] = useState("");
@@ -179,12 +192,15 @@ export default function TicketEvent() {
   const [minPurchase, setMinPurchase] = useState("1");
   const [maxPurchase, setMaxPurchase] = useState("10");
 
-  const [isTicketStartDateModalOpen, setIsTicketStartDateModalOpen] =
-    useState(false);
   const [isTicketEndDateModalOpen, setIsTicketEndDateModalOpen] =
     useState(false);
-  const [ticketStartDate, setTicketStartDate] = useState(null);
+
   const [ticketEndDate, setTicketEndDate] = useState(null);
+  const [isTicketEndTimeModalOpen, setIsTicketEndTimeModalOpen] =
+    useState(false);
+  const [ticketEndTime, setTicketEndTime] = useState("");
+
+  const [addAnotherTicket, setAddAnotherTicket] = useState(false);
 
   const categories = [
     {
@@ -258,6 +274,43 @@ export default function TicketEvent() {
       name: "Nightlife",
     },
   ];
+
+  const [tickets, setTickets] = useState([]);
+  const [editTicketDialog, setEditTicketDialog] = useState(false);
+  const [selectedTicket, setSelectedTicket] = useState(null);
+
+  const handleAddTicket = (e) => {
+    e.preventDefault();
+    if (ticketName && ticketPrice) {
+      setTickets([...tickets, { name: ticketName, price: ticketPrice }]);
+      setTicketName("");
+      setTicketPrice("");
+      setAddAnotherTicket(false);
+    }
+  };
+
+  const handleEditTicket = (ticket) => {
+    setSelectedTicket(ticket);
+    setTicketName(ticket.name);
+    setTicketPrice(ticket.price);
+    setEditTicketDialog(true);
+  };
+
+  const handleUpdateTicket = () => {
+    setTickets(
+      tickets.map((t) =>
+        t === selectedTicket
+          ? { ...t, name: ticketName, price: ticketPrice }
+          : t
+      )
+    );
+    setEditTicketDialog(false);
+  };
+
+  const handleDeleteTicket = () => {
+    setTickets(tickets.filter((t) => t !== selectedTicket));
+    setEditTicketDialog(false);
+  };
 
   const handleImageUpload = (event) => {
     if (event.target.files && event.target.files[0]) {
@@ -651,7 +704,7 @@ export default function TicketEvent() {
       title: "Tickets",
       description: "Set up your ticket types and pricing",
       fields: (
-        <div className="w-full space-y-10">
+        <div className="w-full flex flex-col gap-10">
           <div className="w-full">
             <label className="block text-sm font-medium text-white mb-3">
               Ticket name
@@ -779,98 +832,171 @@ export default function TicketEvent() {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-white mb-3">
-                Ticket sale start date
-              </label>
-              <div className="relative">
-                <button
-                  onClick={() => setIsTicketStartDateModalOpen(true)}
-                  className="w-full h-10 bg-transparent border border-white/10 rounded-lg px-4 py-2.5 text-left text-white/60"
-                >
-                  {ticketStartDate
-                    ? ticketStartDate.toLocaleDateString()
-                    : "Select date"}
-                </button>
-                <svg
-                  className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                >
-                  <path
-                    d="M4 6L8 10L12 6"
-                    stroke="white"
-                    strokeOpacity="0.3"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+          <div className="grid gap-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-white mb-3">
+                  Ticket sale start date
+                </label>
+                <div className="relative">
+                  <button
+                    onClick={() => setIsTicketStartDateModalOpen(true)}
+                    className="w-full h-10 bg-transparent border border-white/10 rounded-lg px-4 py-2.5 text-left text-white/60"
+                  >
+                    {ticketStartDate
+                      ? ticketStartDate.toLocaleDateString()
+                      : "Select date"}
+                  </button>
+                  <svg
+                    className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                  >
+                    <path
+                      d="M4 6L8 10L12 6"
+                      stroke="white"
+                      strokeOpacity="0.3"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
+                <DateModal
+                  isOpen={isTicketStartDateModalOpen}
+                  onClose={() => setIsTicketStartDateModalOpen(false)}
+                  onDateChange={(startDate) => {
+                    setTicketStartDate(startDate);
+                  }}
+                  startDate={ticketStartDate}
+                  setStartDate={setTicketStartDate}
+                  endDate={ticketStartDate}
+                  setEndDate={setTicketStartDate}
+                />
               </div>
-              <DateModal
-                isOpen={isTicketStartDateModalOpen}
-                onClose={() => setIsTicketStartDateModalOpen(false)}
-                onDateChange={(startDate) => {
-                  setTicketStartDate(startDate);
-                  setTicketSaleStartDate(
-                    startDate ? startDate.toLocaleDateString() : ""
-                  );
-                }}
-                startDate={ticketStartDate}
-                setStartDate={setTicketStartDate}
-                endDate={ticketStartDate}
-                setEndDate={setTicketStartDate}
-              />
+              <div>
+                <label className="block text-sm font-medium text-white mb-3">
+                  Ticket sale start time
+                </label>
+                <div className="relative">
+                  <button
+                    onClick={() => setIsTicketStartTimeModalOpen(true)}
+                    className="w-full h-10 bg-transparent border border-white/10 rounded-lg px-4 py-2.5 text-left text-white/60"
+                  >
+                    {ticketStartTime || "Select time"}
+                  </button>
+                  <svg
+                    className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                  >
+                    <path
+                      d="M4 6L8 10L12 6"
+                      stroke="white"
+                      strokeOpacity="0.3"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
+                <TimeModal
+                  isOpen={isTicketStartTimeModalOpen}
+                  onClose={() => setIsTicketStartTimeModalOpen(false)}
+                  onTimeChange={(time) => {
+                    setTicketStartTime(time);
+                  }}
+                />
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-white mb-3">
-                Ticket sale end date
-              </label>
-              <div className="relative">
-                <button
-                  onClick={() => setIsTicketEndDateModalOpen(true)}
-                  className="w-full h-10 bg-transparent border border-white/10 rounded-lg px-4 py-2.5 text-left text-white/60"
-                >
-                  {ticketEndDate
-                    ? ticketEndDate.toLocaleDateString()
-                    : "Select date"}
-                </button>
-                <svg
-                  className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                >
-                  <path
-                    d="M4 6L8 10L12 6"
-                    stroke="white"
-                    strokeOpacity="0.3"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-white mb-3">
+                  Ticket sale end date
+                </label>
+                <div className="relative">
+                  <button
+                    onClick={() => setIsTicketEndDateModalOpen(true)}
+                    className="w-full h-10 bg-transparent border border-white/10 rounded-lg px-4 py-2.5 text-left text-white/60"
+                  >
+                    {ticketEndDate
+                      ? ticketEndDate.toLocaleDateString()
+                      : "Select date"}
+                  </button>
+                  <svg
+                    className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                  >
+                    <path
+                      d="M4 6L8 10L12 6"
+                      stroke="white"
+                      strokeOpacity="0.3"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
+                <DateModal
+                  isOpen={isTicketEndDateModalOpen}
+                  onClose={() => setIsTicketEndDateModalOpen(false)}
+                  onDateChange={(endDate) => {
+                    setTicketEndDate(endDate);
+                  }}
+                  startDate={ticketEndDate}
+                  setStartDate={setTicketEndDate}
+                  endDate={ticketEndDate}
+                  setEndDate={setTicketEndDate}
+                />
               </div>
-              <DateModal
-                isOpen={isTicketEndDateModalOpen}
-                onClose={() => setIsTicketEndDateModalOpen(false)}
-                onDateChange={(startDate) => {
-                  setTicketEndDate(startDate);
-                  setTicketSaleEndDate(
-                    startDate ? startDate.toLocaleDateString() : ""
-                  );
-                }}
-                startDate={ticketEndDate}
-                setStartDate={setTicketEndDate}
-                endDate={ticketEndDate}
-                setEndDate={setTicketEndDate}
-              />
+              <div>
+                <label className="block text-sm font-medium text-white mb-3">
+                  Ticket sale end time
+                </label>
+                <div className="relative">
+                  <button
+                    onClick={() => setIsTicketEndTimeModalOpen(true)}
+                    className="w-full h-10 bg-transparent border border-white/10 rounded-lg px-4 py-2.5 text-left text-white/60"
+                  >
+                    {ticketEndTime || "Select time"}
+                  </button>
+                  <svg
+                    className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                  >
+                    <path
+                      d="M4 6L8 10L12 6"
+                      stroke="white"
+                      strokeOpacity="0.3"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
+                <TimeModal
+                  isOpen={isTicketEndTimeModalOpen}
+                  onClose={() => setIsTicketEndTimeModalOpen(false)}
+                  onTimeChange={(time) => {
+                    setTicketEndTime(time);
+                  }}
+                />
+              </div>
             </div>
           </div>
 
@@ -900,6 +1026,792 @@ export default function TicketEvent() {
               />
             </div>
           </div>
+
+          <div>
+            <div>
+              {tickets.map((ticket, index) => (
+                <div
+                  key={index}
+                  className="flex justify-between text-sm items-center h-10 p-2 bg-white/[0.03] border border-white/10 rounded-lg mb-2"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-white">{ticket.name}</span>
+                    <span className="text-white/30">•</span>
+                    <span className="text-white">${ticket.price}</span>
+                  </div>
+                  <button onClick={() => handleEditTicket(ticket)}>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        clipRule="evenodd"
+                        d="M6.21934 4.21983C6.35997 4.07938 6.55059 4.00049 6.74934 4.00049C6.94809 4.00049 7.13871 4.07938 7.27934 4.21983L10.5293 7.46983C10.6698 7.61045 10.7487 7.80108 10.7487 7.99983C10.7487 8.19858 10.6698 8.3892 10.5293 8.52983L7.27934 11.7798C7.13717 11.9123 6.94912 11.9844 6.75482 11.981C6.56052 11.9776 6.37513 11.8989 6.23772 11.7614C6.10031 11.624 6.02159 11.4387 6.01817 11.2444C6.01474 11.05 6.08686 10.862 6.21934 10.7198L8.93934 7.99983L6.21934 5.27983C6.07889 5.1392 6 4.94858 6 4.74983C6 4.55108 6.07889 4.36045 6.21934 4.21983Z"
+                        fill="white"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setAddAnotherTicket(true)}
+                className="w-full h-10 text-sm bg-white/[0.03] border-2 border-dashed border-white/10 rounded-lg px-4 py-2.5 text-white flex items-center gap-3"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="14"
+                  height="10"
+                  viewBox="0 0 14 10"
+                  fill="none"
+                >
+                  <path
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                    d="M0 1.5C0 1.10218 0.158035 0.720644 0.43934 0.43934C0.720644 0.158035 1.10218 0 1.5 0H12.5C12.8978 0 13.2794 0.158035 13.5607 0.43934C13.842 0.720644 14 1.10218 14 1.5V2.5C14 2.776 13.773 2.994 13.505 3.062C13.0743 3.1718 12.6925 3.42192 12.4198 3.77286C12.1472 4.1238 11.9991 4.55557 11.9991 5C11.9991 5.44443 12.1472 5.8762 12.4198 6.22714C12.6925 6.57808 13.0743 6.8282 13.505 6.938C13.773 7.006 14 7.224 14 7.5V8.5C14 8.89782 13.842 9.27936 13.5607 9.56066C13.2794 9.84196 12.8978 10 12.5 10H1.5C1.10218 10 0.720644 9.84196 0.43934 9.56066C0.158035 9.27936 0 8.89782 0 8.5V7.5C0 7.224 0.227 7.006 0.495 6.938C0.925654 6.8282 1.30747 6.57808 1.58016 6.22714C1.85285 5.8762 2.00088 5.44443 2.00088 5C2.00088 4.55557 1.85285 4.1238 1.58016 3.77286C1.30747 3.42192 0.925654 3.1718 0.495 3.062C0.227 2.994 0 2.776 0 2.5V1.5ZM9 2.75C9 2.55109 9.07902 2.36032 9.21967 2.21967C9.36032 2.07902 9.55109 2 9.75 2C9.94891 2 10.1397 2.07902 10.2803 2.21967C10.421 2.36032 10.5 2.55109 10.5 2.75V3.75C10.5 3.94891 10.421 4.13968 10.2803 4.28033C10.1397 4.42098 9.94891 4.5 9.75 4.5C9.55109 4.5 9.36032 4.42098 9.21967 4.28033C9.07902 4.13968 9 3.94891 9 3.75V2.75ZM9.75 5.5C9.55109 5.5 9.36032 5.57902 9.21967 5.71967C9.07902 5.86032 9 6.05109 9 6.25V7.25C9 7.44891 9.07902 7.63968 9.21967 7.78033C9.36032 7.92098 9.55109 8 9.75 8C9.94891 8 10.1397 7.92098 10.2803 7.78033C10.421 7.63968 10.5 7.44891 10.5 7.25V6.25C10.5 6.05109 10.421 5.86032 10.2803 5.71967C10.1397 5.57902 9.94891 5.5 9.75 5.5Z"
+                    fill="#34B2DA"
+                  />
+                </svg>
+                Add another ticket
+              </button>
+            </div>
+          </div>
+          {/* Add Another Ticket Dialog */}
+          <Dialog
+            open={addAnotherTicket}
+            onOpenChange={setAddAnotherTicket}
+            className="!max-w-[400px] max-h-[90vh] overflow-y-auto hide-scrollbar border border-white/10 rounded-xl !p-0"
+          >
+            <DialogContent className="max-h-[90vh] !gap-0">
+              <div className="flex flex-col gap-y-3 bg-white/[0.03] rounded-t-xl border-b border-white/10 p-6">
+                <DialogTitle>Add another ticket</DialogTitle>
+                <DialogDescription>
+                  Add another ticket to your event.
+                </DialogDescription>
+              </div>
+              <div className="p-4">
+                <form onSubmit={handleAddTicket}>
+                  <div className="w-full space-y-10">
+                    <div className="w-full">
+                      <label className="block text-sm font-medium text-white mb-3">
+                        Ticket name
+                      </label>
+                      <input
+                        type="text"
+                        value={ticketName}
+                        onChange={(e) => setTicketName(e.target.value)}
+                        placeholder="After Hours, Electric Queens, etc."
+                        className="w-full h-10 bg-transparent border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder:text-white/30"
+                      />
+                    </div>
+
+                    <div className="w-full">
+                      <label className="block text-sm font-medium text-white mb-3">
+                        Ticket type
+                      </label>
+                      <Dropdown>
+                        <DropdownTrigger>
+                          <button className="w-full h-10 bg-transparent border border-white/10 rounded-lg px-4 py-2.5 text-white flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <span>
+                                {
+                                  ticketTypes.find(
+                                    (type) => type.value === ticketType
+                                  )?.icon
+                                }
+                              </span>
+                              <span>
+                                {ticketTypes.find(
+                                  (type) => type.value === ticketType
+                                )?.label || "Select ticket type"}
+                              </span>
+                            </div>
+                            <svg
+                              className="w-4 h-4"
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 16 16"
+                              fill="none"
+                            >
+                              <path
+                                d="M4 6L8 10L12 6"
+                                stroke="white"
+                                strokeOpacity="0.3"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </button>
+                        </DropdownTrigger>
+                        <DropdownContent className="bg-[#1A1A1A] border border-white/10 rounded-lg shadow-lg w-full">
+                          {ticketTypes.map((type) => (
+                            <DropdownItem
+                              key={type.value}
+                              onClick={() => setTicketType(type.value)}
+                              className={`px-4 py-2 hover:bg-white/5 flex items-center gap-3 ${
+                                ticketType === type.value ? "bg-white/5" : ""
+                              }`}
+                            >
+                              <span className="text-xl">{type.icon}</span>
+                              <div>
+                                <p className="text-white font-medium">
+                                  {type.label}
+                                </p>
+                              </div>
+                            </DropdownItem>
+                          ))}
+                        </DropdownContent>
+                      </Dropdown>
+                    </div>
+
+                    <div className="w-full">
+                      <label className="block text-sm font-medium text-white mb-3">
+                        Ticket price
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30">
+                          $
+                        </span>
+                        <input
+                          type="number"
+                          value={ticketPrice}
+                          onChange={(e) => setTicketPrice(e.target.value)}
+                          placeholder="50.00"
+                          className="w-full h-10 bg-transparent border border-white/10 rounded-lg pl-8 pr-4 py-2.5 text-white placeholder:text-white/30"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="w-full">
+                      <label className="block text-sm font-medium text-white mb-3">
+                        Ticket description
+                      </label>
+                      <textarea
+                        value={ticketDescription}
+                        onChange={(e) => setTicketDescription(e.target.value)}
+                        placeholder="e.g. Standard admission after 11 PM"
+                        className="w-full h-[80px] bg-transparent border border-white/10 rounded-lg px-4 py-3 text-white placeholder:text-white/30 resize-none"
+                      />
+                      <div className="flex items-center gap-2 mt-2">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                        >
+                          <path
+                            d="M8 5.5V8.5M8 11.5H8.01M14 8C14 11.3137 11.3137 14 8 14C4.68629 14 2 11.3137 2 8C2 4.68629 4.68629 2 8 2C11.3137 2 14 4.68629 14 8Z"
+                            stroke="#FF8A00"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                        <span className="text-[#FF8A00] text-xs">
+                          Max 70 words
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="w-full">
+                      <label className="block text-sm font-medium text-white mb-3">
+                        Total available ticket quantity
+                      </label>
+                      <input
+                        type="number"
+                        value={ticketQuantity}
+                        onChange={(e) => setTicketQuantity(e.target.value)}
+                        placeholder="0"
+                        className="w-full h-10 bg-transparent border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder:text-white/30"
+                      />
+                    </div>
+
+                    <div className="grid gap-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-white mb-3">
+                            Ticket sale start date
+                          </label>
+                          <div className="relative">
+                            <button
+                              onClick={() =>
+                                setIsTicketStartDateModalOpen(true)
+                              }
+                              className="w-full h-10 bg-transparent border border-white/10 rounded-lg px-4 py-2.5 text-left text-white/60"
+                            >
+                              {ticketStartDate
+                                ? ticketStartDate.toLocaleDateString()
+                                : "Select date"}
+                            </button>
+                            <svg
+                              className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              viewBox="0 0 16 16"
+                              fill="none"
+                            >
+                              <path
+                                d="M4 6L8 10L12 6"
+                                stroke="white"
+                                strokeOpacity="0.3"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </div>
+                          <DateModal
+                            isOpen={isTicketStartDateModalOpen}
+                            onClose={() => setIsTicketStartDateModalOpen(false)}
+                            onDateChange={(startDate) => {
+                              setTicketStartDate(startDate);
+                            }}
+                            startDate={ticketStartDate}
+                            setStartDate={setTicketStartDate}
+                            endDate={ticketStartDate}
+                            setEndDate={setTicketStartDate}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-white mb-3">
+                            Ticket sale start time
+                          </label>
+                          <div className="relative">
+                            <button
+                              onClick={() =>
+                                setIsTicketStartTimeModalOpen(true)
+                              }
+                              className="w-full h-10 bg-transparent border border-white/10 rounded-lg px-4 py-2.5 text-left text-white/60"
+                            >
+                              {ticketStartTime || "Select time"}
+                            </button>
+                            <svg
+                              className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              viewBox="0 0 16 16"
+                              fill="none"
+                            >
+                              <path
+                                d="M4 6L8 10L12 6"
+                                stroke="white"
+                                strokeOpacity="0.3"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </div>
+                          <TimeModal
+                            isOpen={isTicketStartTimeModalOpen}
+                            onClose={() => setIsTicketStartTimeModalOpen(false)}
+                            onTimeChange={(time) => {
+                              setTicketStartTime(time);
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-white mb-3">
+                            Ticket sale end date
+                          </label>
+                          <div className="relative">
+                            <button
+                              onClick={() => setIsTicketEndDateModalOpen(true)}
+                              className="w-full h-10 bg-transparent border border-white/10 rounded-lg px-4 py-2.5 text-left text-white/60"
+                            >
+                              {ticketEndDate
+                                ? ticketEndDate.toLocaleDateString()
+                                : "Select date"}
+                            </button>
+                            <svg
+                              className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              viewBox="0 0 16 16"
+                              fill="none"
+                            >
+                              <path
+                                d="M4 6L8 10L12 6"
+                                stroke="white"
+                                strokeOpacity="0.3"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </div>
+                          <DateModal
+                            isOpen={isTicketEndDateModalOpen}
+                            onClose={() => setIsTicketEndDateModalOpen(false)}
+                            onDateChange={(endDate) => {
+                              setTicketEndDate(endDate);
+                            }}
+                            startDate={ticketEndDate}
+                            setStartDate={setTicketEndDate}
+                            endDate={ticketEndDate}
+                            setEndDate={setTicketEndDate}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-white mb-3">
+                            Ticket sale end time
+                          </label>
+                          <div className="relative">
+                            <button
+                              onClick={() => setIsTicketEndTimeModalOpen(true)}
+                              className="w-full h-10 bg-transparent border border-white/10 rounded-lg px-4 py-2.5 text-left text-white/60"
+                            >
+                              {ticketEndTime || "Select time"}
+                            </button>
+                            <svg
+                              className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              viewBox="0 0 16 16"
+                              fill="none"
+                            >
+                              <path
+                                d="M4 6L8 10L12 6"
+                                stroke="white"
+                                strokeOpacity="0.3"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </div>
+                          <TimeModal
+                            isOpen={isTicketEndTimeModalOpen}
+                            onClose={() => setIsTicketEndTimeModalOpen(false)}
+                            onTimeChange={(time) => {
+                              setTicketEndTime(time);
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-white mb-3">
+                          Min purchase power
+                        </label>
+                        <input
+                          type="number"
+                          value={minPurchase}
+                          onChange={(e) => setMinPurchase(e.target.value)}
+                          placeholder="1"
+                          className="w-full h-10 bg-transparent border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder:text-white/30"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-white mb-3">
+                          Max purchase power
+                        </label>
+                        <input
+                          type="number"
+                          value={maxPurchase}
+                          onChange={(e) => setMaxPurchase(e.target.value)}
+                          placeholder="10"
+                          className="w-full h-10 bg-transparent border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder:text-white/30"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+              <div className="flex sticky bottom-0 bg-white/[0.03] backdrop-blur-xl border-t border-white/10 p-6">
+                <button
+                  type="submit"
+                  onClick={handleAddTicket}
+                  className="w-full bg-white hover:bg-white/90 disabled:opacity-50 disabled:cursor-not-allowed text-black border-white/10 border text-center rounded-full h-9 px-4 focus:outline-none flex items-center justify-center gap-2 font-semibold transition-colors text-sm"
+                >
+                  Add ticket
+                </button>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          {/* Edit Ticket Dialog */}
+          <Dialog
+            open={editTicketDialog}
+            onOpenChange={setEditTicketDialog}
+            className="!max-w-[400px] max-h-[90vh] overflow-y-auto hide-scrollbar border border-white/10 rounded-xl !p-0"
+          >
+            <DialogContent className="max-h-[90vh] !gap-0">
+              <div className="flex flex-col gap-y-3 bg-white/[0.03] rounded-t-xl border-b border-white/10 p-6">
+                <DialogTitle>Edit Ticket</DialogTitle>
+                <DialogDescription>
+                  Edit the details of your ticket.
+                </DialogDescription>
+              </div>
+              <div className="p-4">
+                <form onSubmit={handleAddTicket}>
+                  <div className="w-full space-y-10">
+                    <div className="w-full">
+                      <label className="block text-sm font-medium text-white mb-3">
+                        Ticket name
+                      </label>
+                      <input
+                        type="text"
+                        value={ticketName}
+                        onChange={(e) => setTicketName(e.target.value)}
+                        placeholder="After Hours, Electric Queens, etc."
+                        className="w-full h-10 bg-transparent border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder:text-white/30"
+                      />
+                    </div>
+
+                    <div className="w-full">
+                      <label className="block text-sm font-medium text-white mb-3">
+                        Ticket type
+                      </label>
+                      <Dropdown>
+                        <DropdownTrigger>
+                          <button className="w-full h-10 bg-transparent border border-white/10 rounded-lg px-4 py-2.5 text-white flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <span>
+                                {
+                                  ticketTypes.find(
+                                    (type) => type.value === ticketType
+                                  )?.icon
+                                }
+                              </span>
+                              <span>
+                                {ticketTypes.find(
+                                  (type) => type.value === ticketType
+                                )?.label || "Select ticket type"}
+                              </span>
+                            </div>
+                            <svg
+                              className="w-4 h-4"
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 16 16"
+                              fill="none"
+                            >
+                              <path
+                                d="M4 6L8 10L12 6"
+                                stroke="white"
+                                strokeOpacity="0.3"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </button>
+                        </DropdownTrigger>
+                        <DropdownContent className="bg-[#1A1A1A] border border-white/10 rounded-lg shadow-lg w-full">
+                          {ticketTypes.map((type) => (
+                            <DropdownItem
+                              key={type.value}
+                              onClick={() => setTicketType(type.value)}
+                              className={`px-4 py-2 hover:bg-white/5 flex items-center gap-3 ${
+                                ticketType === type.value ? "bg-white/5" : ""
+                              }`}
+                            >
+                              <span className="text-xl">{type.icon}</span>
+                              <div>
+                                <p className="text-white font-medium">
+                                  {type.label}
+                                </p>
+                              </div>
+                            </DropdownItem>
+                          ))}
+                        </DropdownContent>
+                      </Dropdown>
+                    </div>
+
+                    <div className="w-full">
+                      <label className="block text-sm font-medium text-white mb-3">
+                        Ticket price
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30">
+                          $
+                        </span>
+                        <input
+                          type="number"
+                          value={ticketPrice}
+                          onChange={(e) => setTicketPrice(e.target.value)}
+                          placeholder="50.00"
+                          className="w-full h-10 bg-transparent border border-white/10 rounded-lg pl-8 pr-4 py-2.5 text-white placeholder:text-white/30"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="w-full">
+                      <label className="block text-sm font-medium text-white mb-3">
+                        Ticket description
+                      </label>
+                      <textarea
+                        value={ticketDescription}
+                        onChange={(e) => setTicketDescription(e.target.value)}
+                        placeholder="e.g. Standard admission after 11 PM"
+                        className="w-full h-[80px] bg-transparent border border-white/10 rounded-lg px-4 py-3 text-white placeholder:text-white/30 resize-none"
+                      />
+                      <div className="flex items-center gap-2 mt-2">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                        >
+                          <path
+                            d="M8 5.5V8.5M8 11.5H8.01M14 8C14 11.3137 11.3137 14 8 14C4.68629 14 2 11.3137 2 8C2 4.68629 4.68629 2 8 2C11.3137 2 14 4.68629 14 8Z"
+                            stroke="#FF8A00"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                        <span className="text-[#FF8A00] text-xs">
+                          Max 70 words
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="w-full">
+                      <label className="block text-sm font-medium text-white mb-3">
+                        Total available ticket quantity
+                      </label>
+                      <input
+                        type="number"
+                        value={ticketQuantity}
+                        onChange={(e) => setTicketQuantity(e.target.value)}
+                        placeholder="0"
+                        className="w-full h-10 bg-transparent border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder:text-white/30"
+                      />
+                    </div>
+
+                    <div className="grid gap-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-white mb-3">
+                            Ticket sale start date
+                          </label>
+                          <div className="relative">
+                            <button
+                              onClick={() =>
+                                setIsTicketStartDateModalOpen(true)
+                              }
+                              className="w-full h-10 bg-transparent border border-white/10 rounded-lg px-4 py-2.5 text-left text-white/60"
+                            >
+                              {ticketStartDate
+                                ? ticketStartDate.toLocaleDateString()
+                                : "Select date"}
+                            </button>
+                            <svg
+                              className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              viewBox="0 0 16 16"
+                              fill="none"
+                            >
+                              <path
+                                d="M4 6L8 10L12 6"
+                                stroke="white"
+                                strokeOpacity="0.3"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </div>
+                          <DateModal
+                            isOpen={isTicketStartDateModalOpen}
+                            onClose={() => setIsTicketStartDateModalOpen(false)}
+                            onDateChange={(startDate) => {
+                              setTicketStartDate(startDate);
+                            }}
+                            startDate={ticketStartDate}
+                            setStartDate={setTicketStartDate}
+                            endDate={ticketStartDate}
+                            setEndDate={setTicketStartDate}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-white mb-3">
+                            Ticket sale start time
+                          </label>
+                          <div className="relative">
+                            <button
+                              onClick={() =>
+                                setIsTicketStartTimeModalOpen(true)
+                              }
+                              className="w-full h-10 bg-transparent border border-white/10 rounded-lg px-4 py-2.5 text-left text-white/60"
+                            >
+                              {ticketStartTime || "Select time"}
+                            </button>
+                            <svg
+                              className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              viewBox="0 0 16 16"
+                              fill="none"
+                            >
+                              <path
+                                d="M4 6L8 10L12 6"
+                                stroke="white"
+                                strokeOpacity="0.3"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </div>
+                          <TimeModal
+                            isOpen={isTicketStartTimeModalOpen}
+                            onClose={() => setIsTicketStartTimeModalOpen(false)}
+                            onTimeChange={(time) => {
+                              setTicketStartTime(time);
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-white mb-3">
+                            Ticket sale end date
+                          </label>
+                          <div className="relative">
+                            <button
+                              onClick={() => setIsTicketEndDateModalOpen(true)}
+                              className="w-full h-10 bg-transparent border border-white/10 rounded-lg px-4 py-2.5 text-left text-white/60"
+                            >
+                              {ticketEndDate
+                                ? ticketEndDate.toLocaleDateString()
+                                : "Select date"}
+                            </button>
+                            <svg
+                              className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              viewBox="0 0 16 16"
+                              fill="none"
+                            >
+                              <path
+                                d="M4 6L8 10L12 6"
+                                stroke="white"
+                                strokeOpacity="0.3"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </div>
+                          <DateModal
+                            isOpen={isTicketEndDateModalOpen}
+                            onClose={() => setIsTicketEndDateModalOpen(false)}
+                            onDateChange={(endDate) => {
+                              setTicketEndDate(endDate);
+                            }}
+                            startDate={ticketEndDate}
+                            setStartDate={setTicketEndDate}
+                            endDate={ticketEndDate}
+                            setEndDate={setTicketEndDate}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-white mb-3">
+                            Ticket sale end time
+                          </label>
+                          <div className="relative">
+                            <button
+                              onClick={() => setIsTicketEndTimeModalOpen(true)}
+                              className="w-full h-10 bg-transparent border border-white/10 rounded-lg px-4 py-2.5 text-left text-white/60"
+                            >
+                              {ticketEndTime || "Select time"}
+                            </button>
+                            <svg
+                              className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              viewBox="0 0 16 16"
+                              fill="none"
+                            >
+                              <path
+                                d="M4 6L8 10L12 6"
+                                stroke="white"
+                                strokeOpacity="0.3"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </div>
+                          <TimeModal
+                            isOpen={isTicketEndTimeModalOpen}
+                            onClose={() => setIsTicketEndTimeModalOpen(false)}
+                            onTimeChange={(time) => {
+                              setTicketEndTime(time);
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-white mb-3">
+                          Min purchase power
+                        </label>
+                        <input
+                          type="number"
+                          value={minPurchase}
+                          onChange={(e) => setMinPurchase(e.target.value)}
+                          placeholder="1"
+                          className="w-full h-10 bg-transparent border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder:text-white/30"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-white mb-3">
+                          Max purchase power
+                        </label>
+                        <input
+                          type="number"
+                          value={maxPurchase}
+                          onChange={(e) => setMaxPurchase(e.target.value)}
+                          placeholder="10"
+                          className="w-full h-10 bg-transparent border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder:text-white/30"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+              <div className="flex sticky bottom-0 bg-white/[0.03] backdrop-blur-2xl border-t border-white/10 p-6 gap-4 flex-col md:flex-row">
+                <button
+                  type="button"
+                  onClick={handleDeleteTicket}
+                  className="bg-[#F43F5E]/10 text-[#F43F5E]  border border-[#F43F5E] rounded-full px-4 py-2 w-full"
+                >
+                  Delete
+                </button>
+                <button
+                  type="button"
+                  onClick={handleUpdateTicket}
+                  className="bg-white text-black font-semibold rounded-full px-4 py-2 w-full"
+                >
+                  Update
+                </button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       ),
     },
@@ -950,7 +1862,7 @@ export default function TicketEvent() {
                 {stepNumber === 2 && "Date"}
                 {stepNumber === 3 && "Location"}
                 {stepNumber === 4 && "Details"}
-                {stepNumber === 5 && "Media"}
+                {stepNumber === 5 && "Ticket"}
               </span>
             </div>
           ))}
@@ -1004,31 +1916,56 @@ export default function TicketEvent() {
               </p>
             </div>
             {formSteps[step - 1].fields}
-            <div className="flex justify-between gap-5 mt-8 w-full">
+            <div className="flex flex-col md:flex-row justify-between gap-5 mt-8 w-full">
               <button
                 onClick={() => (step === 1 ? navigate(-1) : setStep(step - 1))}
-                className={`size-10 flex-shrink-0 flex items-center justify-center rounded-full border border-white/10 text-white`}
+                className={`w-full md:w-10 size-10 flex-shrink-0 flex items-center justify-center rounded-full border border-white/10 text-white`}
               >
                 <ArrowLeft className="size-5" />
               </button>
-              <button
-                onClick={() => {
-                  // When moving to the next step, if we're on the image upload step,
-                  // make sure we have the images ready for upload
-                  if (step === 1 && imageFile) {
-                    // Here we could use getImagesForUpload() to get both images
-                    console.log(
-                      "Images ready for upload:",
-                      getImagesForUpload()
-                    );
-                  }
-                  step < 5 && setStep(step + 1);
-                }}
-                className="px-4 py-2 w-full rounded-full h-10 bg-white font-semibold text-primary flex items-center justify-center gap-2"
-                disabled={step === 5}
-              >
-                {step === 5 ? "Complete creating Event" : "Continue"}
-              </button>
+              {step === 5 ? (
+                <>
+                  <button
+                    onClick={() => {
+                      // Save as Draft logic here
+                      console.log("Event saved as draft");
+                    }}
+                    className="px-4 py-2 w-full rounded-full h-10 bg-transparent border border-white/10 font-semibold text-white flex items-center justify-center gap-2"
+                    disabled={step !== 5}
+                  >
+                    Save as Draft
+                  </button>
+                  <button
+                    onClick={() => {
+                      // Publish it Live logic here
+                      console.log("Event published live");
+                    }}
+                    className="px-4 py-2 w-full rounded-full h-10 bg-white font-semibold text-black flex items-center justify-center gap-2"
+                    disabled={step !== 5}
+                  >
+                    Publish it Live
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => {
+                    // When moving to the next step, if we're on the image upload step,
+                    // make sure we have the images ready for upload
+                    if (step === 1 && imageFile) {
+                      // Here we could use getImagesForUpload() to get both images
+                      console.log(
+                        "Images ready for upload:",
+                        getImagesForUpload()
+                      );
+                    }
+                    step < 5 && setStep(step + 1);
+                  }}
+                  className="px-4 py-2 w-full rounded-full h-10 bg-white font-semibold text-primary flex items-center justify-center gap-2"
+                  disabled={step === 5}
+                >
+                  {step === 5 ? "Complete creating Event" : "Continue"}
+                </button>
+              )}
             </div>
           </div>
         </div>

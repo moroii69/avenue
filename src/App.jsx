@@ -29,6 +29,7 @@ import EventDetails from "./pages/Organizer/EventDetails";
 import OrganizeMembers from "./pages/Organizer/OrganizeMembers";
 import CreateTicket from "./pages/Organizer/create-ticket";
 import TicketEvent from "./pages/Organizer/Ticket-Event";
+import SuccesPage from "./pages/Organizer/SuccesPage";
 function App() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -42,6 +43,7 @@ function App() {
     "/organizer/wallet",
     "/organizer/members",
     "/organizer/create-ticket",
+    "/organizer/create-ticket/success",
   ];
   const hideFooter = [
     "/login",
@@ -59,6 +61,7 @@ function App() {
     "/organizer/wallet",
     "/organizer/members",
     "/organizer/create-ticket",
+    "/organizer/create-ticket/success",
   ];
 
   const shouldHideNavbarAndFooter = hideHeader.some((path) =>
@@ -122,6 +125,10 @@ function App() {
           <Route
             path="/organizer/create-ticket/:id"
             element={<TicketEvent />}
+          />
+          <Route
+            path="/organizer/create-ticket/success"
+            element={<SuccesPage />}
           />
         </Routes>
         {!shouldHideFooter && <Footer />}
