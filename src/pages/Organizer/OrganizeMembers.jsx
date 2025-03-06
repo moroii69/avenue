@@ -27,6 +27,7 @@ import { Checkbox } from "../../components/ui/Checkbox";
 import url from "../../constants/url"
 import axios from "axios";
 import { Spin } from 'antd';
+import { motion } from "framer-motion"
 
 const statusIcons = {
   active: (
@@ -286,7 +287,7 @@ export default function OrganizeMembers() {
         setShowAddNotification(true);
         setTimeout(() => {
           setShowAddNotification(false)
-        },[3000])
+        }, [3000])
       } else {
         console.error("Failed to add member");
       }
@@ -1238,7 +1239,7 @@ export default function OrganizeMembers() {
                     );
                     setTimeout(() => {
                       setShowDeleteNotification(false)
-                    },[3000])
+                    }, [3000])
                   } else {
                     console.error("Failed to delete member");
                   }
@@ -1529,7 +1530,13 @@ export default function OrganizeMembers() {
                       className="flex items-center justify-between gap-3 p-3 bg-white/5 rounded-lg"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-white/10" />
+                        <div className="w-12 h-12 rounded-lg">
+                          <img
+                            src={`${event.flyer}`}
+                            alt=""
+                            className="w-full h-full object-cover rounded-lg"
+                          />
+                        </div>
                         <div className="flex flex-col gap-y-2.5">
                           <span className="text-sm font-medium text-white">{event.event_name}</span>
                           <span className="text-xs text-white/50 flex items-center gap-2">
@@ -1570,7 +1577,13 @@ export default function OrganizeMembers() {
                         className="flex items-center justify-between gap-3 p-3 bg-white/5 rounded-lg"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-lg bg-white/10" />
+                          <div className="w-12 h-12 rounded-lg">
+                            <img
+                              src={`${event.flyer}`}
+                              alt=""
+                              className="w-full h-full object-cover rounded-lg"
+                            />
+                          </div>
                           <div className="flex flex-col gap-y-2.5">
                             <span className="text-sm font-medium text-white">{event.event_name}</span>
                             <span className="text-xs text-white/50">{formatDate(event.start_date)}</span>
@@ -1600,8 +1613,8 @@ export default function OrganizeMembers() {
           <div className="flex flex-col gap-3 p-6 absolute -bottom-0.5 left-0 right-0 bg-[#1A1A1A] border-t border-white/10">
             <button
               onClick={() => {
-                window.location.reload()
-                //setAssignEventsDialogOpen(false)
+                //window.location.reload()
+                setAssignEventsDialogOpen(false)
               }}
               className="w-full bg-white hover:bg-white/90 text-black border-white/10 border text-center rounded-full h-9 px-4 focus:outline-none flex items-center justify-center gap-2 font-semibold transition-colors text-sm"
             >
@@ -1656,7 +1669,7 @@ export default function OrganizeMembers() {
                     setShowActivateNotification(true);
                     setTimeout(() => {
                       setShowActivateNotification(false);
-                    },[3000])
+                    }, [3000])
                   } else {
                     console.error("Failed to change member status");
                   }
@@ -1792,46 +1805,55 @@ export default function OrganizeMembers() {
         )
       }
 
-      {
-        showActivateNotification && (
-          <div className="fixed top-5 left-1/2 transform -translate-x-1/2 backdrop-blur-md text-white p-2 pl-3 rounded-lg flex items-center gap-2 border border-white/10 shadow-lg max-w-[400px] w-full justify-between">
-            <div className="flex items-center gap-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-              >
-                <path
-                  fillRule="evenodd"
-                  clipRule="evenodd"
-                  d="M8 15C9.85652 15 11.637 14.2625 12.9497 12.9497C14.2625 11.637 15 9.85652 15 8C15 6.14348 14.2625 4.36301 12.9497 3.05025C11.637 1.7375 9.85652 1 8 1C6.14348 1 4.36301 1.7375 3.05025 3.05025C1.7375 4.36301 1 6.14348 1 8C1 9.85652 1.7375 11.637 3.05025 12.9497C4.36301 14.2625 6.14348 15 8 15ZM11.844 6.209C11.9657 6.05146 12.0199 5.85202 11.9946 5.65454C11.9693 5.45706 11.8665 5.27773 11.709 5.156C11.5515 5.03427 11.352 4.9801 11.1545 5.00542C10.9571 5.03073 10.7777 5.13346 10.656 5.291L6.956 10.081L5.307 8.248C5.24174 8.17247 5.16207 8.11073 5.07264 8.06639C4.98322 8.02205 4.88584 7.99601 4.78622 7.98978C4.6866 7.98356 4.58674 7.99729 4.4925 8.03016C4.39825 8.06303 4.31151 8.11438 4.23737 8.1812C4.16322 8.24803 4.10316 8.32898 4.06071 8.41931C4.01825 8.50965 3.99425 8.60755 3.99012 8.70728C3.98599 8.807 4.00181 8.90656 4.03664 9.00009C4.07148 9.09363 4.12464 9.17927 4.193 9.252L6.443 11.752C6.51649 11.8335 6.60697 11.8979 6.70806 11.9406C6.80915 11.9833 6.91838 12.0034 7.02805 11.9993C7.13772 11.9952 7.24515 11.967 7.34277 11.9169C7.44038 11.8667 7.5258 11.7958 7.593 11.709L11.844 6.209Z"
-                  fill="#10B981"
-                />
-              </svg>
-              <p className="text-sm">Member status changed successfully</p>
-            </div>
-            <button
-              onClick={() => setShowActivateNotification(false)}
-              className="ml-2 text-white/60 hover:text-white flex items-center justify-center border border-white/10 rounded-full p-1 flex-shrink-0 transition-colors"
+      {showActivateNotification && (
+        <motion.div
+          initial={{ y: -50, opacity: 0, scale: 0.9 }}
+          animate={{ y: 0, opacity: 1, scale: 1 }}
+          exit={{ y: -50, opacity: 0, scale: 0.9 }}
+          transition={{
+            type: "spring",
+            stiffness: 150,
+            damping: 15,
+          }}
+          className="fixed top-20 sm:top-10 inset-x-0 mx-auto w-fit backdrop-blur-md text-white p-3 pl-4 rounded-lg flex items-center gap-2 border border-white/10 shadow-lg max-w-[400px] justify-between"
+        >
+          <div className="flex items-center gap-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-              >
-                <path
-                  d="M5.28033 4.21967C4.98744 3.92678 4.51256 3.92678 4.21967 4.21967C3.92678 4.51256 3.92678 4.98744 4.21967 5.28033L6.93934 8L4.21967 10.7197C3.92678 11.0126 3.92678 11.4874 4.21967 11.7803C4.51256 12.0732 4.98744 12.0732 5.28033 11.7803L8 9.06066L10.7197 11.7803C11.0126 12.0732 11.4874 12.0732 11.7803 11.7803C12.0732 11.4874 12.0732 11.0126 11.7803 10.7197L9.06066 8L11.7803 5.28033C12.0732 4.98744 12.0732 4.51256 11.7803 4.21967C11.4874 3.92678 11.0126 3.92678 10.7197 4.21967L8 6.93934L5.28033 4.21967Z"
-                  fill="white"
-                />
-              </svg>
-            </button>
+              <path
+                fillRule="evenodd"
+                clipRule="evenodd"
+                d="M8 15C9.85652 15 11.637 14.2625 12.9497 12.9497C14.2625 11.637 15 9.85652 15 8C15 6.14348 14.2625 4.36301 12.9497 3.05025C11.637 1.7375 9.85652 1 8 1C6.14348 1 4.36301 1.7375 3.05025 3.05025C1.7375 4.36301 1 6.14348 1 8C1 9.85652 1.7375 11.637 3.05025 12.9497C4.36301 14.2625 6.14348 15 8 15ZM11.844 6.209C11.9657 6.05146 12.0199 5.85202 11.9946 5.65454C11.9693 5.45706 11.8665 5.27773 11.709 5.156C11.5515 5.03427 11.352 4.9801 11.1545 5.00542C10.9571 5.03073 10.7777 5.13346 10.656 5.291L6.956 10.081L5.307 8.248C5.24174 8.17247 5.16207 8.11073 5.07264 8.06639C4.98322 8.02205 4.88584 7.99601 4.78622 7.98978C4.6866 7.98356 4.58674 7.99729 4.4925 8.03016C4.39825 8.06303 4.31151 8.11438 4.23737 8.1812C4.16322 8.24803 4.10316 8.32898 4.06071 8.41931C4.01825 8.50965 3.99425 8.60755 3.99012 8.70728C3.98599 8.807 4.00181 8.90656 4.03664 9.00009C4.07148 9.09363 4.12464 9.17927 4.193 9.252L6.443 11.752C6.51649 11.8335 6.60697 11.8979 6.70806 11.9406C6.80915 11.9833 6.91838 12.0034 7.02805 11.9993C7.13772 11.9952 7.24515 11.967 7.34277 11.9169C7.44038 11.8667 7.5258 11.7958 7.593 11.709L11.844 6.209Z"
+                fill="#10B981"
+              />
+            </svg>
+            <p className="text-sm">Member status changed successfully</p>
           </div>
-        )
-      }
+          <button
+            onClick={() => setShowActivateNotification(false)}
+            className="ml-2 text-white/60 hover:text-white flex items-center justify-center border border-white/10 rounded-full p-1 flex-shrink-0 transition-colors"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+            >
+              <path
+                d="M5.28033 4.21967C4.98744 3.92678 4.51256 3.92678 4.21967 4.21967C3.92678 4.51256 3.92678 4.98744 4.21967 5.28033L6.93934 8L4.21967 10.7197C3.92678 11.0126 3.92678 11.4874 4.21967 11.7803C4.51256 12.0732 4.98744 12.0732 5.28033 11.7803L8 9.06066L10.7197 11.7803C11.0126 12.0732 11.4874 12.0732 11.7803 11.7803C12.0732 11.4874 12.0732 11.0126 11.7803 10.7197L9.06066 8L11.7803 5.28033C12.0732 4.98744 12.0732 4.51256 11.7803 4.21967C11.4874 3.92678 11.0126 3.92678 10.7197 4.21967L8 6.93934L5.28033 4.21967Z"
+                fill="white"
+              />
+            </svg>
+          </button>
+        </motion.div>
+      )}
+
 
       {
         showDeleteNotification && (

@@ -292,12 +292,26 @@ export default function SalesTab({ eventId, event }) {
       return false;
     }
 
+    const formattedDate = new Date(sale.date)
+      .toLocaleString("en-US", {
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      })
+      .replace(",", "")
+      .toLowerCase();
+
     // Filter by search query
     const searchLower = searchQuery.toLowerCase();
     return (
       searchQuery === "" ||
       (sale.firstName?.toLowerCase() || "").includes(searchLower) ||
-      (sale.email?.toLowerCase() || "").includes(searchLower)
+      (sale.email?.toLowerCase() || "").includes(searchLower) ||
+      (((sale?.amount / 100) - 0.89) / 1.09).toString().includes(searchLower) ||
+      (sale.tickets?.ticket_name?.toLowerCase() || "").includes(searchLower) ||
+      formattedDate.includes(searchLower)
     );
   });
 
@@ -431,7 +445,7 @@ export default function SalesTab({ eventId, event }) {
     hours = hours % 12;
     hours = hours ? hours : 12;
 
-    return `${dayOfWeek}, ${day} ${month} ${hours}:${minutes} ${ampm}`;
+    return `${dayOfWeek}, ${day} ${month} at ${hours}:${minutes} ${ampm}`;
   };
 
   return (
@@ -744,7 +758,21 @@ export default function SalesTab({ eventId, event }) {
                   <>
                     {filteredSalesHistory.slice().reverse().map((payout, index) => (
                       <tr key={index} className="hover:bg-white/[0.01]">
-                        <td className="p-4">{formatDate(payout.date)}</td>
+                        <td className="p-4">
+                          {(() => {
+                            const dateObj = new Date(payout.date);
+                            const formattedDate = dateObj.toLocaleString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                            });
+                            const formattedTime = dateObj.toLocaleString("en-US", {
+                              hour: "numeric",
+                              minute: "2-digit",
+                              hour12: true,
+                            });
+                            return `${formattedDate} at ${formattedTime}`;
+                          })()}
+                        </td>
                         <td className="p-4">
                           <div className="flex items-center gap-2 capitalize">
                             {payout.refund === 'true' ? saleTypesIcons['refund'] : saleTypesIcons['sale']}

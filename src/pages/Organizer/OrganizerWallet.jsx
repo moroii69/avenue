@@ -1501,24 +1501,27 @@ export default function OrganizerWallet() {
                                                         />
                                                     </svg>
                                                     Date
-                                                    <div className="flex flex-col">
-                                                        {/* Up Arrow */}
+                                                    <div
+                                                        className="flex flex-col items-center cursor-pointer"
+                                                        onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+                                                    >
                                                         <svg
                                                             xmlns="http://www.w3.org/2000/svg"
-                                                            width="14"
-                                                            height="14"
-                                                            viewBox="0 0 24 24"
+                                                            width="18"
+                                                            height="18"
+                                                            viewBox="0 0 20 20"
                                                             fill={sortColumn === "date" && sortOrder === "asc" ? "white" : "gray"}
+                                                            className="transition-all duration-200"
                                                         >
                                                             <path d="M7 14l5-5 5 5H7z" />
                                                         </svg>
-                                                        {/* Down Arrow */}
                                                         <svg
                                                             xmlns="http://www.w3.org/2000/svg"
-                                                            width="14"
-                                                            height="14"
-                                                            viewBox="0 0 24 24"
+                                                            width="18"
+                                                            height="18"
+                                                            viewBox="0 0 20 20"
                                                             fill={sortColumn === "date" && sortOrder === "desc" ? "white" : "gray"}
+                                                            className="-mt-1 transition-all duration-200"
                                                         >
                                                             <path d="M7 10l5 5 5-5H7z" />
                                                         </svg>
@@ -1568,24 +1571,27 @@ export default function OrganizerWallet() {
                                                         />
                                                     </svg>
                                                     Amount
-                                                    <div className="flex flex-col">
-                                                        {/* Up Arrow */}
+                                                    <div
+                                                        className="flex flex-col items-center cursor-pointer"
+                                                        onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+                                                    >
                                                         <svg
                                                             xmlns="http://www.w3.org/2000/svg"
-                                                            width="14"
-                                                            height="14"
-                                                            viewBox="0 0 24 24"
+                                                            width="18"
+                                                            height="18"
+                                                            viewBox="0 0 20 20"
                                                             fill={sortColumn === "amount" && sortOrder === "asc" ? "white" : "gray"}
+                                                            className="transition-all duration-200"
                                                         >
                                                             <path d="M7 14l5-5 5 5H7z" />
                                                         </svg>
-                                                        {/* Down Arrow */}
                                                         <svg
                                                             xmlns="http://www.w3.org/2000/svg"
-                                                            width="14"
-                                                            height="14"
-                                                            viewBox="0 0 24 24"
+                                                            width="18"
+                                                            height="18"
+                                                            viewBox="0 0 20 20"
                                                             fill={sortColumn === "amount" && sortOrder === "desc" ? "white" : "gray"}
+                                                            className="-mt-1 transition-all duration-200"
                                                         >
                                                             <path d="M7 10l5 5 5-5H7z" />
                                                         </svg>
