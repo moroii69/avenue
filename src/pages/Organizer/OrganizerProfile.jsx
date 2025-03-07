@@ -336,6 +336,8 @@ const OrganizerProfile = () => {
     const [loading, setLoading] = useState(false)
     const [editedField, setEditedField] = useState(null);
     const [copied, setCopied] = useState(false);
+    const prevValuesRef = useRef(null); // Store previous values
+    const [dataFetched, setDataFetched] = useState(false);
 
     useEffect(() => {
         const loadFromLocalStorage = () => {
@@ -358,26 +360,24 @@ const OrganizerProfile = () => {
         };
     }, []);
 
-    const fetchOrganizer = async () => {
-        if (oragnizerId) {
-            setLoading(true)
+    useEffect(() => {
+        if (!oragnizerId) return;
+
+        const fetchOrganizer = async () => {
+            setLoading(true);
             try {
                 const response = await axios.get(`${url}/get-organizer/${oragnizerId}`);
                 setOrganizer(response.data);
+                prevValuesRef.current = response.data; // Store initial fetched values
+                setDataFetched(true); // Mark that initial data has been fetched
             } catch (error) {
                 console.error("Error fetching organizer:", error);
             } finally {
-                setLoading(false)
+                setLoading(false);
             }
-        } else {
-            console.log("not found")
-        }
-    };
+        };
 
-    useEffect(() => {
-        if (oragnizerId) {
-            fetchOrganizer();
-        }
+        fetchOrganizer();
     }, [oragnizerId]);
 
     const formatDate = (dateString) => {
@@ -442,53 +442,44 @@ const OrganizerProfile = () => {
 
     }, [events]);
 
-    const prevValuesRef = useRef(null);
-
     useEffect(() => {
-        if (oragnizerId) {
-            // Only check for changes if prevValuesRef has been initialized
-            if (prevValuesRef.current !== null) {
-                const fieldsToWatch = ["name", "email", "phone", "instagram", "twitter", "website", "url"];
-                const hasChangedField = fieldsToWatch.find(field => prevValuesRef.current[field] !== organizer[field]);
+        if (!oragnizerId || !dataFetched || !prevValuesRef.current) return; // Ensure data is loaded before tracking changes
 
-                if (hasChangedField) {
-                    setEditedField(hasChangedField);
+        const fieldsToWatch = ["name", "email", "phone", "instagram", "twitter", "website", "url"];
+        const hasChangedField = fieldsToWatch.find(field => prevValuesRef.current[field] !== organizer[field]);
 
-                    const updateOrganizer = async () => {
-                        try {
-                            const formData = new FormData();
-                            formData.append('bio', organizer.bio);
-                            formData.append('name', organizer.name);
-                            formData.append('email', organizer.email);
-                            formData.append('phone', organizer.phone);
-                            formData.append('instagram', organizer.instagram);
-                            formData.append('twitter', organizer.twitter);
-                            formData.append('website', organizer.website);
-                            formData.append('url', organizer.url);
+        if (hasChangedField) {
+            prevValuesRef.current = { ...organizer }; // Update reference
+            setEditedField(hasChangedField);
 
-                            await axios.put(`${url}/update-organizer/${oragnizerId}`, formData, {
-                                headers: {
-                                    'Content-Type': 'multipart/form-data',
-                                },
-                            });
+            const updateOrganizer = async () => {
+                try {
+                    const formData = new FormData();
+                    formData.append("bio", organizer.bio);
+                    formData.append("name", organizer.name);
+                    formData.append("email", organizer.email);
+                    formData.append("phone", organizer.phone);
+                    formData.append("instagram", organizer.instagram);
+                    formData.append("twitter", organizer.twitter);
+                    formData.append("website", organizer.website);
+                    formData.append("url", organizer.url);
 
-                            console.log("Organizer updated successfully!");
-                        } catch (error) {
-                            console.error("Error updating organizer:", error);
-                            alert("Failed to update organizer. Please try again.");
-                        }
-                    };
+                    await axios.put(`${url}/update-organizer/${oragnizerId}`, formData, {
+                        headers: { "Content-Type": "multipart/form-data" },
+                    });
 
-                    const debounceTimeout = setTimeout(updateOrganizer, 500);
-                    setTimeout(() => setEditedField(null), 3000);
-                    return () => clearTimeout(debounceTimeout);
+                    console.log("Organizer updated successfully!");
+                } catch (error) {
+                    console.error("Error updating organizer:", error);
+                    alert("Failed to update organizer. Please try again.");
                 }
-            } else {
-                // Initialize prevValuesRef when organizer data is first loaded
-                prevValuesRef.current = { ...organizer };
-            }
+            };
+
+            const debounceTimeout = setTimeout(updateOrganizer, 500);
+            setTimeout(() => setEditedField(null), 3000);
+            return () => clearTimeout(debounceTimeout);
         }
-    }, [organizer]);
+    }, [organizer, oragnizerId, dataFetched]);
 
     const handleCopy = async () => {
         const profileUrl = `https://avenue.tickets/creater/${organizer.url}`;
