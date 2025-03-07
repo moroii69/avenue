@@ -26,6 +26,7 @@ import {
 import axios from "axios";
 import url from "../../constants/url"
 import { Spin } from 'antd';
+import { motion } from "framer-motion"
 
 // Mock data structure
 const eventData = {
@@ -123,6 +124,8 @@ export default function OrganizerEvents() {
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [deactivateDialogOpen, setDeactivateDialogOpen] = useState(false);
+    const [draftDialogOpen, setDraftDialogOpen] = useState(false);
+    const [publishDialogOpen, setPublishDialogOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
 
     const [oragnizerId, setOragnizerId] = useState(null);
@@ -131,7 +134,10 @@ export default function OrganizerEvents() {
     const [remain, setRemain] = useState([])
     const [soldTickets, setSoldTickets] = useState(0);
     const [remainCount, setRemainCount] = useState(0);
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(false);
+    const [showDraftNotification, setshowDraftNotification] = useState(false)
+    const [showPublishNotification, setshowPublishNotification] = useState(false)
+    const [showActivateNotification, setshowActivateNotification] = useState(false)
 
     useEffect(() => {
         const handleHashChange = () => {
@@ -282,13 +288,13 @@ export default function OrganizerEvents() {
     const currentDate = new Date();
     currentDate.setHours(0, 0, 0, 0);
 
-    const pastEvents = events.filter(event => {
+    const pastEvents = filterEvents(events).filter(event => {
         const eventDate = new Date(event.start_date);
         eventDate.setHours(0, 0, 0, 0);
         return eventDate < currentDate && event.explore === "YES";
     });
 
-    const liveEvents = events.filter(event => {
+    const liveEvents = filterEvents(events).filter(event => {
         const eventDate = new Date(event.start_date);
         eventDate.setHours(0, 0, 0, 0);
         return eventDate >= currentDate && event.explore === "YES" && event.status === 'active';
@@ -296,7 +302,7 @@ export default function OrganizerEvents() {
 
     useEffect(() => {
         if (liveEvents.length > 0) {
-            setLiveCount(liveEvents.filter(event => event.explore === "YES" && event.status === 'active').length);
+            setLiveCount(filterEvents(liveEvents).filter(event => event.explore === "YES" && event.status === 'active').length);
         }
     }, [liveEvents]);
 
@@ -437,7 +443,7 @@ export default function OrganizerEvents() {
                                         </svg>
                                         Drafts{" "}
                                         <span className="bg-[#151515] h-6 w-fit px-2 rounded-full flex items-center justify-center">
-                                            {events ? filterEvents(events).filter(event => event.explore === "NO").length : 0}
+                                            {events ? filterEvents(events).filter(event => event.explore === "NO" && event.status === 'active').length : 0}
                                         </span>
                                     </TabTrigger>
                                     <TabTrigger
@@ -464,7 +470,7 @@ export default function OrganizerEvents() {
                                         </svg>
                                         Deactivated{" "}
                                         <span className="bg-[#151515] h-6 w-fit px-2 rounded-full flex items-center justify-center">
-                                            {events ? filterEvents(events).filter(event => event.explore === "YES" && event.status === 'inactive').length : 0}
+                                            {events ? filterEvents(events).filter(event => event.status === 'inactive').length : 0}
                                         </span>
                                     </TabTrigger>
                                 </TabsList>
@@ -636,7 +642,7 @@ export default function OrganizerEvents() {
                                             </thead>
                                             <tbody>
                                                 {filterEvents(liveEvents).length > 0 ? (
-                                                    filterEvents(liveEvents).filter(event => event.explore === "YES").map((event) => {
+                                                    filterEvents(liveEvents).filter(event => event.explore === "YES" && event.status === "active").map((event) => {
                                                         const totalTickets = (soldTickets[event._id] || 0) + (remainCount[event._id] || 0);
                                                         const soldPercentage = totalTickets > 0 ? (soldTickets[event._id] || 0) / totalTickets * 100 : 0;
                                                         return (
@@ -727,6 +733,36 @@ export default function OrganizerEvents() {
                                                                                     />
                                                                                 </svg>
                                                                                 <span>View event</span>
+                                                                            </div>
+                                                                        </MenuItem>
+                                                                        <MenuItem
+                                                                            onClick={() => {
+                                                                                setSelectedEvent(event);
+                                                                                setDraftDialogOpen(true);
+                                                                            }}
+                                                                        >
+                                                                            <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
+                                                                                <svg
+                                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                                    width="16"
+                                                                                    height="16"
+                                                                                    viewBox="0 0 16 16"
+                                                                                    fill="none"
+                                                                                >
+                                                                                    <path
+                                                                                        d="M3 2C2.73478 2 2.48043 2.10536 2.29289 2.29289C2.10536 2.48043 2 2.73478 2 3V4C2 4.26522 2.10536 4.51957 2.29289 4.70711C2.48043 4.89464 2.73478 5 3 5H13C13.2652 5 13.5196 4.89464 13.7071 4.70711C13.8946 4.51957 14 4.26522 14 4V3C14 2.73478 13.8946 2.48043 13.7071 2.29289C13.5196 2.10536 13.2652 2 13 2H3Z"
+                                                                                        fill="white"
+                                                                                        fillOpacity="0.5"
+                                                                                    />
+                                                                                    <path
+                                                                                        fillRule="evenodd"
+                                                                                        clipRule="evenodd"
+                                                                                        d="M3 6H13V12C13 12.5304 12.7893 13.0391 12.4142 13.4142C12.0391 13.7893 11.5304 14 11 14H5C4.46957 14 3.96086 13.7893 3.58579 13.4142C3.21071 13.0391 3 12.5304 3 12V6ZM6 8.75C6 8.55109 6.07902 8.36032 6.21967 8.21967C6.36032 8.07902 6.55109 8 6.75 8H9.25C9.44891 8 9.63968 8.07902 9.78033 8.21967C9.92098 8.36032 10 8.55109 10 8.75C10 8.94891 9.92098 9.13968 9.78033 9.28033C9.63968 9.42098 9.44891 9.5 9.25 9.5H6.75C6.55109 9.5 6.36032 9.42098 6.21967 9.28033C6.07902 9.13968 6 8.94891 6 8.75Z"
+                                                                                        fill="white"
+                                                                                        fillOpacity="0.5"
+                                                                                    />
+                                                                                </svg>
+                                                                                <span>Make it draft</span>
                                                                             </div>
                                                                         </MenuItem>
                                                                         <MenuSeparator />
@@ -895,35 +931,6 @@ export default function OrganizerEvents() {
                                                                                 <span>View event</span>
                                                                             </div>
                                                                         </MenuItem>
-                                                                        <MenuSeparator />
-                                                                        <MenuItem
-                                                                            onClick={() => {
-                                                                                setSelectedEvent(event);
-                                                                                setDeactivateDialogOpen(true);
-                                                                            }}
-                                                                        >
-                                                                            <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
-                                                                                <svg
-                                                                                    xmlns="http://www.w3.org/2000/svg"
-                                                                                    width="16"
-                                                                                    height="16"
-                                                                                    viewBox="0 0 24 24"
-                                                                                    fill="none"
-                                                                                    stroke="currentColor"
-                                                                                    strokeWidth="2"
-                                                                                    strokeLinecap="round"
-                                                                                    strokeLinejoin="round"
-                                                                                    className="text-yellow-500"
-                                                                                >
-                                                                                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-                                                                                    <line x1="12" y1="9" x2="12" y2="13" />
-                                                                                    <line x1="12" y1="17" x2="12.01" y2="17" />
-                                                                                </svg>
-                                                                                <span className="text-yellow-500">
-                                                                                    Deactivate event
-                                                                                </span>
-                                                                            </div>
-                                                                        </MenuItem>
                                                                     </DirectionAwareMenu>
                                                                 </td>
                                                             </tr>
@@ -987,9 +994,9 @@ export default function OrganizerEvents() {
                                                     <th className="text-left p-4">Event Date</th>
                                                     <th className="text-left p-4">Edited</th>
                                                     <th className="text-left p-4">Location</th>
-                                                    <th className="text-left p-4">
+                                                    {/* <th className="text-left p-4">
                                                         Publish
-                                                    </th>
+                                                    </th> */}
                                                     <th className="text-left p-4">
                                                         {" "}
                                                         <Ellipsis />
@@ -998,7 +1005,7 @@ export default function OrganizerEvents() {
                                             </thead>
                                             <tbody>
                                                 {filterEvents(events).length > 0 ? (
-                                                    filterEvents(events).filter(event => event.explore === "NO").map((event) => (
+                                                    filterEvents(events).filter(event => event.explore === "NO" && event.status === 'active').map((event) => (
                                                         <tr
                                                             key={event.id}
                                                             className="border-b last:border-b-0 border-white/10 [&_td]:font-medium hover:bg-white/[2.5%] cursor-pointer transition-colors"
@@ -1016,9 +1023,9 @@ export default function OrganizerEvents() {
                                                             <td className="py-4 pl-4">{formatDate(event.start_date)}</td>
                                                             <td className="py-4 pl-4">{formatDate(event.updatedAt)}</td>
                                                             <td className="py-4 pl-4">{event.venue_name}</td>
-                                                            <td className="py-4 pl-4">
+                                                            {/* <td className="py-4 pl-4">
                                                                 Publish live
-                                                            </td>
+                                                            </td> */}
                                                             <td className="py-4 pl-4">
                                                                 <DirectionAwareMenu>
                                                                     <MenuTrigger>
@@ -1049,6 +1056,32 @@ export default function OrganizerEvents() {
                                                                                 />
                                                                             </svg>
                                                                             <span>View event</span>
+                                                                        </div>
+                                                                    </MenuItem>
+                                                                    <MenuItem
+                                                                        onClick={() => {
+                                                                            setSelectedEvent(event);
+                                                                            setPublishDialogOpen(true);
+                                                                        }}
+                                                                    >
+                                                                        <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
+                                                                            <svg
+                                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                                width="16"
+                                                                                height="16"
+                                                                                viewBox="0 0 16 16"
+                                                                                fill="none"
+                                                                                className="shrink-0"
+                                                                            >
+                                                                                <path
+                                                                                    fillRule="evenodd"
+                                                                                    clipRule="evenodd"
+                                                                                    d="M3.757 4.5C3.937 4.717 4.133 4.92 4.343 5.108C4.496 4.498 4.697 3.933 4.939 3.43C4.49539 3.7277 4.09725 4.08811 3.757 4.5ZM8 1C7.08053 0.999213 6.16992 1.17974 5.32028 1.53124C4.47065 1.88274 3.69866 2.39833 3.0485 3.0485C2.39833 3.69866 1.88274 4.47065 1.53124 5.32028C1.17974 6.16992 0.999213 7.08053 1 8C1 9.38447 1.41055 10.7379 2.17972 11.889C2.94889 13.0401 4.04214 13.9373 5.32122 14.4672C6.6003 14.997 8.00777 15.1356 9.36563 14.8655C10.7235 14.5954 11.9708 13.9287 12.9497 12.9497C13.9287 11.9708 14.5954 10.7235 14.8655 9.36563C15.1356 8.00777 14.997 6.6003 14.4672 5.32122C13.9373 4.04214 13.0401 2.94889 11.889 2.17972C10.7379 1.41055 9.38447 1 8 1ZM8 2.5C7.524 2.5 6.909 2.886 6.367 3.927C6.074 4.491 5.836 5.194 5.684 5.99C6.40952 6.32701 7.20003 6.50109 8 6.5C8.79997 6.50109 9.59048 6.32701 10.316 5.99C10.164 5.194 9.926 4.491 9.633 3.927C9.09 2.886 8.476 2.5 8 2.5ZM11.657 5.108C11.5154 4.53 11.3157 3.96781 11.061 3.43C11.505 3.728 11.903 4.089 12.243 4.5C12.063 4.717 11.867 4.92 11.657 5.108ZM10.491 7.544C9.6954 7.84655 8.85119 8.00109 8 8C7.14915 8.00097 6.30529 7.84643 5.51 7.544C5.47111 8.41566 5.53894 9.28881 5.712 10.144C6.432 10.375 7.202 10.5 8 10.5C8.798 10.5 9.568 10.375 10.29 10.144C10.4624 9.28872 10.5295 8.41558 10.49 7.544H10.491ZM11.924 9.394C12.0199 8.52728 12.0259 7.65297 11.942 6.785C12.347 6.509 12.722 6.191 13.059 5.838C13.3643 6.55229 13.5143 7.32334 13.499 8.1C13.035 8.60032 12.5051 9.0353 11.924 9.393V9.394Z"
+                                                                                    fill="white"
+                                                                                    fillOpacity="0.5"
+                                                                                />
+                                                                            </svg>
+                                                                            <span>Publish event</span>
                                                                         </div>
                                                                     </MenuItem>
                                                                     <MenuSeparator />
@@ -1229,7 +1262,7 @@ export default function OrganizerEvents() {
                                                         </div>
                                                     </th>
 
-                                                    <th className="text-left p-4">
+                                                    {/* <th className="text-left p-4">
                                                         <div className="flex items-center gap-x-2">
                                                             <svg
                                                                 xmlns="http://www.w3.org/2000/svg"
@@ -1246,7 +1279,7 @@ export default function OrganizerEvents() {
                                                             </svg>
                                                             Publish
                                                         </div>
-                                                    </th>
+                                                    </th> */}
                                                     <th className="text-left p-4">
                                                         {" "}
                                                         <Ellipsis />
@@ -1254,8 +1287,8 @@ export default function OrganizerEvents() {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {filterEvents(events).filter(event => event.explore === "YES" && event.status === 'inactive').length > 0 ? (
-                                                    filterEvents(events).filter(event => event.explore === "YES" && event.status === 'inactive').map((event) => (
+                                                {filterEvents(events).filter(event => event.status === 'inactive').length > 0 ? (
+                                                    filterEvents(events).filter(event => event.status === 'inactive').map((event) => (
                                                         <tr
                                                             key={event.id}
                                                             className="border-b last:border-b-0 border-white/10 [&_td]:font-medium hover:bg-white/[2.5%] cursor-pointer transition-colors"
@@ -1273,7 +1306,7 @@ export default function OrganizerEvents() {
                                                             <td className="py-4 pl-4">{formatDate(event.start_date)}</td>
                                                             <td className="py-4 pl-4">{formatDate(event.updatedAt)}</td>
                                                             <td className="py-4 pl-4">{event.venue_name}</td>
-                                                            <td className="py-4 pl-4">Republish</td>
+                                                            {/* <td className="py-4 pl-4">Republish</td> */}
                                                             <td className="py-4 pl-4">
                                                                 <DirectionAwareMenu>
                                                                     <MenuTrigger>
@@ -1350,7 +1383,7 @@ export default function OrganizerEvents() {
                                     </div>
                                 </div>
                             </TabsContent>
-                        </Tabs >
+                        </Tabs>
                     )
                 }
             </div >
@@ -1360,8 +1393,8 @@ export default function OrganizerEvents() {
                 <DialogContent>
                     <DialogTitle>Activate this event?</DialogTitle>
                     <DialogDescription>
-                        Are you sure you want to Activate &quot;{selectedEvent?.event_name}
-                        &quot;?
+                        Are you sure you want to Activate &quot;{selectedEvent?.event_name}&quot;?. 
+                        If you do it will change the status for original status from where you did deactivated
                     </DialogDescription>
                     <div className="flex flex-col gap-3 mt-3">
                         <button
@@ -1376,9 +1409,11 @@ export default function OrganizerEvents() {
                                         { status: newStatus }
                                     );
 
-                                    alert("Event status changed successfully");
-                                    window.location.reload();
-                                    setDeactivateDialogOpen(false);
+                                    setDeleteDialogOpen(false);
+                                    setshowActivateNotification(true)
+                                    setTimeout(() => {
+                                        window.location.reload();
+                                    }, [2500])
                                 } catch (error) {
                                     console.error("Error updating event status:", error);
                                     alert("Failed to change event status. Please try again.");
@@ -1404,6 +1439,105 @@ export default function OrganizerEvents() {
                         </button>
                         {/* <button
                             onClick={() => setDeleteDialogOpen(false)}
+                            className="w-full border border-white/10 hover:bg-white/5 text-white text-center rounded-full h-10 px-4 focus:outline-none flex items-center justify-center gap-2 font-medium transition-colors"
+                        >
+                            Cancel
+                        </button> */}
+                    </div>
+                </DialogContent>
+            </Dialog >
+
+            {/* Draft Dialog */}
+            < Dialog
+                open={draftDialogOpen}
+                onOpenChange={setDraftDialogOpen}
+            >
+                <DialogContent>
+                    <DialogTitle className="w-80">
+                        Draft &quot;{selectedEvent?.event_name}&quot;?
+                    </DialogTitle>
+                    <DialogDescription>
+                        This event will be pushed for draft section. You can always
+                        publish it again using events page.
+                    </DialogDescription>
+                    <div className="flex flex-col gap-3 mt-3">
+                        <button
+                            onClick={async () => {
+                                if (!selectedEvent?._id) return;
+
+                                try {
+                                    const newStatus = "NO";
+
+                                    const response = await axios.patch(
+                                        `${url}/event/change-status/${selectedEvent._id}`,
+                                        { status: newStatus }
+                                    );
+
+                                    setDraftDialogOpen(false);
+                                    setshowDraftNotification(true)
+                                    setTimeout(() => {
+                                        window.location.reload();
+                                    }, [2500])
+                                } catch (error) {
+                                    console.error("Error updating event status:", error);
+                                    alert("Failed to change event status. Please try again.");
+                                }
+                            }}
+                            className="w-full bg-gray-500 hover:bg-gray-600/90 text-white border-white/10 border text-center rounded-full h-10 px-4 focus:outline-none flex items-center justify-center gap-2 font-medium transition-colors"
+                        >
+                            Make it draft
+                        </button>
+                        {/* <button
+                            onClick={() => setDeactivateDialogOpen(false)}
+                            className="w-full border border-white/10 hover:bg-white/5 text-white text-center rounded-full h-10 px-4 focus:outline-none flex items-center justify-center gap-2 font-medium transition-colors"
+                        >
+                            Cancel
+                        </button> */}
+                    </div>
+                </DialogContent>
+            </Dialog >
+
+            {/* Publish Dialog */}
+            < Dialog
+                open={publishDialogOpen}
+                onOpenChange={setPublishDialogOpen}
+            >
+                <DialogContent>
+                    <DialogTitle className="w-80">
+                        Publish &quot;{selectedEvent?.event_name}&quot;?
+                    </DialogTitle>
+                    <DialogDescription>
+                        This event will be published. Users can see this event and purchase the tickets.
+                    </DialogDescription>
+                    <div className="flex flex-col gap-3 mt-3">
+                        <button
+                            onClick={async () => {
+                                if (!selectedEvent?._id) return;
+
+                                try {
+                                    const newStatus = "YES";
+
+                                    const response = await axios.patch(
+                                        `${url}/event/change-status/${selectedEvent._id}`,
+                                        { status: newStatus }
+                                    );
+
+                                    setPublishDialogOpen(false);
+                                    setshowPublishNotification(true)
+                                    setTimeout(() => {
+                                        window.location.reload();
+                                    }, [2500])
+                                } catch (error) {
+                                    console.error("Error updating event status:", error);
+                                    alert("Failed to change event status. Please try again.");
+                                }
+                            }}
+                            className="w-full bg-green-500/60 hover:bg-green-600/90 text-white border-white/10 border text-center rounded-full h-10 px-4 focus:outline-none flex items-center justify-center gap-2 font-medium transition-colors"
+                        >
+                            Publish
+                        </button>
+                        {/* <button
+                            onClick={() => setDeactivateDialogOpen(false)}
                             className="w-full border border-white/10 hover:bg-white/5 text-white text-center rounded-full h-10 px-4 focus:outline-none flex items-center justify-center gap-2 font-medium transition-colors"
                         >
                             Cancel
@@ -1438,9 +1572,11 @@ export default function OrganizerEvents() {
                                         { status: newStatus }
                                     );
 
-                                    alert("Event status changed successfully");
-                                    window.location.reload();
                                     setDeactivateDialogOpen(false);
+                                    setshowActivateNotification(true)
+                                    setTimeout(() => {
+                                        window.location.reload();
+                                    }, [2500])
                                 } catch (error) {
                                     console.error("Error updating event status:", error);
                                     alert("Failed to change event status. Please try again.");
@@ -1459,6 +1595,159 @@ export default function OrganizerEvents() {
                     </div>
                 </DialogContent>
             </Dialog >
+
+            {
+                showDraftNotification && (
+                    <motion.div
+                        initial={{ y: -50, opacity: 0, scale: 0.9 }}
+                        animate={{ y: 0, opacity: 1, scale: 1 }}
+                        exit={{ y: -50, opacity: 0, scale: 0.9 }}
+                        transition={{
+                            type: "spring",
+                            stiffness: 150,
+                            damping: 15,
+                        }}
+                        className="fixed top-20 sm:top-10 inset-x-0 mx-auto w-fit backdrop-blur-md text-white p-3 pl-4 rounded-lg flex items-center gap-2 border border-white/10 shadow-lg max-w-[400px] justify-between"
+                    >
+                        <div className="flex items-center gap-2">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                viewBox="0 0 16 16"
+                                fill="none"
+                            >
+                                <path
+                                    fillRule="evenodd"
+                                    clipRule="evenodd"
+                                    d="M8 15C9.85652 15 11.637 14.2625 12.9497 12.9497C14.2625 11.637 15 9.85652 15 8C15 6.14348 14.2625 4.36301 12.9497 3.05025C11.637 1.7375 9.85652 1 8 1C6.14348 1 4.36301 1.7375 3.05025 3.05025C1.7375 4.36301 1 6.14348 1 8C1 9.85652 1.7375 11.637 3.05025 12.9497C4.36301 14.2625 6.14348 15 8 15ZM11.844 6.209C11.9657 6.05146 12.0199 5.85202 11.9946 5.65454C11.9693 5.45706 11.8665 5.27773 11.709 5.156C11.5515 5.03427 11.352 4.9801 11.1545 5.00542C10.9571 5.03073 10.7777 5.13346 10.656 5.291L6.956 10.081L5.307 8.248C5.24174 8.17247 5.16207 8.11073 5.07264 8.06639C4.98322 8.02205 4.88584 7.99601 4.78622 7.98978C4.6866 7.98356 4.58674 7.99729 4.4925 8.03016C4.39825 8.06303 4.31151 8.11438 4.23737 8.1812C4.16322 8.24803 4.10316 8.32898 4.06071 8.41931C4.01825 8.50965 3.99425 8.60755 3.99012 8.70728C3.98599 8.807 4.00181 8.90656 4.03664 9.00009C4.07148 9.09363 4.12464 9.17927 4.193 9.252L6.443 11.752C6.51649 11.8335 6.60697 11.8979 6.70806 11.9406C6.80915 11.9833 6.91838 12.0034 7.02805 11.9993C7.13772 11.9952 7.24515 11.967 7.34277 11.9169C7.44038 11.8667 7.5258 11.7958 7.593 11.709L11.844 6.209Z"
+                                    fill="#10B981"
+                                />
+                            </svg>
+                            <p className="text-sm">Event added to draft</p>
+                        </div>
+                        <button
+                            onClick={() => setshowDraftNotification(false)}
+                            className="ml-2 text-white/60 hover:text-white flex items-center justify-center border border-white/10 rounded-full p-1 flex-shrink-0 transition-colors"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                viewBox="0 0 16 16"
+                                fill="none"
+                            >
+                                <path
+                                    d="M5.28033 4.21967C4.98744 3.92678 4.51256 3.92678 4.21967 4.21967C3.92678 4.51256 3.92678 4.98744 4.21967 5.28033L6.93934 8L4.21967 10.7197C3.92678 11.0126 3.92678 11.4874 4.21967 11.7803C4.51256 12.0732 4.98744 12.0732 5.28033 11.7803L8 9.06066L10.7197 11.7803C11.0126 12.0732 11.4874 12.0732 11.7803 11.7803C12.0732 11.4874 12.0732 11.0126 11.7803 10.7197L9.06066 8L11.7803 5.28033C12.0732 4.98744 12.0732 4.51256 11.7803 4.21967C11.4874 3.92678 11.0126 3.92678 10.7197 4.21967L8 6.93934L5.28033 4.21967Z"
+                                    fill="white"
+                                />
+                            </svg>
+                        </button>
+                    </motion.div>
+                )
+            }
+
+            {
+                showPublishNotification && (
+                    <motion.div
+                        initial={{ y: -50, opacity: 0, scale: 0.9 }}
+                        animate={{ y: 0, opacity: 1, scale: 1 }}
+                        exit={{ y: -50, opacity: 0, scale: 0.9 }}
+                        transition={{
+                            type: "spring",
+                            stiffness: 150,
+                            damping: 15,
+                        }}
+                        className="fixed top-20 sm:top-10 inset-x-0 mx-auto w-fit backdrop-blur-md text-white p-3 pl-4 rounded-lg flex items-center gap-2 border border-white/10 shadow-lg max-w-[400px] justify-between"
+                    >
+                        <div className="flex items-center gap-2">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                viewBox="0 0 16 16"
+                                fill="none"
+                            >
+                                <path
+                                    fillRule="evenodd"
+                                    clipRule="evenodd"
+                                    d="M8 15C9.85652 15 11.637 14.2625 12.9497 12.9497C14.2625 11.637 15 9.85652 15 8C15 6.14348 14.2625 4.36301 12.9497 3.05025C11.637 1.7375 9.85652 1 8 1C6.14348 1 4.36301 1.7375 3.05025 3.05025C1.7375 4.36301 1 6.14348 1 8C1 9.85652 1.7375 11.637 3.05025 12.9497C4.36301 14.2625 6.14348 15 8 15ZM11.844 6.209C11.9657 6.05146 12.0199 5.85202 11.9946 5.65454C11.9693 5.45706 11.8665 5.27773 11.709 5.156C11.5515 5.03427 11.352 4.9801 11.1545 5.00542C10.9571 5.03073 10.7777 5.13346 10.656 5.291L6.956 10.081L5.307 8.248C5.24174 8.17247 5.16207 8.11073 5.07264 8.06639C4.98322 8.02205 4.88584 7.99601 4.78622 7.98978C4.6866 7.98356 4.58674 7.99729 4.4925 8.03016C4.39825 8.06303 4.31151 8.11438 4.23737 8.1812C4.16322 8.24803 4.10316 8.32898 4.06071 8.41931C4.01825 8.50965 3.99425 8.60755 3.99012 8.70728C3.98599 8.807 4.00181 8.90656 4.03664 9.00009C4.07148 9.09363 4.12464 9.17927 4.193 9.252L6.443 11.752C6.51649 11.8335 6.60697 11.8979 6.70806 11.9406C6.80915 11.9833 6.91838 12.0034 7.02805 11.9993C7.13772 11.9952 7.24515 11.967 7.34277 11.9169C7.44038 11.8667 7.5258 11.7958 7.593 11.709L11.844 6.209Z"
+                                    fill="#10B981"
+                                />
+                            </svg>
+                            <p className="text-sm">Event published successfully</p>
+                        </div>
+                        <button
+                            onClick={() => setshowPublishNotification(false)}
+                            className="ml-2 text-white/60 hover:text-white flex items-center justify-center border border-white/10 rounded-full p-1 flex-shrink-0 transition-colors"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                viewBox="0 0 16 16"
+                                fill="none"
+                            >
+                                <path
+                                    d="M5.28033 4.21967C4.98744 3.92678 4.51256 3.92678 4.21967 4.21967C3.92678 4.51256 3.92678 4.98744 4.21967 5.28033L6.93934 8L4.21967 10.7197C3.92678 11.0126 3.92678 11.4874 4.21967 11.7803C4.51256 12.0732 4.98744 12.0732 5.28033 11.7803L8 9.06066L10.7197 11.7803C11.0126 12.0732 11.4874 12.0732 11.7803 11.7803C12.0732 11.4874 12.0732 11.0126 11.7803 10.7197L9.06066 8L11.7803 5.28033C12.0732 4.98744 12.0732 4.51256 11.7803 4.21967C11.4874 3.92678 11.0126 3.92678 10.7197 4.21967L8 6.93934L5.28033 4.21967Z"
+                                    fill="white"
+                                />
+                            </svg>
+                        </button>
+                    </motion.div>
+                )
+            }
+
+            {
+                showActivateNotification && (
+                    <motion.div
+                        initial={{ y: -50, opacity: 0, scale: 0.9 }}
+                        animate={{ y: 0, opacity: 1, scale: 1 }}
+                        exit={{ y: -50, opacity: 0, scale: 0.9 }}
+                        transition={{
+                            type: "spring",
+                            stiffness: 150,
+                            damping: 15,
+                        }}
+                        className="fixed top-20 sm:top-10 inset-x-0 mx-auto w-fit backdrop-blur-md text-white p-3 pl-4 rounded-lg flex items-center gap-2 border border-white/10 shadow-lg max-w-[400px] justify-between"
+                    >
+                        <div className="flex items-center gap-2">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                viewBox="0 0 16 16"
+                                fill="none"
+                            >
+                                <path
+                                    fillRule="evenodd"
+                                    clipRule="evenodd"
+                                    d="M8 15C9.85652 15 11.637 14.2625 12.9497 12.9497C14.2625 11.637 15 9.85652 15 8C15 6.14348 14.2625 4.36301 12.9497 3.05025C11.637 1.7375 9.85652 1 8 1C6.14348 1 4.36301 1.7375 3.05025 3.05025C1.7375 4.36301 1 6.14348 1 8C1 9.85652 1.7375 11.637 3.05025 12.9497C4.36301 14.2625 6.14348 15 8 15ZM11.844 6.209C11.9657 6.05146 12.0199 5.85202 11.9946 5.65454C11.9693 5.45706 11.8665 5.27773 11.709 5.156C11.5515 5.03427 11.352 4.9801 11.1545 5.00542C10.9571 5.03073 10.7777 5.13346 10.656 5.291L6.956 10.081L5.307 8.248C5.24174 8.17247 5.16207 8.11073 5.07264 8.06639C4.98322 8.02205 4.88584 7.99601 4.78622 7.98978C4.6866 7.98356 4.58674 7.99729 4.4925 8.03016C4.39825 8.06303 4.31151 8.11438 4.23737 8.1812C4.16322 8.24803 4.10316 8.32898 4.06071 8.41931C4.01825 8.50965 3.99425 8.60755 3.99012 8.70728C3.98599 8.807 4.00181 8.90656 4.03664 9.00009C4.07148 9.09363 4.12464 9.17927 4.193 9.252L6.443 11.752C6.51649 11.8335 6.60697 11.8979 6.70806 11.9406C6.80915 11.9833 6.91838 12.0034 7.02805 11.9993C7.13772 11.9952 7.24515 11.967 7.34277 11.9169C7.44038 11.8667 7.5258 11.7958 7.593 11.709L11.844 6.209Z"
+                                    fill="#10B981"
+                                />
+                            </svg>
+                            <p className="text-sm">Event status changed successfully</p>
+                        </div>
+                        <button
+                            onClick={() => setshowActivateNotification(false)}
+                            className="ml-2 text-white/60 hover:text-white flex items-center justify-center border border-white/10 rounded-full p-1 flex-shrink-0 transition-colors"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                viewBox="0 0 16 16"
+                                fill="none"
+                            >
+                                <path
+                                    d="M5.28033 4.21967C4.98744 3.92678 4.51256 3.92678 4.21967 4.21967C3.92678 4.51256 3.92678 4.98744 4.21967 5.28033L6.93934 8L4.21967 10.7197C3.92678 11.0126 3.92678 11.4874 4.21967 11.7803C4.51256 12.0732 4.98744 12.0732 5.28033 11.7803L8 9.06066L10.7197 11.7803C11.0126 12.0732 11.4874 12.0732 11.7803 11.7803C12.0732 11.4874 12.0732 11.0126 11.7803 10.7197L9.06066 8L11.7803 5.28033C12.0732 4.98744 12.0732 4.51256 11.7803 4.21967C11.4874 3.92678 11.0126 3.92678 10.7197 4.21967L8 6.93934L5.28033 4.21967Z"
+                                    fill="white"
+                                />
+                            </svg>
+                        </button>
+                    </motion.div>
+                )
+            }
         </SidebarLayout >
     );
 }
