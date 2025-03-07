@@ -396,10 +396,10 @@ export default function EventDetails() {
                       <div className="flex items-center gap-3">
                         <h2 className="text-2xl font-bold">{event.event_name}</h2>
                         <div className="flex items-center justify-center gap-2 text-sm bg-white/[0.05] px-2 h-6 w-fit rounded-full">
-                          <div className={`h-2 w-2 rounded-full ${eventDate < currentDate && event.explore === "YES" ? "bg-[#FF5733]" : "bg-[#10B981]" }`}></div>
+                          <div className={`h-2 w-2 rounded-full ${eventDate < currentDate && event.explore === "YES" ? "bg-[#FF5733]" : event.explore === "NO" ? "bg-gray-500" : "bg-[#10B981]" }`}></div>
                           <span className="text-white/50">
                             {
-                              eventDate < currentDate && event.explore === "YES" ? "Past" : "Live"
+                              eventDate < currentDate && event.explore === "YES" ? "Past" : event.explore === "NO" ? "Draft"  : "Live"
                             }
                           </span>
                         </div>

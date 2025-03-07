@@ -134,12 +134,17 @@ export default function OrganizerEvents() {
     const [loading, setLoading] = useState(false)
 
     useEffect(() => {
-        const hash = window.location.hash.replace("#", "");
-        if (hash === "past") {
-            setActiveTab("past");
-        } else {
-            setActiveTab("live");
-        }
+        const handleHashChange = () => {
+            const hash = window.location.hash.replace("#", "");
+            setActiveTab(hash || "live");
+        };
+
+        handleHashChange();
+        window.addEventListener("hashchange", handleHashChange);
+
+        return () => {
+            window.removeEventListener("hashchange", handleHashChange);
+        };
     }, []);
 
     const filterEvents = (events) => {
@@ -313,7 +318,7 @@ export default function OrganizerEvents() {
                     ) : (
                         <Tabs className="flex flex-col gap-6 w-full">
                             <div className="flex flex-col items-start justify-between w-full gap-4 md:flex-row">
-                                <TabsList className="md:bg-white/5 md:px-1 @4xl:rounded-full">
+                                <TabsList selectedValue={activeTab} className="md:bg-white/5 md:px-1 @4xl:rounded-full">
                                     {
                                         liveCount !== 0 ? (
                                             <TabTrigger
@@ -376,7 +381,7 @@ export default function OrganizerEvents() {
                                         )
                                     }
                                     <TabTrigger
-                                        value="live"
+                                        value="past"
                                         active={activeTab === "past"}
                                         onClick={() => setActiveTab("past")}
                                         className={`flex items-center gap-2 p-2 pl-2 pr-1 @4xl:rounded-full hover:bg-white/5 ${activeTab === "past" ? "bg-white/10" : ""
@@ -432,7 +437,7 @@ export default function OrganizerEvents() {
                                         </svg>
                                         Drafts{" "}
                                         <span className="bg-[#151515] h-6 w-fit px-2 rounded-full flex items-center justify-center">
-                                            {events ? filterEvents(events).filter(event => event.explore === "NO" && event.status === 'active').length : 0}
+                                            {events ? filterEvents(events).filter(event => event.explore === "NO").length : 0}
                                         </span>
                                     </TabTrigger>
                                     <TabTrigger

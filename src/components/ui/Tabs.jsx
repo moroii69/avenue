@@ -11,15 +11,17 @@ export function TabsList({ children, className = "", selectedValue = "" }) {
 
   // Auto-select first tab on mount
   React.useEffect(() => {
-    const firstChild = React.Children.toArray(children).find(
-      (child) => React.isValidElement(child) && "value" in child.props
-    );
-
-    if (firstChild) {
-      setSelected(firstChild.props.children);
+    if (selectedValue) {
+      const selectedChild = React.Children.toArray(children).find(
+        (child) => React.isValidElement(child) && child.props.value === selectedValue
+      );
+  
+      if (selectedChild) {
+        setSelected(selectedChild.props.children);
+      }
     }
-  }, []); // Only run once on mount
-
+  }, [selectedValue, children]); // Run when selectedValue changes
+  
   // Add click outside handler
   React.useEffect(() => {
     function handleClickOutside(event) {
@@ -66,9 +68,8 @@ export function TabsList({ children, className = "", selectedValue = "" }) {
             {selected || "Select Option"}
           </span>
           <svg
-            className={`w-4 h-4 transition-transform ${
-              isOpen ? "rotate-180" : ""
-            }`}
+            className={`w-4 h-4 transition-transform ${isOpen ? "rotate-180" : ""
+              }`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"

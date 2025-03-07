@@ -116,7 +116,7 @@ export default function CustomerTab({ eventId, event }) {
     });
     const totalCustomers = Object.keys(customerPurchases).length;
     const totalSpent = Object.values(customerPurchases).reduce((sum, customer) => sum + customer.totalSpent, 0);
-    const averagePurchaseAmount = totalCustomers > 0 ? (totalSpent / totalCustomers).toFixed(2) : 0;
+    const averagePurchaseAmount = totalCustomers > 0 ? (totalSpent / filteredCustomers.length).toFixed(2) : 0;
 
 
     const statsData = [
