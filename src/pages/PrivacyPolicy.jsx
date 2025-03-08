@@ -2,323 +2,248 @@ import React from 'react';
 
 const PrivacyPolicy = () => {
     return (
-        <div className="bg-primary min-h-screen flex items-center justify-center p-6">
-            <div className="max-w-7xl mx-auto p-6 py-20 bg-primary">
-                <h1 className="text-3xl md:text-4xl font-semibold text-left text-white">
+        <div className="bg-primary min-h-screen flex items-center justify-center px-4 md:px-8">
+            <div className="max-w-7xl w-full mx-auto py-16 md:py-20 text-white">
+                {/* Privacy Policy Heading */}
+                <h1 className="text-2xl md:text-4xl font-semibold text-left tracking-wide">
                     Avenue Ticketing, Inc. Privacy Policy
                 </h1>
+
+                {/* Horizontal Line */}
                 <hr className="border-white/20 my-4" />
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    Effective Date: January 28th 2025
+
+                {/* Effective Date */}
+                <p className="text-white/50 text-sm md:text-base text-justify leading-relaxed tracking-wide font-semibold">
+                    <span className="text-white">Effective Date:</span> January 28th, 2025
                 </p>
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    Last Modified: January 28th 2025
+
+                {/* Last Modified Date */}
+                <p className="text-white/50 text-sm md:text-base text-justify leading-relaxed tracking-wide font-semibold">
+                    <span className="text-white">Last Modified:</span> January 28th, 2025
                 </p>
+
                 <br />
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    Avenue Ticketing, Inc. ("Avenue," "we," "us," or "our") values your privacy.
-                    This Privacy Policy outlines how we collect, use, store, and share your
-                    information when you use our services, including our website www.avenue.tickets,
-                    mobile applications, and any related features (collectively, the "Services").
-                    <br />
-                    By accessing or using our Services, you agree to this Privacy Policy.
-                    If you do not agree, you must not use our Services.
-                </p>
+
+                <div className="mt-3 space-y-3 md:space-y-4">
+                    <p>
+                        <span className="text-white font-semibold">Avenue Ticketing, Inc.</span> ("Avenue," "we," "us," or "our") values your privacy.
+                        This Privacy Policy outlines how we collect, use, store, and share your
+                        information when you use our services, including our website
+                        <span className="text-white underline"> www.avenue.tickets</span>,
+                        mobile applications, and any related features (collectively, the <span className="italic">"Services"</span>).
+                        <br /><br />
+                        By accessing or using our Services, you agree to this Privacy Policy.
+                        If you do not agree, you must not use our Services.
+                    </p>
+                </div>
+
                 <br />
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    1. Summary of Data Collection & Disclosure
-                </p>
-                <p className="text-white/50 text-xs md:text-base text-justify leading-relaxed">
-                    To provide transparency, below is a summary of the types of data Avenue collects, whether it is disclosed, and whether it is sold.
-                </p>
+
+                {/* Section Heading */}
+                <p className="text-lg md:text-xl font-semibold tracking-wide">1. Summary of Data Collection & Disclosure</p>
+
+                {/* Section Description */}
+
+                <div className="mt-3 space-y-3 md:space-y-4">
+                    <p> To provide transparency, below is a summary of the types of data Avenue collects, whether it is disclosed, and whether it is sold.</p>
+                </div>
+
+
+                {/* Responsive Table Container */}
                 <div className="overflow-x-auto mt-5">
-                    <table className="w-full border border-white/20 text-white">
+                    <table className="w-full min-w-[700px] border border-white/20 text-white text-sm md:text-base">
                         <thead>
                             <tr className="bg-white/10 text-left">
-                                <th className="p-3 border border-white/20">Data Type</th>
-                                <th className="p-3 border border-white/20">Do We Collect?</th>
-                                <th className="p-3 border border-white/20">Do We Disclose?</th>
-                                <th className="p-3 border border-white/20">Do We Sell?</th>
+                                <th className="p-3 border border-white/20 whitespace-nowrap">Data Type</th>
+                                <th className="p-3 border border-white/20 whitespace-nowrap">Do We Collect?</th>
+                                <th className="p-3 border border-white/20 whitespace-nowrap">Do We Disclose?</th>
+                                <th className="p-3 border border-white/20 whitespace-nowrap">Do We Sell?</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr className="hover:bg-white/10">
-                                <td className="p-3 border border-white/20">Identifiers (Name, Email, Phone, Address, Account Name)</td>
-                                <td className="p-3 border border-white/20">Yes</td>
-                                <td className="p-3 border border-white/20">Yes</td>
-                                <td className="p-3 border border-white/20">No</td>
-                            </tr>
-                            <tr className="hover:bg-white/10">
-                                <td className="p-3 border border-white/20">Payment Information (Credit/Debit Card, Bank Account)</td>
-                                <td className="p-3 border border-white/20">Yes (via third-party processors)</td>
-                                <td className="p-3 border border-white/20">Yes</td>
-                                <td className="p-3 border border-white/20">No</td>
-                            </tr>
-                            <tr className="hover:bg-white/10">
-                                <td className="p-3 border border-white/20">Commercial Information (Transactions, Purchase History)</td>
-                                <td className="p-3 border border-white/20">Yes</td>
-                                <td className="p-3 border border-white/20">Yes</td>
-                                <td className="p-3 border border-white/20">No</td>
-                            </tr>
-                            <tr className="hover:bg-white/10">
-                                <td className="p-3 border border-white/20">Geolocation Data</td>
-                                <td className="p-3 border border-white/20">Yes (if enabled)</td>
-                                <td className="p-3 border border-white/20">Yes</td>
-                                <td className="p-3 border border-white/20">No</td>
-                            </tr>
-                            <tr className="hover:bg-white/10">
-                                <td className="p-3 border border-white/20">Online Activity (Browsing, Search, Interactions)</td>
-                                <td className="p-3 border border-white/20">Yes</td>
-                                <td className="p-3 border border-white/20">Yes</td>
-                                <td className="p-3 border border-white/20">No</td>
-                            </tr>
-                            <tr className="hover:bg-white/10">
-                                <td className="p-3 border border-white/20">Inferences (Preferences, Interests)</td>
-                                <td className="p-3 border border-white/20">Yes</td>
-                                <td className="p-3 border border-white/20">Yes</td>
-                                <td className="p-3 border border-white/20">No</td>
-                            </tr>
-                            <tr className="hover:bg-white/10">
-                                <td className="p-3 border border-white/20">Audio, Visual Data (Profile Photos)</td>
-                                <td className="p-3 border border-white/20">Yes (optional)</td>
-                                <td className="p-3 border border-white/20">Yes</td>
-                                <td className="p-3 border border-white/20">No</td>
-                            </tr>
-                            <tr className="hover:bg-white/10">
-                                <td className="p-3 border border-white/20">Biometric Information (Face Imagery)</td>
-                                <td className="p-3 border border-white/20">No</td>
-                                <td className="p-3 border border-white/20">No</td>
-                                <td className="p-3 border border-white/20">No</td>
-                            </tr>
-                            <tr className="hover:bg-white/10">
-                                <td className="p-3 border border-white/20">Protected Class Information (Age, Gender, etc.)</td>
-                                <td className="p-3 border border-white/20">No</td>
-                                <td className="p-3 border border-white/20">No</td>
-                                <td className="p-3 border border-white/20">No</td>
-                            </tr>
+                            {[
+                                { type: "Identifiers (Name, Email, Phone, Address, Account Name)", collect: "Yes", disclose: "Yes", sell: "No" },
+                                { type: "Payment Information (Credit/Debit Card, Bank Account)", collect: "Yes (via third-party processors)", disclose: "Yes", sell: "No" },
+                                { type: "Commercial Information (Transactions, Purchase History)", collect: "Yes", disclose: "Yes", sell: "No" },
+                                { type: "Geolocation Data", collect: "Yes (if enabled)", disclose: "Yes", sell: "No" },
+                                { type: "Online Activity (Browsing, Search, Interactions)", collect: "Yes", disclose: "Yes", sell: "No" },
+                                { type: "Inferences (Preferences, Interests)", collect: "Yes", disclose: "Yes", sell: "No" },
+                                { type: "Audio, Visual Data (Profile Photos)", collect: "Yes (optional)", disclose: "Yes", sell: "No" },
+                                { type: "Biometric Information (Face Imagery)", collect: "No", disclose: "No", sell: "No" },
+                                { type: "Protected Class Information (Age, Gender, etc.)", collect: "No", disclose: "No", sell: "No" },
+                            ].map((row, index) => (
+                                <tr key={index} className="hover:bg-white/10">
+                                    <td className="p-3 border border-white/20">{row.type}</td>
+                                    <td className="p-3 border border-white/20">{row.collect}</td>
+                                    <td className="p-3 border border-white/20">{row.disclose}</td>
+                                    <td className="p-3 border border-white/20">{row.sell}</td>
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
                 </div>
                 <br />
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    2. Information We Collect
-                </p>
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    2.1 Personal Data
-                </p>
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    We may collect the following types of personal data:
-                </p>
-                <div className="max-w-5xl mx-auto">
-                    <ul className="list-disc list-inside text-white/60 space-y-2">
-                        <li>Identifiers: Name, email, phone number, billing/shipping address, and username.</li>
-                        <li>Payment Information: Processed through third-party providers like Stripe; Avenue does not store payment details.</li>
-                        <li>Account Credentials: Passwords or authentication methods.</li>
-                        <li>Social Media Data: If you link your social accounts to our platform.</li>
-                        <li>User-Generated Content: Event details, profile photos, and other materials you upload.</li>
-                        <li>Geolocation Data: If enabled, we may collect location information.</li>
-                    </ul>
+                <div className="mx-auto px-4 md:px-6 py-6 text-white">
+                    {/* Section 2: Information We Collect */}
+                    <p className="text-lg md:text-xl font-semibold text-left tracking-wide">2. Information We Collect</p>
+                    <br />
+
+                    <p className="text-md md:text-lg font-semibold tracking-wide">2.1 Personal Data</p>
+                    <p className="text-sm md:text-base text-justify leading-relaxed tracking-wide">
+                        We may collect the following types of personal data:
+                    </p>
+                    <div className="mt-3 space-y-3 md:space-y-4">
+                        <p> Identifiers: Name, email, phone number, billing/shipping address, and username.</p>
+                        <p> Payment Information: Processed through third-party providers like Stripe; Avenue does not store payment details.</p>
+                        <p> Account Credentials: Passwords or authentication methods.</p>
+                        <p> Social Media Data: If you link your social accounts to our platform.</p>
+                        <p> User-Generated Content: Event details, profile photos, and other materials you upload.</p>
+                        <p> Geolocation Data: If enabled, we may collect location information.</p>
+                    </div>
+
+                    <br />
+
+                    <p className="text-md md:text-lg font-semibold tracking-wide">2.2 Non-Personal Data</p>
+                    <div className="mt-3 space-y-3 md:space-y-4">
+                        <p> Device Information: IP address, browser type, and operating system.</p>
+                        <p> Usage Data: Pages viewed, time spent on our site, and interactions with the platform.</p>
+                        <p> Cookies & Tracking Technologies: Used for analytics, security, and personalization.</p>
+                    </div>
+
+                    <br />
+
+                    {/* Section 3: How We Use Your Information */}
+                    <p className="text-lg md:text-xl font-semibold tracking-wide">3. How We Use Your Information</p>
+                    <p className="text-sm md:text-base text-justify leading-relaxed tracking-wide">
+                        We use your data to:
+                    </p>
+                    <div className="mt-3 space-y-3 md:space-y-4">
+                        <p> Provide and improve our Services.</p>
+                        <p> Process payments and issue refunds.</p>
+                        <p> Prevent fraud and enhance security.</p>
+                        <p> Send promotional emails and event notifications (you may opt out).</p>
+                        <p> Comply with legal obligations.</p>
+                        <p> Conduct analytics and improve user experience.</p>
+                    </div>
+
+                    <br />
+
+                    <p className="text-lg md:text-xl font-semibold tracking-wide">Legal Basis for Processing</p>
+                    <div className="mt-3 space-y-3 md:space-y-4">
+                        <p> Your consent (e.g., for marketing emails).</p>
+                        <p> Performance of a contract (e.g., processing ticket purchases).</p>
+                        <p> Legitimate interest (e.g., fraud prevention and analytics).</p>
+                        <p> Compliance with legal requirements.</p>
+                    </div>
+
+                    <br />
+
+                    {/* Section 4: Sharing Your Information */}
+                    <p className="text-lg md:text-xl font-semibold tracking-wide">4. Sharing Your Information</p>
+                    <p className="text-sm md:text-base text-justify leading-relaxed tracking-wide">
+                        We do not sell your Personal Data. However, we may share it:
+                    </p>
+                    <div className="mt-3 space-y-3 md:space-y-4">
+                        <p> With Event Organizers: When you purchase tickets.</p>
+                        <p> With Service Providers: Payment processors, marketing tools, analytics services.</p>
+                        <p> With Legal Authorities: If required by law.</p>
+                        <p> In Business Transfers: If Avenue is acquired or merged with another entity.</p>
+                        <p> With Affiliates and Subsidiaries: Entities under our common ownership.</p>
+                    </div>
+
+                    <br />
+
+                    {/* Section 5: Your Rights */}
+                    <p className="text-lg md:text-xl font-semibold tracking-wide">5. Your Rights & How to Exercise Them</p>
+                    <div className="mt-3 space-y-3 md:space-y-4">
+                        <p> Right to Access: Request a copy of your data.</p>
+                        <p> Right to Correct: Update inaccurate or incomplete data.</p>
+                        <p> Right to Delete: Request deletion of your personal information.</p>
+                        <p> Right to Restrict Processing: Limit how we use your data.</p>
+                        <p> Right to Object: Opt out of marketing communications.</p>
+                        <p> Right to Data Portability: Receive your data in a usable format.</p>
+                    </div>
+
+                    <br />
+
+                    {/* Section 6: Compliance with Laws */}
+                    <p className="text-lg md:text-xl font-semibold tracking-wide">6. Compliance with State & International Laws</p>
+                    <div className="mt-3 space-y-3 md:space-y-4">
+                        <p> Avenue complies with the California Consumer Privacy Act (CCPA), Virginia Consumer Data Protection Act (VCDPA), and Nevada online privacy laws.</p>
+                        <p> California residents may request access to their data and deletion of personal information.</p>
+                    </div>
+
+                    <br />
+
+                    {/* Section 7: Security & Data Retention */}
+                    <p className="text-lg md:text-xl font-semibold tracking-wide">7. Security Measures & Data Retention</p>
+                    <p className="text-sm md:text-base text-justify leading-relaxed tracking-wide">
+                        We implement industry-standard security measures, including:
+                    </p>
+                    <div className="mt-3 space-y-3 md:space-y-4">
+                        <p> Encryption: Protects sensitive data.</p>
+                        <p> Access Controls: Limits access to authorized personnel only.</p>
+                        <p> Regular Security Audits: To identify and mitigate risks.</p>
+                    </div>
+
+                    <br />
+
+                    {/* Section 8: Cookies & Tracking */}
+                    <p className="text-lg md:text-xl font-semibold tracking-wide">8. Cookies, Tracking & Do Not Track (DNT)</p>
+                    <div className="mt-3 space-y-3 md:space-y-4">
+                        <p> Essential Cookies: Required for platform functionality.</p>
+                        <p> Performance Cookies: Track website performance and analytics.</p>
+                        <p> Advertising Cookies: Deliver relevant ads.</p>
+                    </div>
+
+                    <br />
+
+                    {/* Section 9: Security Breach Notification */}
+                    <p className="text-lg md:text-xl font-semibold tracking-wide">9. Security Breach Notification</p>
+                    <div className="mt-3 space-y-3 md:space-y-4">
+                        <p>In case of a security breach, we will notify affected users via email or platform announcement.</p>
+                    </div>
+                    <br />
+
+                    {/* Section 10: Successors in Interest */}
+                    <p className="text-lg md:text-xl font-semibold tracking-wide">10. Successors in Interest (Mergers & Acquisitions)</p>
+                    <div className="mt-3 space-y-3 md:space-y-4">
+                        <p> If Avenue undergoes a merger, acquisition, or sale, user data may be transferred as part of the business transaction.
+                            Users will be notified via email or a public announcement.</p>
+                    </div>
+
+                    <br />
+
+                    {/* Section 11: Children's Privacy */}
+                    <p className="text-lg md:text-xl font-semibold tracking-wide">11. Children's Privacy</p>
+                    <div className="mt-3 space-y-3 md:space-y-4">
+                        <p> Our Services are not intended for children under 16. If we discover such data, we will delete it.</p>
+                    </div>
+
+                    <br />
+
+                    {/* Section 12: Changes to This Privacy Policy */}
+                    <p className="text-lg md:text-xl font-semibold tracking-wide">12. Changes to This Privacy Policy</p>
+                    <div className="mt-3 space-y-3 md:space-y-4">
+                        <p> We may update this Privacy Policy. If significant changes are made, we will notify users via email or platform announcements.</p>
+                    </div>
+                    <br />
+
+
+                    {/* Contact Information */}
+                    <p className="text-lg md:text-xl font-semibold tracking-wide">13. Contact Information</p>
+                    <div className="mt-3 space-y-3 md:space-y-4">
+                        <p> Email: privacy@avenue.tickets</p>
+                        <p> Phone: (855) 550-1080</p>
+                        <p> Mailing Address: 75-5733 Lamaokeola St, Kailua-Kona, HI 96740</p>
+                    </div>
+
+                    <br />
+
+                    <p className="text-sm md:text-base text-justify leading-relaxed tracking-wide">
+                        By using our Services, you acknowledge that you have read and understand this Privacy Policy.
+                    </p>
                 </div>
-                <br />
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    2.2 Non-Personal Data
-                </p>
-                <div className="max-w-5xl mx-auto">
-                    <ul className="list-disc list-inside text-white/60 space-y-2">
-                        <li>Device Information: IP address, browser type, and operating system</li>
-                        <li>Usage Data: Pages viewed, time spent on our site, and interactions with the platform.</li>
-                        <li>Cookies & Tracking Technologies: Used for analytics, security, and personalization.</li>
-                    </ul>
-                </div>
-                <br />
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    3. How We Use Your Information
-                </p>
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    We use your data to:
-                </p>
-                <div className="max-w-5xl mx-auto">
-                    <ul className="list-disc list-inside text-white/60 space-y-2">
-                        <li>Provide and improve our Services.</li>
-                        <li>Process payments and issue refunds</li>
-                        <li>Prevent fraud and enhance security.</li>
-                        <li>Send promotional emails and event notifications (you may opt out).</li>
-                        <li>Comply with legal obligations</li>
-                        <li>Conduct analytics and improve user experience.</li>
-                    </ul>
-                </div>
-                <br />
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    Legal Basis for Processing:
-                </p>
-                <div className="max-w-5xl mx-auto">
-                    <ul className="list-disc list-inside text-white/60 space-y-2">
-                        <li>Your consent (e.g., for marketing emails).</li>
-                        <li>Performance of a contract (e.g., processing ticket purchases).</li>
-                        <li>Legitimate interest (e.g., fraud prevention and analytics).</li>
-                        <li>Compliance with legal requirements.</li>
-                    </ul>
-                </div>
-                <br />
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    4. Sharing Your Information
-                </p>
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    We do not sell your Personal Data. However, we may share it:
-                </p>
-                <div className="max-w-5xl mx-auto">
-                    <ul className="list-disc list-inside text-white/60 space-y-2">
-                        <li>With Event Organizers: When you purchase tickets</li>
-                        <li>With Service Providers: Payment processors, marketing tools, analytics services.</li>
-                        <li>With Legal Authorities: If required by law.</li>
-                        <li>In Business Transfers: If Avenue is acquired or merged with another entity.</li>
-                        <li>With Affiliates and Subsidiaries: Entities under our common ownership.</li>
-                    </ul>
-                </div>
-                <br />
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    5. Your Rights & How to Exercise Them
-                </p>
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    Users may exercise the following rights under applicable privacy laws:
-                </p>
-                <div className="max-w-5xl mx-auto">
-                    <ul className="list-disc list-inside text-white/60 space-y-2">
-                        <li>Right to Access: Request a copy of your data.</li>
-                        <li>Right to Correct: Update inaccurate or incomplete data.</li>
-                        <li>Right to Delete: Request deletion of your personal information.</li>
-                        <li>Right to Restrict Processing: Limit how we use your data.</li>
-                        <li>Right to Object: Opt out of marketing communications.</li>
-                        <li>Right to Data Portability: Receive your data in a usable format.</li>
-                        <li>Right to Opt-Out of Sale: We do not sell personal data, but you can still request to opt out of data sharing</li>
-                    </ul>
-                </div>
-                <br />
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    To exercise your rights, contact privacy@avenue.tickets. We will respond within 45 days (extendable to 90 days if necessary).
-                </p>
-                <br />
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    6. Compliance with State & International Laws
-                </p>
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    California, Virginia, and Nevada Privacy Rights
-                </p>
-                <div className="max-w-5xl mx-auto">
-                    <ul className="list-disc list-inside text-white/60 space-y-2">
-                        <li>Avenue complies with the California Consumer Privacy Act (CCPA), Virginia Consumer Data Protection Act (VCDPA), and Nevada online privacy laws.</li>
-                        <li>California residents may request access to their data and deletion of personal information.</li>
-                    </ul>
-                </div>
-                <br />
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    General Data Protection Regulation (GDPR) Compliance
-                </p>
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    If you reside in the European Economic Area (EEA), you have additional rights under GDPR, including:
-                </p>
-                <div className="max-w-5xl mx-auto">
-                    <ul className="list-disc list-inside text-white/60 space-y-2">
-                        <li>The right to restrict processing.</li>
-                        <li>The right to withdraw consent.</li>
-                        <li>The right to file a complaint with a data protection authority</li>
-                    </ul>
-                </div>
-                <br />
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    7. Security Measures & Data Retention
-                </p>
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    We implement industry-standard security measures, including:
-                </p>
-                <div className="max-w-5xl mx-auto">
-                    <ul className="list-disc list-inside text-white/60 space-y-2">
-                        <li>Encryption: Protects sensitive data</li>
-                        <li>Access Controls: Limits access to authorized personnel only</li>
-                        <li>Regular Security Audits: To identify and mitigate risks.</li>
-                    </ul>
-                </div>
-                <br />
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    However, no method is 100% secure. Users should also take precautions to protect their accounts.
-                </p>
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    Data Retention
-                </p>
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    We retain data based on the following policies:
-                </p>
-                <div className="max-w-5xl mx-auto">
-                    <ul className="list-disc list-inside text-white/60 space-y-2">
-                        <li>Account Information: Until you delete your account.</li>
-                        <li>Transaction Data: Retained for tax and legal compliance.</li>
-                        <li>Marketing Data: Until you opt out.</li>
-                        <li>Aggregated Data: May be stored indefinitely for analytics</li>
-                    </ul>
-                </div>
-                <br />
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    8. Cookies, Tracking & Do Not Track (DNT)
-                </p>
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    Avenue uses cookies to enhance user experience. Types of cookies we use:
-                </p>
-                <div className="max-w-5xl mx-auto">
-                    <ul className="list-disc list-inside text-white/60 space-y-2">
-                        <li>Essential Cookies: Required for platform functionality.</li>
-                        <li>Performance Cookies: Track website performance and analytics.</li>
-                        <li>Advertising Cookies: Deliver relevant ads.</li>
-                    </ul>
-                </div>
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    Do Not Track: Avenue does not track users across third-party websites for targeted advertising.
-                </p>
-                <br />
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    9. Security Breach Notification
-                </p>
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    In case of a security breach, we will notify affected users via email or platform announcement.
-                </p>
-                <br />
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    10. Successors in Interest (Mergers & Acquisitions)
-                </p>
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    If Avenue undergoes a merger, acquisition, or sale, user data may be transferred as part of the business transaction. Users will be notified via email or a public announcement.
-                </p>
-                <br />
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    11. Children's Privacy
-                </p>
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    Our Services are not intended for children under 16. If we discover such data, we will delete it.
-                </p>
-                <br />
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    12. Changes to This Privacy Policy
-                </p>
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    We may update this Privacy Policy. If significant changes are made, we will notify users via email or platform announcements.
-                </p>
-                <br />
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    13. Contact Information
-                </p>
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    For privacy-related inquiries, contact us at:
-                </p>
-                <div className="max-w-5xl mx-auto">
-                    <ul className="list-disc list-inside text-white/60 space-y-2">
-                        <li>Email: privacy@avenue.tickets</li>
-                        <li>Phone: (855) 550-1080</li>
-                        <li>Mailing Address: 75-5733 Lamaokeola St, Kailua-Kona, HI 96740</li>
-                    </ul>
-                </div>
-                <br />
-                <p className="text-white/50 text-md md:text-base text-justify leading-relaxed font-semibold">
-                    By using our Services, you acknowledge that you have read and understand this Privacy Policy
-                </p>
             </div>
         </div>
     );
