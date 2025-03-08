@@ -205,7 +205,9 @@ const Header = () => {
                             </a>
                           </li>
                           {
-                            userId === '679485656e216db10d26702c' || userId === '679ac9a93ed7a9e41877fca0' || userId === '67cb9b777849d709088c25a4' && (
+                            (userId === '679485656e216db10d26702c' ||
+                              userId === '679ac9a93ed7a9e41877fca0' ||
+                              userId === '67cb9b777849d709088c25a4') && (
                               <li>
                                 <a
                                   href="/organizer/dashboard/"
