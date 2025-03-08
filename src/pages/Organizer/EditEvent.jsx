@@ -142,7 +142,7 @@ const ticketTypes = [
     },
 ];
 
-export default function TicketEvent() {
+export default function EditEvent() {
     const { id } = useParams()
     const [step, setStep] = useState(1);
     const navigate = useNavigate();
@@ -163,6 +163,7 @@ export default function TicketEvent() {
     const [eventStartTime, setEventStartTime] = useState("");
     const [eventEndTime, setEventEndTime] = useState("");
     const [doorsOpenTime, setDoorsOpenTime] = useState("");
+    const [selectCategory, setSelectCategory] = useState(null);
 
     // Location states
     const [venueName, setVenueName] = useState("");
@@ -199,8 +200,9 @@ export default function TicketEvent() {
     const [showAddForm, setShowAddForm] = useState(false)
     const [refundPolicy, setRefundPolicy] = useState("");
     const [eventId, setEventId] = useState("")
-    const [isAdding, setIsAdding] = useState(false)
-    const [addStatus, setAddStatus] = useState(null)
+    const [event, setEvent] = useState({})
+    const [isUpdating, setIsUpdating] = useState(false)
+    const [updateStatus, setUpdateStatus] = useState(null)
 
     const categories = [
         {
@@ -274,6 +276,55 @@ export default function TicketEvent() {
             name: "Nightlife",
         },
     ];
+
+    const fetchEvent = async () => {
+        try {
+            const response = await axios.get(`${url}/event/get-event-by-id/${id}`);
+            setEvent(response.data);
+
+            setEventName(response.data?.event_name)
+            if (response.data?.category && categories.length) {
+                const matchingCategory = categories.find(
+                    (category) => category.name === response.data.category
+                );
+                setSelectedCategory(matchingCategory || null);
+            }
+            setImageFile(response.data?.flyer)
+            setImagePreview(response.data?.flyer)
+            setTicketStartDate(response.data?.start_date ? new Date(response.data.start_date) : null);
+            setTicketEndDate(response.data?.end_date ? new Date(response.data.end_date) : null);
+            setEventStartTime(response.data.start_time)
+            setEventEndTime(response.data.end_time)
+            setDoorsOpenTime(response.data.open_time)
+            setVenueName(response.data.venue_name)
+            setVenueAddress(response.data.address)
+            setEventDescription(response.data.event_description)
+            setRefundPolicy(response.data.refund_policy)
+            setShowAttendees(response.data.show === 'YES' ? true : false)
+
+            const formattedTickets = response.data?.tickets?.map(ticket => ({
+                ticketName: ticket.ticket_name || "",
+                ticketType: ticket.ticketType || ticket.type || "",
+                quantity: ticket.qty || 0,
+                price: ticket.price || 0,
+                ticketDescription: ticket.ticket_description || ticket.description || "",
+                startSale: new Date(ticket.sale_start) || "",
+                endSale: new Date(ticket.sale_end) || "",
+                minLimit: ticket.min_count || 1,
+                maxLimit: ticket.max_count || 10,
+            })) || [];
+
+            setTickets(formattedTickets)
+
+
+        } catch (error) {
+            console.error('Error fetching events:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchEvent();
+    }, [id]);
 
     const handleImageUpload = (event) => {
         if (event.target.files && event.target.files[0]) {
@@ -430,31 +481,31 @@ export default function TicketEvent() {
         ticket_description: ticket.ticketDescription
     }));
 
-    const handleAddEvent = async (status) => {
+    const handleUpdateEvent = async (status) => {
         //e.preventDefault();
-        if (isAdding) return;
+        if (isUpdating) return;
 
-        setIsAdding(true)
-        setAddStatus(status === "NO" ? "draft" : "live");
+        setIsUpdating(true)
+        setUpdateStatus(status === "NO" ? "draft" : "live");
 
         const formData = new FormData();
         formData.append('organizer_id', oragnizerId);
-        formData.append('event_name', eventName);
-        formData.append('event_type', id === "ticketed" ? "ticket" : "rsvp");
+        formData.append('event_name', eventName || event.event_name);
+        formData.append('event_type', event.event_type);
         formData.append('category', "");
         formData.append('flyer', getImagesForUpload());
-        formData.append('start_date', ticketStartDate);
-        formData.append('end_date', ticketEndDate);
-        formData.append('start_time', eventStartTime);
-        formData.append('end_time', eventEndTime);
-        formData.append('open_time', doorsOpenTime);
-        formData.append('venue_name', venueName);
-        formData.append('address', venueAddress);
-        formData.append('ticket_start_price', eventAddress);
-        formData.append('event_description', eventDescription);
+        formData.append('start_date', ticketStartDate || event.start_date);
+        formData.append('end_date', ticketEndDate || event.end_date);
+        formData.append('start_time', eventStartTime || event.start_time);
+        formData.append('end_time', eventEndTime || event.end_time);
+        formData.append('open_time', doorsOpenTime || event.open_time);
+        formData.append('venue_name', venueName || event.venue_name);
+        formData.append('address', venueAddress || event.address);
+        formData.append('ticket_start_price', eventAddress || "");
+        formData.append('event_description', eventDescription || event.event_description);
         formData.append('explore', status);
         formData.append('show', showAttendees ? "YES" : "NO");
-        formData.append('refund_policy', refundPolicy);
+        formData.append('refund_policy', refundPolicy || event.refund_policy);
         formData.append('status', "active");
 
         // formData.append('language', language);
@@ -489,7 +540,7 @@ export default function TicketEvent() {
 
         try {
             //setIsAddLoading(true)
-            const response = await axios.post(`${url}/event/add-event`, formData, {
+            const response = await axios.put(`${url}/event/update-event/${id}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -500,8 +551,8 @@ export default function TicketEvent() {
             console.error('Error:', error);
             alert('Failed to add event. Please try again.');
         } finally {
-            setIsAdding(false);
-            setAddStatus(null);
+            setIsUpdating(false);
+            setUpdateStatus(null);
         }
     };
 
@@ -593,9 +644,9 @@ export default function TicketEvent() {
                                                 <p className="text-white text-sm font-medium truncate max-w-[200px]">
                                                     {imageFile.name}
                                                 </p>
-                                                <p className="text-white/40 text-xs text-center font-semibold">
+                                                {/* <p className="text-white/40 text-xs text-center font-semibold">
                                                     {(imageFile.size / (1024 * 1024)).toFixed(2)} MB
-                                                </p>
+                                                </p> */}
                                             </div>
                                         </div>
                                         <button
@@ -1367,7 +1418,7 @@ export default function TicketEvent() {
                     </div>
                     <div className="w-full mt-4">
                         <label className="block text-xl text-center font-medium text-white mb-3">
-                            Event created successfully
+                            Event updated successfully
                         </label>
                         <a
                             href={`/organizer/events/${eventId}`}
@@ -1495,19 +1546,19 @@ export default function TicketEvent() {
                                             }
 
                                             if (step === 5) {
-                                                handleAddEvent("NO");
+                                                handleUpdateEvent("NO");
                                             } else {
                                                 setStep((prevStep) => prevStep + 1);
                                             }
                                         }}
                                         className={`px-4 py-2 w-full rounded-full h-10 font-semibold flex items-center justify-center gap-2 
-                                                    ${step !== 5 || isAdding
+                                                ${step !== 5 || isUpdating
                                                 ? "bg-gray-500 cursor-not-allowed border-gray-500 text-gray-300"
                                                 : "bg-transparent border border-white/10 text-white"
                                             }`}
-                                        disabled={step !== 5 || isAdding}
+                                        disabled={step !== 5 || isUpdating}
                                     >
-                                        {isAdding && addStatus === "draft" ? "Loading..." : "Save as Draft"}
+                                        {isUpdating && updateStatus === "draft" ? "Loading..." : "Save as Draft"}
                                     </button>
 
                                     <button
@@ -1517,19 +1568,19 @@ export default function TicketEvent() {
                                             }
 
                                             if (step === 5) {
-                                                handleAddEvent("YES");
+                                                handleUpdateEvent("YES");
                                             } else {
                                                 setStep((prevStep) => prevStep + 1);
                                             }
                                         }}
                                         className={`px-4 py-2 w-full rounded-full h-10 font-semibold flex items-center justify-center gap-2 
-                                                    ${step !== 5 || isAdding
+                                                ${step !== 5 || isUpdating
                                                 ? "bg-gray-500 cursor-not-allowed text-gray-300"
                                                 : "bg-white text-black"
                                             }`}
-                                        disabled={step !== 5 || isAdding}
+                                        disabled={step !== 5 || isUpdating}
                                     >
-                                        {isAdding && addStatus === "live" ? "Loading..." : "Publish Live Event"}
+                                        {isUpdating && updateStatus === "live" ? "Loading..." : "Update live event"}
                                     </button>
                                 </>
                             ) : step === 6 ? (
@@ -1542,7 +1593,7 @@ export default function TicketEvent() {
                                         }
 
                                         if (step === 5) {
-                                            handleAddEvent("YES")
+                                            handleUpdateEvent("NO")
                                         } else {
                                             setStep((prevStep) => prevStep + 1);
                                         }

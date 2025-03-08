@@ -1032,7 +1032,7 @@ export default function OrganizerEvents() {
                                                                         <Ellipsis />
                                                                     </MenuTrigger>
                                                                     <MenuItem
-                                                                        onClick={() => handleViewEvent(event.id)}
+                                                                        onClick={() => handleViewEvent(event._id)}
                                                                     >
                                                                         <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
                                                                             <svg
@@ -1313,7 +1313,7 @@ export default function OrganizerEvents() {
                                                                         <Ellipsis />
                                                                     </MenuTrigger>
                                                                     <MenuItem
-                                                                        onClick={() => handleViewEvent(event.id)}
+                                                                        onClick={() => handleViewEvent(event._id)}
                                                                     >
                                                                         <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
                                                                             <svg

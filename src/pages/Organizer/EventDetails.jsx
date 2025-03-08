@@ -18,6 +18,7 @@ import TeamTab from "./TeamTab";
 import axios from "axios";
 import url from "../../constants/url"
 import { Spin } from 'antd';
+import { Link } from "react-router-dom";
 
 // Mock data structure (you should replace this with actual data fetching)
 const eventData = {
@@ -113,7 +114,7 @@ export default function EventDetails() {
           <div className="rounded-xl border border-white/10 grid gap-6 p-4">
             <p className="text-white/50 font-semibold">ABOUT</p>
             <div className="flex items-center gap-x-3">
-              <div className="bg-white/[0.06] h-8 p-2 px-2.5 w-fit rounded-full flex items-center justify-start gap-2">
+              {/* <div className="bg-white/[0.06] h-8 p-2 px-2.5 w-fit rounded-full flex items-center justify-start gap-2">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="16"
@@ -127,7 +128,7 @@ export default function EventDetails() {
                   />
                 </svg>
                 <span>{event.category}</span>
-              </div>
+              </div> */}
               <div className="bg-white/[0.06] h-8 p-2 px-2.5 w-fit rounded-full flex items-center justify-start gap-2">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -359,8 +360,8 @@ export default function EventDetails() {
           <div className="grid gap-12 text-white p-6 max-w-7xl mx-auto">
             <div className="grid gap-6">
               <div className="flex items-center gap-4 text-sm h-8 w-fit rounded-md border border-white/10 border-dashed px-2">
-                <button
-                  onClick={() => window.history.back()}
+                <Link
+                  to="/organizer/events"
                   className="flex items-center gap-2 text-white/70 hover:text-white transition-colors"
                 >
                   <svg
@@ -377,7 +378,7 @@ export default function EventDetails() {
                     <path d="M19 12H5M12 19l-7-7 7-7" />
                   </svg>
                   Back to Events
-                </button>
+                </Link>
                 <div className="h-7 w-px bg-white/10" />
                 <span className="text-white/50">Event Details</span>
               </div>
@@ -447,7 +448,7 @@ export default function EventDetails() {
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <button className="bg-transparent flex items-center gap-1 justify-center border border-white/10 text-white text-sm md:text-base h-8 md:h-10 px-4 rounded-full hover:bg-white/10 transition">
+                      <Link to={`/organizer/edit-event/${event._id}`} className="bg-transparent flex items-center gap-1 justify-center border border-white/10 text-white text-sm md:text-base h-8 md:h-10 px-4 rounded-full hover:bg-white/10 transition">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           width="16"
@@ -467,7 +468,7 @@ export default function EventDetails() {
                           />
                         </svg>
                         Edit
-                      </button>
+                      </Link>
                       <button className="bg-transparent flex items-center gap-1 justify-center border border-white/10 text-white text-sm md:text-base h-8 md:h-10 px-4 rounded-full hover:bg-white/10 transition">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"

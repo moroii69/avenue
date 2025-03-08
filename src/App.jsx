@@ -29,6 +29,7 @@ import EventDetails from "./pages/Organizer/EventDetails";
 import OrganizeMembers from "./pages/Organizer/OrganizeMembers";
 import CreateEvent from "./pages/Organizer/CreateEvent";
 import TicketEvent from "./pages/Organizer/TicketEvent"
+import EditEvent from "./pages/Organizer/EditEvent";
 
 function App() {
   const location = useLocation();
@@ -43,7 +44,8 @@ function App() {
     "/organizer/wallet",
     "/organizer/members",
     "/organizer/create-event",
-    "/organizer/create-ticket/ticketedevent"
+    "/organizer/create-ticket/ticketedevent",
+    "/organizer/edit-event",
   ];
   const hideFooter = [
     "/login",
@@ -61,7 +63,8 @@ function App() {
     "/organizer/wallet",
     "/organizer/members",
     "/organizer/create-event",
-    "/organizer/create-ticket/ticketedevent"
+    "/organizer/create-ticket/ticketedevent",
+    "/organizer/edit-event",
 
   ];
 
@@ -119,6 +122,7 @@ function App() {
           <Route path="/organizer/events/:id" element={<EventDetails />} />
           <Route path="/organizer/members" element={<OrganizeMembers />} />
           <Route path="/organizer/create-event" element={<CreateEvent />} />
+          <Route path="/organizer/edit-event/:id" element={<EditEvent />} />
           <Route
             path="/organizer/create-ticket/ticketedevent/:id"
             element={<TicketEvent />}
