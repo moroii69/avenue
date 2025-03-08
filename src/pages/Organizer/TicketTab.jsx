@@ -205,7 +205,8 @@ export default function TicketTab({ event }) {
             if (response.ok) {
                 console.log("New ticket added:", result.ticket);
                 setTickets((prev) => [...prev, result.ticket]);
-                alert(`Ticket "${data.name}" added successfully.`);
+                alert(`Ticket "${data.ticket_name}" added successfully.`);
+                window.location.reload()
                 resetTicket();
                 setNewTicketTypeDialogOpen(false);
             } else {
@@ -378,7 +379,7 @@ export default function TicketTab({ event }) {
 
     return (
         <div className="flex flex-col gap-4">
-            {/* <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4">
                 <button
                     onClick={() => setNewTicketTypeDialogOpen(true)}
                     className="flex items-center gap-2 border border-white/10 hover:bg-white/10 transition-colors px-4 py-2 rounded-full text-sm font-medium"
@@ -400,7 +401,7 @@ export default function TicketTab({ event }) {
                     </svg>
                     Add ticket type
                 </button>
-            </div> */}
+            </div>
             {/* <div className="flex items-center gap-2 p-3 border-2 border-dashed border-white/5 rounded-lg">
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -586,9 +587,9 @@ export default function TicketTab({ event }) {
                 <DialogContent className="max-h-[90vh] overflow-y-auto hide-scrollbar !gap-0">
                     <form onSubmit={handleSubmitTicket(onSubmitTicket)}>
                         <div className="flex flex-col gap-y-3 bg-white/[0.03] border-b rounded-t-xl border-white/10 p-6">
-                            <DialogTitle>Add new ticket type</DialogTitle>
+                            <DialogTitle>Add new ticket</DialogTitle>
                             <DialogDescription>
-                                Create a new ticket type for your event.
+                                Create a new ticket for your event.
                             </DialogDescription>
                         </div>
                         <div className="flex flex-col gap-4 p-6">
@@ -700,7 +701,7 @@ export default function TicketTab({ event }) {
                                 </label>
                                 <input
                                     type="text"
-                                    {...registerTicket("name")}
+                                    {...registerTicket("ticket_name")}
                                     className="border bg-primary text-white text-sm border-white/10 h-10 rounded-lg px-3 focus:outline-none w-full"
                                     placeholder="After Hours, Electric Dreams, etc."
                                 />
@@ -718,7 +719,7 @@ export default function TicketTab({ event }) {
                                 </label>
                                 <div className="relative">
                                     <textarea
-                                        {...registerTicket("description")}
+                                        {...registerTicket("ticket_description")}
                                         className="border bg-primary text-white text-sm border-white/10 rounded-lg px-3 py-2 focus:outline-none w-full min-h-[80px] resize-none"
                                         placeholder="e.g. Standard admission after 11 PM"
                                     />
@@ -740,7 +741,7 @@ export default function TicketTab({ event }) {
                                 </label>
                                 <input
                                     type="number"
-                                    {...registerTicket("total", {
+                                    {...registerTicket("qty", {
                                         valueAsNumber: true,
                                         setValueAs: (v) => (v === "" ? undefined : parseInt(v)),
                                         onChange: (e) => {
@@ -771,7 +772,7 @@ export default function TicketTab({ event }) {
                                     </label>
                                     <input
                                         type="number"
-                                        {...registerTicket("minPurchase", {
+                                        {...registerTicket("min_count", {
                                             valueAsNumber: true,
                                             onChange: (e) => {
                                                 if (
@@ -797,7 +798,7 @@ export default function TicketTab({ event }) {
                                     </label>
                                     <input
                                         type="number"
-                                        {...registerTicket("maxPurchase", {
+                                        {...registerTicket("max_count", {
                                             valueAsNumber: true,
                                             onChange: (e) => {
                                                 if (
@@ -833,7 +834,7 @@ export default function TicketTab({ event }) {
                                 //disabled={!isValidTicket}
                                 className="bg-white hover:bg-white/90 disabled:opacity-50 disabled:cursor-not-allowed text-black px-4 py-2 w-full rounded-full text-sm font-medium"
                             >
-                                Add ticket type
+                                Add ticket
                             </button>
                         </div>
                     </form>
