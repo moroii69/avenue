@@ -1538,20 +1538,40 @@ export default function TicketEvent() {
                                 <button
                                     onClick={() => {
                                         if (step === 1) {
+                                            if (!eventName.trim()) {
+                                                alert("Please enter an event name before proceeding.");
+                                                return;
+                                            }
                                             console.log("Images ready for upload", getImagesForUpload());
                                         }
 
+                                        if (step === 2) {
+                                            if (!ticketStartDate) {
+                                                alert("Please select a ticket start date before proceeding.");
+                                                return;
+                                            }
+                                            if (!ticketEndDate) {
+                                                alert("Please select a ticket end date before proceeding.");
+                                                return;
+                                            }
+                                        }
+
                                         if (step === 5) {
-                                            handleAddEvent("YES")
+                                            handleAddEvent("YES");
                                         } else {
                                             setStep((prevStep) => prevStep + 1);
                                         }
                                     }}
-                                    className="px-4 py-2 w-full rounded-full h-10 bg-white font-semibold text-primary flex items-center justify-center gap-2"
-                                    disabled={step === 5}
+                                    className={`px-4 py-2 w-full rounded-full h-10 font-semibold flex items-center justify-center gap-2 
+                                                ${step === 5 ? "bg-gray-500 cursor-not-allowed text-gray-300" : "bg-white text-black"}
+                                                ${step === 1 && !eventName.trim() ? "bg-gray-500 cursor-not-allowed text-gray-300" : ""}
+                                                ${step === 2 && (!ticketStartDate || !ticketEndDate) ? "bg-gray-500 cursor-not-allowed text-gray-300" : ""}`
+                                    }
+                                    disabled={step === 2 && (!ticketStartDate || !ticketEndDate)}
                                 >
                                     {step === 6 ? "Complete creating Event" : "Continue"}
                                 </button>
+
                             )}
                         </div>
                     </div>

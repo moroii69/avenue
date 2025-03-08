@@ -99,16 +99,19 @@ const initialTickets = [
 ];
 
 const ticketTypeFormSchema = z.object({
-    name: z.string().min(1, "Ticket name is required"),
+    ticket_name: z.string().min(1, "Ticket name is required"),
     type: z.enum(["regular", "vip", "early bird"], {
         required_error: "Please select a ticket type",
     }),
-    price: z.number().min(0, "Price must be a positive number"),
-    total: z.number().min(1, "Total tickets must be at least 1"),
-    description: z.string().max(10, "Description cannot exceed 10 words"),
-    minPurchase: z.number().min(1, "Minimum purchase must be at least 1"),
-    maxPurchase: z.number().min(1, "Maximum purchase must be at least 1"),
+    price: z.number().positive("Price must be a positive number"),
+    qty: z.number().min(1, "Total tickets must be at least 1"),
+    ticket_description: z.string().refine((desc) => desc.split(" ").length <= 10, {
+        message: "Description cannot exceed 10 words",
+    }),
+    min_count: z.number().min(1, "Minimum purchase must be at least 1"),
+    max_count: z.number().min(1, "Maximum purchase must be at least 1"),
 });
+
 
 export default function TicketTab({ event }) {
     const [tickets, setTickets] = useState(initialTickets);
@@ -122,6 +125,7 @@ export default function TicketTab({ event }) {
 
     const [soldTickets, setSoldTickets] = useState(0);
     const [remainCount, setRemainCount] = useState(0);
+    const [ticketData, setTicketData] = useState(null)
 
     const {
         register: registerTicket,
@@ -132,13 +136,13 @@ export default function TicketTab({ event }) {
     } = useForm({
         resolver: zodResolver(ticketTypeFormSchema),
         defaultValues: {
-            name: "",
+            ticket_name: "",
             type: "regular",
             price: "",
-            total: "",
-            description: "",
-            minPurchase: 1,
-            maxPurchase: 10,
+            qty: "",
+            ticket_description: "",
+            min_count: 1,
+            max_count: 10,
         },
     });
 
@@ -152,29 +156,64 @@ export default function TicketTab({ event }) {
     } = useForm({
         resolver: zodResolver(ticketTypeFormSchema),
         defaultValues: {
-            name: "",
+            ticket_name: "",
             type: "regular",
             price: "",
-            total: "",
-            description: "",
-            minPurchase: 1,
-            maxPurchase: 10,
+            qty: "",
+            ticket_description: "",
+            min_count: 1,
+            max_count: 10,
         },
     });
 
-    const onSubmitTicket = (data) => {
-        console.log("Ticket form submitted:", data);
-        setTickets((prev) => [
-            ...prev,
-            {
-                id: prev.length + 1,
-                ...data,
-                sold: 0,
-                status: "active",
-            },
-        ]);
-        resetTicket();
-        setNewTicketTypeDialogOpen(false);
+    const generateUniqueCode = () => {
+        const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        let result = "";
+        for (let i = 0; i < 6; i++) {
+            result += characters.charAt(Math.floor(Math.random() * characters.length));
+        }
+        return result;
+    };
+
+    const onSubmitTicket = async (data) => {
+        console.log("Submitting ticket with data:", data);
+        if (!event?._id) {
+            console.error("Missing event ID");
+            return;
+        }
+
+        try {
+            const response = await fetch(`${url}/event/add-ticket`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    event_id: event?._id,
+                    newTicket: {
+                        ticket_id: generateUniqueCode(),
+                        name: data.ticket_name,
+                        description: data.ticket_description,
+                        price: data.price,
+                        total: data.qty,
+                        minPurchase: data.min_count,
+                        maxPurchase: data.max_count,
+                    },
+                }),
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                console.log("New ticket added:", result.ticket);
+                setTickets((prev) => [...prev, result.ticket]);
+                alert(`Ticket "${data.name}" added successfully.`);
+                resetTicket();
+                setNewTicketTypeDialogOpen(false);
+            } else {
+                console.error("Failed to add ticket:", result.message);
+            }
+        } catch (error) {
+            console.error("Error adding ticket:", error);
+        }
     };
 
     const handleRenewSales = (ticket) => {
@@ -182,19 +221,34 @@ export default function TicketTab({ event }) {
         setRenewDialogOpen(true);
     };
 
-    const confirmRenew = () => {
-        setTickets((prev) =>
-            prev.map((ticket) =>
-                ticket.id === ticketToRenew.id
-                    ? {
-                        ...ticket,
-                        status: "active",
-                    }
-                    : ticket
-            )
-        );
-        setRenewDialogOpen(false);
-        setTicketToRenew(null);
+    const confirmRenew = async () => {
+        if (!ticketData?.ticket_id || !event._id) {
+            console.error("Missing ticket_id or event_id");
+            return;
+        }
+
+        try {
+            const response = await fetch(`${url}/event/update-ticket-status/${ticketData.ticket_id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    event_id: event._id,
+                    updatedTicket: { status: "active" },
+                }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert(`Ticket is now renewed.`);
+                window.location.reload()
+                setPauseDialogOpen(false);
+            } else {
+                console.error("Failed to pause ticket:", data.message);
+            }
+        } catch (error) {
+            console.error("Error pausing ticket:", error);
+        }
     };
 
     const handlePause = (ticket) => {
@@ -202,19 +256,34 @@ export default function TicketTab({ event }) {
         setPauseDialogOpen(true);
     };
 
-    const confirmPause = () => {
-        setTickets((prev) =>
-            prev.map((ticket) =>
-                ticket.id === ticketToPause.id
-                    ? {
-                        ...ticket,
-                        status: "paused",
-                    }
-                    : ticket
-            )
-        );
-        setPauseDialogOpen(false);
-        setTicketToPause(null);
+    const confirmPause = async () => {
+        if (!ticketData?.ticket_id || !event._id) {
+            console.error("Missing ticket_id or event_id");
+            return;
+        }
+
+        try {
+            const response = await fetch(`${url}/event/update-ticket-status/${ticketData.ticket_id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    event_id: event._id,
+                    updatedTicket: { status: "inactive" },
+                }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert(`Ticket is now paused.`);
+                window.location.reload()
+                setPauseDialogOpen(false);
+            } else {
+                console.error("Failed to pause ticket:", data.message);
+            }
+        } catch (error) {
+            console.error("Error pausing ticket:", error);
+        }
     };
 
     const handleEditTicket = (ticket) => {
@@ -228,21 +297,53 @@ export default function TicketTab({ event }) {
         setEditTicketDialogOpen(true);
     };
 
-    const onSubmitEditTicket = (data) => {
-        console.log("Edit ticket form submitted:", data);
-        setTickets((prev) =>
-            prev.map((ticket) =>
-                ticket.id === selectedTicket.id
-                    ? {
-                        ...ticket,
-                        ...data,
-                    }
-                    : ticket
-            )
-        );
-        resetEditTicket();
-        setEditTicketDialogOpen(false);
-        setSelectedTicket(null);
+    const onSubmitEditTicket = async (data) => {
+        if (!ticketData?.ticket_id || !event._id) {
+            console.error("Missing ticket_id or event_id");
+            return;
+        }
+
+        try {
+            const response = await fetch(`${url}/event/update-ticket-status/${ticketData.ticket_id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    event_id: event._id,
+                    updatedTicket: {
+                        ticket_name: data.ticket_name,
+                        ticket_description: data.ticket_description,
+                        price: data.price,
+                        qty: data.qty,
+                        min_count: data.min_count,
+                        max_count: data.max_count,
+                        ticket_type: data.type,
+                    },
+                }),
+            });
+
+            const updatedData = await response.json();
+
+            if (response.ok) {
+                console.log("Ticket updated successfully:", updatedData);
+                setTickets((prev) =>
+                    prev.map((ticket) =>
+                        ticket.ticket_id === selectedTicket.ticket_id
+                            ? { ...ticket, ...data }
+                            : ticket
+                    )
+                );
+
+                alert(`Ticket "${selectedTicket.ticket_name}" updated successfully.`);
+                window.location.reload()
+                setEditTicketDialogOpen(false);
+                resetEditTicket();
+                setSelectedTicket(null);
+            } else {
+                console.error("Failed to update ticket:", updatedData.message);
+            }
+        } catch (error) {
+            console.error("Error updating ticket:", error);
+        }
     };
 
     useEffect(() => {
@@ -277,7 +378,7 @@ export default function TicketTab({ event }) {
 
     return (
         <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-4">
+            {/* <div className="flex items-center gap-4">
                 <button
                     onClick={() => setNewTicketTypeDialogOpen(true)}
                     className="flex items-center gap-2 border border-white/10 hover:bg-white/10 transition-colors px-4 py-2 rounded-full text-sm font-medium"
@@ -299,8 +400,8 @@ export default function TicketTab({ event }) {
                     </svg>
                     Add ticket type
                 </button>
-            </div>
-            <div className="flex items-center gap-2 p-3 border-2 border-dashed border-white/5 rounded-lg">
+            </div> */}
+            {/* <div className="flex items-center gap-2 p-3 border-2 border-dashed border-white/5 rounded-lg">
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="16"
@@ -322,7 +423,7 @@ export default function TicketTab({ event }) {
                     />
                 </svg>
                 <p className="text-white/70 text-sm">You have an uncompleted draft</p>
-            </div>
+            </div> */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
                 {event?.tickets?.map((ticket) => {
                     const totalTickets = (soldTickets[ticket.ticket_name] || 0) + (remainCount[ticket.ticket_name] || 0);
@@ -393,9 +494,12 @@ export default function TicketTab({ event }) {
                             </div>
 
                             <div className="flex items-center justify-between p-4">
-                                {ticket.status === "paused" ? (
+                                {ticket.status === "inactive" ? (
                                     <button
-                                        onClick={() => handleRenewSales(ticket)}
+                                        onClick={() => {
+                                            handleRenewSales(ticket)
+                                            setTicketData(ticket)
+                                        }}
                                         className="bg-[#0F0F0F] rounded-full px-4 py-2 h-10 flex items-center gap-2"
                                     >
                                         <svg
@@ -416,7 +520,10 @@ export default function TicketTab({ event }) {
                                 ) : (
                                     <>
                                         <button
-                                            onClick={() => handleEditTicket(ticket)}
+                                            onClick={() => {
+                                                setTicketData(ticket)
+                                                handleEditTicket(ticket)
+                                            }}
                                             className="bg-[#0F0F0F] rounded-full px-4 py-2 h-10 flex items-center gap-2"
                                         >
                                             <svg
@@ -440,7 +547,10 @@ export default function TicketTab({ event }) {
                                             <span>Edit Ticket</span>
                                         </button>
                                         <button
-                                            onClick={() => handlePause(ticket)}
+                                            onClick={() => {
+                                                setTicketData(ticket)
+                                                handlePause(ticket)
+                                            }}
                                             className="bg-[#0F0F0F] rounded-full w-10 h-10 flex items-center justify-center"
                                         >
                                             <svg
@@ -520,7 +630,7 @@ export default function TicketTab({ event }) {
                             </div>
 
                             {/* Ticket Icon - Second */}
-                            <div className="flex flex-col gap-3">
+                            {/* <div className="flex flex-col gap-3">
                                 <label className="text-sm font-medium text-white">
                                     Ticket icon
                                 </label>
@@ -581,7 +691,7 @@ export default function TicketTab({ event }) {
                                         {errorsTicket.type.message}
                                     </span>
                                 )}
-                            </div>
+                            </div> */}
 
                             {/* Ticket Name - Third */}
                             <div className="flex flex-col gap-3">
@@ -720,7 +830,7 @@ export default function TicketTab({ event }) {
                             </button>
                             <button
                                 type="submit"
-                                disabled={!isValidTicket}
+                                //disabled={!isValidTicket}
                                 className="bg-white hover:bg-white/90 disabled:opacity-50 disabled:cursor-not-allowed text-black px-4 py-2 w-full rounded-full text-sm font-medium"
                             >
                                 Add ticket type
@@ -788,7 +898,7 @@ export default function TicketTab({ event }) {
                             </div>
 
                             {/* Ticket Icon */}
-                            <div className="flex flex-col gap-3">
+                            {/* <div className="flex flex-col gap-3">
                                 <label className="text-sm font-medium text-white">
                                     Ticket icon
                                 </label>
@@ -849,7 +959,7 @@ export default function TicketTab({ event }) {
                                         {errorsEditTicket.type.message}
                                     </span>
                                 )}
-                            </div>
+                            </div> */}
 
                             {/* Ticket Name */}
                             <div className="flex flex-col gap-3">
@@ -858,7 +968,7 @@ export default function TicketTab({ event }) {
                                 </label>
                                 <input
                                     type="text"
-                                    {...registerEditTicket("name")}
+                                    {...registerEditTicket("ticket_name")}
                                     className="border bg-primary text-white text-sm border-white/10 h-10 rounded-lg px-3 focus:outline-none w-full"
                                     placeholder="After Hours, Electric Dreams, etc."
                                 />
@@ -876,7 +986,7 @@ export default function TicketTab({ event }) {
                                 </label>
                                 <div className="relative">
                                     <textarea
-                                        {...registerEditTicket("description")}
+                                        {...registerEditTicket("ticket_description")}
                                         className="border bg-primary text-white text-sm border-white/10 rounded-lg px-3 py-2 focus:outline-none w-full min-h-[80px] resize-none"
                                         placeholder="e.g. Standard admission after 11 PM"
                                     />
@@ -898,7 +1008,7 @@ export default function TicketTab({ event }) {
                                 </label>
                                 <input
                                     type="number"
-                                    {...registerEditTicket("total", {
+                                    {...registerEditTicket("qty", {
                                         valueAsNumber: true,
                                         setValueAs: (v) => (v === "" ? undefined : parseInt(v)),
                                         onChange: (e) => {
@@ -929,7 +1039,7 @@ export default function TicketTab({ event }) {
                                     </label>
                                     <input
                                         type="number"
-                                        {...registerEditTicket("minPurchase", {
+                                        {...registerEditTicket("min_count", {
                                             valueAsNumber: true,
                                             onChange: (e) => {
                                                 if (
@@ -955,7 +1065,7 @@ export default function TicketTab({ event }) {
                                     </label>
                                     <input
                                         type="number"
-                                        {...registerEditTicket("maxPurchase", {
+                                        {...registerEditTicket("max_count", {
                                             valueAsNumber: true,
                                             onChange: (e) => {
                                                 if (
@@ -988,7 +1098,7 @@ export default function TicketTab({ event }) {
                             </button>
                             <button
                                 type="submit"
-                                disabled={!isValidEditTicket}
+                                // disabled={!isValidEditTicket}
                                 className="bg-white hover:bg-white/90 disabled:opacity-50 disabled:cursor-not-allowed text-black px-4 py-2 w-full rounded-full text-sm font-medium"
                             >
                                 Save changes
@@ -1028,7 +1138,7 @@ export default function TicketTab({ event }) {
                         <div className="flex flex-col items-start gap-2">
                             <div className="flex flex-col gap-2">
                                 <h3 className="text-xl font-semibold">
-                                    Pause {ticketToPause?.type} ticket sales?
+                                    Pause {ticketData?.ticket_name} ticket sales?
                                 </h3>
                                 <p className="text-white/70">
                                     No one will be able to purchase this ticket while paused
@@ -1087,7 +1197,7 @@ export default function TicketTab({ event }) {
                         <div className="flex flex-col items-start gap-2">
                             <div className="flex flex-col gap-2">
                                 <h3 className="text-xl font-semibold">
-                                    Renew {ticketToRenew?.type} ticket sales?
+                                    Renew {ticketData?.ticket_name} ticket sales?
                                 </h3>
                                 <p className="text-white/70">
                                     People will be able to purchase this ticket again

@@ -10,6 +10,22 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import url from "../../constants/url"
 import { Spin } from 'antd';
+import {
+  DirectionAwareMenu,
+  MenuItem,
+  MenuSeparator,
+  MenuTrigger,
+} from "../../components/ui/DirectionAwareMenu";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from "../../components/ui/Dailog";
+import { motion } from "framer-motion"
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
 const ticketTypesIcons = {
   regular: (
@@ -254,6 +270,13 @@ export default function SalesTab({ eventId, event }) {
 
   const [book, setBook] = useState([]);
   const [loading, setLoading] = useState(false)
+  const [sendTicketOpen, setSendTicketOpen] = useState(false)
+  const [selectedPay, setSelectedPay] = useState(null)
+  const [resendNotificationModal, setResendNotificationModal] = useState(false)
+  const [isRefundOpen, setIsRefundOpen] = useState(false);
+  const [includeFee, setIncludeFee] = useState(false);
+  const [maxAmount, setMaxAmount] = useState(0);
+  const [amountEntered, setAmountEntered] = useState(false);
 
   const filteredSalesHistory = book.filter((sale) => {
     const isRefund = sale.refund === "true";
@@ -335,6 +358,19 @@ export default function SalesTab({ eventId, event }) {
   const successRate = totalSalesAmount > 0
     ? ((totalAmount / totalSalesAmount) * 100).toFixed(2)
     : 0;
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid },
+    setValue,
+    watch
+  } = useForm({
+    mode: "onChange",
+    defaultValues: {
+      amount: "",
+    },
+  });
 
 
   const statsData = [
@@ -448,386 +484,762 @@ export default function SalesTab({ eventId, event }) {
     return `${dayOfWeek}, ${day} ${month} at ${hours}:${minutes} ${ampm}`;
   };
 
+  const handleResend = async (e) => {
+    e.preventDefault();
+
+    if (!selectedPay?.email) {
+      console.log("Email is required.");
+      return;
+    }
+
+    setLoading(true);
+    console.log(null);
+
+    try {
+      const response = await fetch(`${url}/resend-email`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: selectedPay.email, book: selectedPay }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSendTicketOpen(false);
+        setResendNotificationModal(true)
+        setTimeout(() => {
+          setResendNotificationModal(false);
+        }, [3000])
+      } else {
+        console.log(data.message || "Failed to resend ticket.");
+      }
+    } catch (err) {
+      console.log("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const ticketPrice = selectedPay?.amount ?
+    ((selectedPay.amount / 100 - 0.89) / 1.09).toFixed(2) : 0;
+
+  const feeAmount = selectedPay?.amount ?
+    (selectedPay.amount / 100 - parseFloat(ticketPrice)).toFixed(2) : 0;
+
+  const maxTotal = selectedPay?.amount ? (selectedPay.amount / 100).toFixed(2) : 0;
+
+  const amountValue = watch("amount", "");
+
+  useEffect(() => {
+    if (amountValue) {
+      const parsedAmount = parseFloat(amountValue) || 0;
+      const maxAllowed = includeFee ? parseFloat(maxTotal) : parseFloat(ticketPrice);
+
+      if (parsedAmount > maxAllowed) {
+        setValue("amount", maxAllowed, { shouldValidate: true });
+      }
+    }
+  }, [amountValue, includeFee, ticketPrice, maxTotal, setValue]);
+
+  const handleMaxClick = () => {
+    if (selectedPay?.amount) {
+      const maxAllowed = includeFee ? maxTotal : ticketPrice;
+      setMaxAmount(parseFloat(maxAllowed));
+      setValue("amount", maxAllowed, { shouldValidate: true });
+    }
+  };
+
+
+  const handleFeeToggle = (checked) => {
+    setIncludeFee(checked);
+    const currentAmount = parseFloat(watch("amount") || 0);
+
+    if (checked) {
+      // Convert amountWithoutFee to totalWithFee
+      const amountWithoutFee = Math.min(currentAmount, parseFloat(ticketPrice));
+      const totalWithFee = (amountWithoutFee * 1.09 + 0.89).toFixed(2);
+      setValue("amount", totalWithFee, { shouldValidate: true });
+    } else {
+      // Convert totalWithFee back to amountWithoutFee
+      const totalWithFee = Math.min(currentAmount, parseFloat(maxTotal));
+      const amountWithoutFee = ((totalWithFee - 0.89) / 1.09).toFixed(2);
+      setValue("amount", amountWithoutFee, { shouldValidate: true });
+    }
+  };
+
+
+  const onSubmitRefund = async () => {
+    //console.log("Refund", amountValue)
+    try {
+      const refundRequest = axios.post(`${url}/refund`, {
+        paymentIntentId: selectedPay.transaction_id.split("_secret_")[0],
+        amount: amountValue,
+        organizerId: oragnizerId
+      });
+
+      const updateStatusRequest = axios.post(`${url}/updateRefundStatus`, {
+        paymentId: selectedPay.transaction_id,
+        refund: true,
+      });
+
+      const [refundResponse, statusResponse] = await Promise.all([refundRequest, updateStatusRequest]);
+
+      alert("Refund initiated successfully");
+      window.location.reload()
+
+    } catch (error) {
+      console.error("Error processing refund or updating status:", error);
+      alert("Refund or status update failed. Please try again.");
+    }
+  };
+
   return (
-    <div className="@container grid gap-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {statsData.map((stat, index) => (
-          <Link
-            key={index}
-            className={`p-4 rounded-xl border border-white/5 bg-opacity-5 backdrop-blur-sm cursor-default`}
-          >
-            <div className="flex justify-between items-center">
-              <div className="flex items-start justify-between w-full">
-                <div className="flex flex-col items-start gap-3">
-                  <p className="text-gray-400 flex items-center">
-                    <span>{stat.title}</span>
-                    {
-                      stat.title === "Revenue" || stat.title === "Currently Live" ? (
-                        <span className="ml-1">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="16"
-                            height="16"
-                            viewBox="0 0 16 16"
-                            fill="none"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              clipRule="evenodd"
-                              d="M4.22007 11.78C4.07962 11.6394 4.00073 11.4488 4.00073 11.25C4.00073 11.0512 4.07962 10.8606 4.22007 10.72L9.44007 5.5H5.75007C5.55116 5.5 5.36039 5.42098 5.21974 5.28033C5.07909 5.13968 5.00007 4.94891 5.00007 4.75C5.00007 4.55109 5.07909 4.36032 5.21974 4.21967C5.36039 4.07902 5.55116 4 5.75007 4H11.2501C11.449 4 11.6398 4.07902 11.7804 4.21967C11.9211 4.36032 12.0001 4.55109 12.0001 4.75V10.25C12.0001 10.4489 11.9211 10.6397 11.7804 10.7803C11.6398 10.921 11.449 11 11.2501 11C11.0512 11 10.8604 10.921 10.7197 10.7803C10.5791 10.6397 10.5001 10.4489 10.5001 10.25V6.56L5.28007 11.78C5.13945 11.9205 4.94882 11.9993 4.75007 11.9993C4.55132 11.9993 4.3607 11.9205 4.22007 11.78Z"
-                              fill="white"
-                              fillOpacity="0.5"
-                            />
-                          </svg>
-                        </span>
-                      ) : (
-                        ""
-                      )
-                    }
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <p className="text-2xl font-bold">{stat.amount}</p>
+    <>
+      <div className="@container grid gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {statsData.map((stat, index) => (
+            <Link
+              key={index}
+              className={`p-4 rounded-xl border border-white/5 bg-opacity-5 backdrop-blur-sm cursor-default`}
+            >
+              <div className="flex justify-between items-center">
+                <div className="flex items-start justify-between w-full">
+                  <div className="flex flex-col items-start gap-3">
+                    <p className="text-gray-400 flex items-center">
+                      <span>{stat.title}</span>
+                      {
+                        stat.title === "Revenue" || stat.title === "Currently Live" ? (
+                          <span className="ml-1">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              viewBox="0 0 16 16"
+                              fill="none"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                clipRule="evenodd"
+                                d="M4.22007 11.78C4.07962 11.6394 4.00073 11.4488 4.00073 11.25C4.00073 11.0512 4.07962 10.8606 4.22007 10.72L9.44007 5.5H5.75007C5.55116 5.5 5.36039 5.42098 5.21974 5.28033C5.07909 5.13968 5.00007 4.94891 5.00007 4.75C5.00007 4.55109 5.07909 4.36032 5.21974 4.21967C5.36039 4.07902 5.55116 4 5.75007 4H11.2501C11.449 4 11.6398 4.07902 11.7804 4.21967C11.9211 4.36032 12.0001 4.55109 12.0001 4.75V10.25C12.0001 10.4489 11.9211 10.6397 11.7804 10.7803C11.6398 10.921 11.449 11 11.2501 11C11.0512 11 10.8604 10.921 10.7197 10.7803C10.5791 10.6397 10.5001 10.4489 10.5001 10.25V6.56L5.28007 11.78C5.13945 11.9205 4.94882 11.9993 4.75007 11.9993C4.55132 11.9993 4.3607 11.9205 4.22007 11.78Z"
+                                fill="white"
+                                fillOpacity="0.5"
+                              />
+                            </svg>
+                          </span>
+                        ) : (
+                          ""
+                        )
+                      }
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-2xl font-bold">{stat.amount}</p>
+                    </div>
+                  </div>
+                  <div className="w-8 h-8 bg-white/5 rounded-full flex items-center justify-center">
+                    {stat.icon}
                   </div>
                 </div>
-                <div className="w-8 h-8 bg-white/5 rounded-full flex items-center justify-center">
-                  {stat.icon}
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        {/* Filter Buttons */}
+        <div className="flex flex-col @4xl:flex-row gap-3 w-full justify-between items-start @4xl:items-center mt-8">
+          <div className="flex gap-3 flex-wrap items-center">
+            {/* All time filter */}
+            <Dropdown>
+              <DropdownTrigger>
+                <button className="flex items-center gap-2 text-sm border border-white/10 px-3 py-2 rounded-full">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                      d="M4 1.75C4 1.55109 4.07902 1.36032 4.21967 1.21967C4.36032 1.07902 4.55109 1 4.75 1C4.94891 1 5.13968 1.07902 5.28033 1.21967C5.42098 1.36032 5.5 1.55109 5.5 1.75V3H10.5V1.75C10.5 1.55109 10.579 1.36032 10.7197 1.21967C10.8603 1.07902 11.0511 1 11.25 1C11.4489 1 11.6397 1.07902 11.7803 1.21967C11.921 1.36032 12 1.55109 12 1.75V3C12.5304 3 13.0391 3.21071 13.4142 3.58579C13.7893 3.96086 14 4.46957 14 5V12C14 12.5304 13.7893 13.0391 13.4142 13.4142C13.0391 13.7893 12.5304 14 12 14H4C3.46957 14 2.96086 13.7893 2.58579 13.4142C2.21071 13.0391 2 12.5304 2 12V5C2 4.46957 2.21071 3.96086 2.58579 3.58579C2.96086 3.21071 3.46957 3 4 3V1.75ZM4.5 6C4.23478 6 3.98043 6.10536 3.79289 6.29289C3.60536 6.48043 3.5 6.73478 3.5 7V11.5C3.5 11.7652 3.60536 12.0196 3.79289 12.2071C3.98043 12.3946 4.23478 12.5 4.5 12.5H11.5C11.7652 12.5 12.0196 12.3946 12.2071 12.2071C12.3946 12.0196 12.5 11.7652 12.5 11.5V7C12.5 6.73478 12.3946 6.48043 12.2071 6.29289C12.0196 6.10536 11.7652 6 11.5 6H4.5Z"
+                      fill="white"
+                      fillOpacity="0.5"
+                    />
+                  </svg>
+                  {timeFilter}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                  >
+                    <path
+                      d="M4 6L8 10L12 6"
+                      stroke="white"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+              </DropdownTrigger>
+              <DropdownContent
+                align="left"
+                className="w-48 bg-[#151515] border border-white/10 rounded-lg shadow-lg overflow-hidden"
+              >
+                <DropdownItem
+                  onClick={() => setTimeFilter("All time")}
+                  className="px-4 py-2 hover:bg-white/5 text-white"
+                >
+                  All time
+                </DropdownItem>
+                <DropdownItem
+                  onClick={() => setTimeFilter("Last 7 days")}
+                  className="px-4 py-2 hover:bg-white/5 text-white"
+                >
+                  Last 7 days
+                </DropdownItem>
+                <DropdownItem
+                  onClick={() => setTimeFilter("Last 30 days")}
+                  className="px-4 py-2 hover:bg-white/5 text-white"
+                >
+                  Last 30 days
+                </DropdownItem>
+                <DropdownItem
+                  onClick={() => setTimeFilter("Last 90 days")}
+                  className="px-4 py-2 hover:bg-white/5 text-white"
+                >
+                  Last 90 days
+                </DropdownItem>
+              </DropdownContent>
+            </Dropdown>
+
+            {/* All types filter */}
+            <Dropdown>
+              <DropdownTrigger>
+                <button className="flex items-center gap-2 text-sm border border-white/10 px-3 py-2 rounded-full">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                      d="M7.628 1.34876C7.7413 1.28404 7.86952 1.25 8 1.25C8.13048 1.25 8.2587 1.28404 8.372 1.34876L13.182 4.09676L8 7.13076L2.818 4.09676L7.628 1.34876ZM14 5.35676L8.75 8.42976V14.4348L13.622 11.6508C13.7368 11.5852 13.8322 11.4904 13.8986 11.3761C13.965 11.2618 14 11.132 14 10.9998V5.35676ZM7.25 14.4348V8.42976L2 5.35676V10.9998C2 11.2698 2.144 11.5178 2.378 11.6508L7.25 14.4348Z"
+                      fill="white"
+                      fillOpacity="0.5"
+                    />
+                  </svg>
+                  {typeFilter}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                  >
+                    <path
+                      d="M4 6L8 10L12 6"
+                      stroke="white"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+              </DropdownTrigger>
+              <DropdownContent
+                align="left"
+                className="w-48 bg-[#151515] border border-white/10 rounded-lg shadow-lg overflow-hidden"
+              >
+                <DropdownItem
+                  onClick={() => setTypeFilter("All types")}
+                  className="px-4 py-2 hover:bg-white/5 text-white"
+                >
+                  All types
+                </DropdownItem>
+                <DropdownItem
+                  onClick={() => setTypeFilter("Sale")}
+                  className="px-4 py-2 hover:bg-white/5 text-white"
+                >
+                  Sale
+                </DropdownItem>
+                <DropdownItem
+                  onClick={() => setTypeFilter("Refund")}
+                  className="px-4 py-2 hover:bg-white/5 text-white"
+                >
+                  Refund
+                </DropdownItem>
+              </DropdownContent>
+            </Dropdown>
+
+            {/* Ticket filter */}
+            <Dropdown>
+              <DropdownTrigger>
+                <button className="flex items-center gap-2 text-sm border border-white/10 px-3 py-2 rounded-full">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                      d="M1 4.5C1 4.10218 1.15804 3.72064 1.43934 3.43934C1.72064 3.15804 2.10218 3 2.5 3H13.5C13.8978 3 14.2794 3.15804 14.5607 3.43934C14.842 3.72064 15 4.10218 15 4.5V5.5C15 5.776 14.773 5.994 14.505 6.062C14.0743 6.1718 13.6925 6.42192 13.4198 6.77286C13.1472 7.1238 12.9991 7.55557 12.9991 8C12.9991 8.44443 13.1472 8.8762 13.4198 9.22714C13.6925 9.57808 14.0743 9.8282 14.505 9.938C14.773 10.006 15 10.224 15 10.5V11.5C15 11.8978 14.842 12.2794 14.5607 12.5607C14.2794 12.842 13.8978 13 13.5 13H2.5C2.10218 13 1.72064 12.842 1.43934 12.5607C1.15804 12.2794 1 11.8978 1 11.5V10.5C1 10.224 1.227 10.006 1.495 9.938C1.92565 9.8282 2.30747 9.57808 2.58016 9.22714C2.85285 8.8762 3.00088 8.44443 3.00088 8C3.00088 7.55557 2.85285 7.1238 2.58016 6.77286C2.30747 6.42192 1.92565 6.1718 1.495 6.062C1.227 5.994 1 5.776 1 5.5V4.5Z"
+                      fill="white"
+                      fillOpacity="0.5"
+                    />
+                  </svg>
+                  {ticketFilter}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                  >
+                    <path
+                      d="M4 6L8 10L12 6"
+                      stroke="white"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+              </DropdownTrigger>
+              <DropdownContent
+                align="left"
+                className="w-48 bg-[#151515] border border-white/10 rounded-lg shadow-lg overflow-hidden"
+              >
+                <DropdownItem
+                  onClick={() => setTicketFilter("All tickets")}
+                  className="px-4 py-2 hover:bg-white/5 text-white"
+                >
+                  All tickets
+                </DropdownItem>
+                {event?.tickets?.map((ticket, index) => (
+                  <DropdownItem
+                    key={index}
+                    onClick={() => setTicketFilter(ticket.ticket_name)}
+                    className="px-4 py-2 hover:bg-white/5 text-white"
+                  >
+                    {ticket.ticket_name}
+                  </DropdownItem>
+                ))}
+              </DropdownContent>
+            </Dropdown>
+          </div>
+          <div className="relative w-full @4xl:w-fit flex justify-end h-fit">
+            <input
+              type="text"
+              placeholder="Search sales..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="h-10 w-full bg-white/5 border border-white/10 rounded-full pl-10 pr-4 text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-white/10 @4xl:w-[250px]"
+            />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/50"
+            >
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </div>
+        </div>
+        <div className="border rounded-xl h-fit border-white/10 overflow-hidden">
+          <div className="overflow-x-auto w-full">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-white/70 [&_th]:font-medium border-b border-white/5 bg-white/5 [&>th]:min-w-[180px] last:[&>th]:min-w-fit">
+                  <th className="p-4 text-sm font-medium text-white/70 text-left">
+                    Date
+                  </th>
+                  <th className="p-4 text-sm font-medium text-white/70 text-left">
+                    Type
+                  </th>
+                  <th className="p-4 text-sm font-medium text-white/70 text-left">
+                    Ticket
+                  </th>
+                  <th className="p-4 text-sm font-medium text-white/70 text-left">
+                    Name
+                  </th>
+                  <th className="p-4 text-sm font-medium text-white/70 text-left">
+                    Amount
+                  </th>
+                  <th className="p-4 text-sm font-medium text-white/70 text-left">
+                    Status
+                  </th>
+                  <th className="p-4 text-sm font-medium text-white/70 text-left">
+                    <Ellipsis />
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {
+                  loading ? (
+                    <tr>
+                      <td
+                        colSpan={8}
+                        className="text-center p-4 text-white/50"
+                      >
+                        <Spin size="small" />
+                      </td>
+                    </tr>
+                  ) : (
+                    <>
+                      {filteredSalesHistory.slice().reverse().map((payout, index) => (
+                        <tr key={index} className="hover:bg-white/[0.01]">
+                          <td className="p-4">
+                            {(() => {
+                              const dateObj = new Date(payout.date);
+                              const formattedDate = dateObj.toLocaleString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                              });
+                              const formattedTime = dateObj.toLocaleString("en-US", {
+                                hour: "numeric",
+                                minute: "2-digit",
+                                hour12: true,
+                              });
+                              return `${formattedDate} at ${formattedTime}`;
+                            })()}
+                          </td>
+                          <td className="p-4">
+                            <div className="flex items-center gap-2 capitalize">
+                              {payout.refund === 'true' ? saleTypesIcons['refund'] : saleTypesIcons['sale']}
+                              {payout.refund === 'true' ? "Refund" : "Sale"}
+                            </div>
+                          </td>
+                          <td className="p-4">
+                            <div className="flex items-center gap-2 capitalize">
+                              {/* {ticketTypesIcons[payout.ticket]} */}
+                              {payout?.tickets?.ticket_name} x {payout.count}
+                            </div>
+                          </td>
+                          <td className="p-4">
+                            <div className="flex flex-col">
+                              <span>{payout.firstName}</span>
+                              <span className="text-white/50 text-xs">
+                                {payout.email}
+                              </span>
+                            </div>
+                          </td>
+                          <td
+                            className={`p-4 ${payout.amount < 0 ? "text-white/50" : ""
+                              }`}
+                          >
+                            {payout.amount < 0
+                              ? `-$${(Math.abs((payout.amount / 100) - 0.89) / 1.09).toLocaleString("en-US", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              })}`
+                              : `$${(Math.abs((payout.amount / 100) - 0.89) / 1.09).toLocaleString("en-US", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              })}`}
+                          </td>
+                          <td className="p-4">
+                            <span className="flex items-center gap-2 capitalize">
+                              {payout.refund === 'true' ? statusIcons['refunded'] : statusIcons['completed']}
+                              {payout.refund === 'true' ? "Refunded" : "Completed"}
+                            </span>
+                          </td>
+                          <td className="py-4 pl-4">
+                            <DirectionAwareMenu>
+                              <MenuTrigger>
+                                <Ellipsis />
+                              </MenuTrigger>
+                              <MenuItem
+
+                              >
+                                <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 16 16"
+                                    fill="none"
+                                  >
+                                    <path
+                                      d="M8 9.5C8.39782 9.5 8.77936 9.34196 9.06066 9.06066C9.34196 8.77936 9.5 8.39782 9.5 8C9.5 7.60218 9.34196 7.22064 9.06066 6.93934C8.77936 6.65804 8.39782 6.5 8 6.5C7.60218 6.5 7.22064 6.65804 6.93934 6.93934C6.65804 7.22064 6.5 7.60218 6.5 8C6.5 8.39782 6.65804 8.77936 6.93934 9.06066C7.22064 9.34196 7.60218 9.5 8 9.5Z"
+                                      fill="white"
+                                      fillOpacity="0.5"
+                                    />
+                                    <path
+                                      fillRule="evenodd"
+                                      clipRule="evenodd"
+                                      d="M1.37996 8.28012C1.31687 8.09672 1.31687 7.89751 1.37996 7.71412C1.85633 6.33749 2.75014 5.14368 3.93692 4.29893C5.1237 3.45419 6.54437 3.00056 8.00109 3.00122C9.45782 3.00188 10.8781 3.4568 12.0641 4.30262C13.2501 5.14844 14.1428 6.34306 14.618 7.72012C14.681 7.90351 14.681 8.10273 14.618 8.28612C14.1418 9.6631 13.248 10.8573 12.0611 11.7023C10.8742 12.5473 9.4533 13.0011 7.99632 13.0005C6.53934 12.9998 5.11883 12.5447 3.9327 11.6986C2.74657 10.8525 1.85387 9.65753 1.37896 8.28012H1.37996ZM11 8.00012C11 8.79577 10.6839 9.55883 10.1213 10.1214C9.55867 10.684 8.79561 11.0001 7.99996 11.0001C7.20431 11.0001 6.44125 10.684 5.87864 10.1214C5.31603 9.55883 4.99996 8.79577 4.99996 8.00012C4.99996 7.20447 5.31603 6.44141 5.87864 5.8788C6.44125 5.31619 7.20431 5.00012 7.99996 5.00012C8.79561 5.00012 9.55867 5.31619 10.1213 5.8788C10.6839 6.44141 11 7.20447 11 8.00012Z"
+                                      fill="white"
+                                      fillOpacity="0.5"
+                                    />
+                                  </svg>
+                                  <span>View details</span>
+                                </div>
+                              </MenuItem>
+                              <MenuItem
+                                onClick={() => {
+                                  setSelectedPay(payout);
+                                  setSendTicketOpen(true);
+                                }}
+                              >
+                                <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 16 16"
+                                    fill="none"
+                                  >
+                                    <path
+                                      fillRule="evenodd"
+                                      clipRule="evenodd"
+                                      d="M1 4.5C1 4.10218 1.15804 3.72064 1.43934 3.43934C1.72064 3.15804 2.10218 3 2.5 3H13.5C13.8978 3 14.2794 3.15804 14.5607 3.43934C14.842 3.72064 15 4.10218 15 4.5V5.5C15 5.776 14.773 5.994 14.505 6.062C14.0743 6.1718 13.6925 6.42192 13.4198 6.77286C13.1472 7.1238 12.9991 7.55557 12.9991 8C12.9991 8.44443 13.1472 8.8762 13.4198 9.22714C13.6925 9.57808 14.0743 9.8282 14.505 9.938C14.773 10.006 15 10.224 15 10.5V11.5C15 11.8978 14.842 12.2794 14.5607 12.5607C14.2794 12.842 13.8978 13 13.5 13H2.5C2.10218 13 1.72064 12.842 1.43934 12.5607C1.15804 12.2794 1 11.8978 1 11.5V10.5C1 10.224 1.227 10.006 1.495 9.938C1.92565 9.8282 2.30747 9.57808 2.58016 9.22714C2.85285 8.8762 3.00088 8.44443 3.00088 8C3.00088 7.55557 2.85285 7.1238 2.58016 6.77286C2.30747 6.42192 1.92565 6.1718 1.495 6.062C1.227 5.994 1 5.776 1 5.5V4.5ZM10 5.75C10 5.55109 10.079 5.36032 10.2197 5.21967C10.3603 5.07902 10.5511 5 10.75 5C10.9489 5 11.1397 5.07902 11.2803 5.21967C11.421 5.36032 11.5 5.55109 11.5 5.75V6.75C11.5 6.94891 11.421 7.13968 11.2803 7.28033C11.1397 7.42098 10.9489 7.5 10.75 7.5C10.5511 7.5 10.3603 7.42098 10.2197 7.28033C10.079 7.13968 10 6.94891 10 6.75V5.75ZM10.75 8.5C10.5511 8.5 10.3603 8.57902 10.2197 8.71967C10.079 8.86032 10 9.05109 10 9.25V10.25C10 10.4489 10.079 10.6397 10.2197 10.7803C10.3603 10.921 10.5511 11 10.75 11C10.9489 11 11.1397 10.921 11.2803 10.7803C11.421 10.6397 11.5 10.4489 11.5 10.25V9.25C11.5 9.05109 11.421 8.86032 11.2803 8.71967C11.1397 8.57902 10.9489 8.5 10.75 8.5Z"
+                                      fill="white"
+                                      fillOpacity="0.5"
+                                    />
+                                  </svg>
+                                  <span>Resend ticket</span>
+                                </div>
+                              </MenuItem>
+                              <MenuItem
+                                onClick={() => {
+                                  setSelectedPay(payout);
+                                  setIsRefundOpen(true);
+                                }}
+                              >
+                                <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="17"
+                                    height="16"
+                                    viewBox="0 0 17 16"
+                                    fill="none"
+                                  >
+                                    <path
+                                      fillRule="evenodd"
+                                      clipRule="evenodd"
+                                      d="M13.2501 9.74985C13.2501 9.38871 13.1789 9.03111 13.0407 8.69747C12.9025 8.36382 12.7 8.06066 12.4446 7.8053C12.1893 7.54994 11.8861 7.34738 11.5525 7.20918C11.2188 7.07098 10.8612 6.99985 10.5001 6.99985H5.31007L7.53007 9.21985C7.60376 9.28851 7.66286 9.37131 7.70385 9.46331C7.74485 9.55531 7.76689 9.65462 7.76866 9.75532C7.77044 9.85603 7.75192 9.95606 7.7142 10.0494C7.67647 10.1428 7.62033 10.2277 7.54911 10.2989C7.47789 10.3701 7.39306 10.4262 7.29967 10.464C7.20628 10.5017 7.10625 10.5202 7.00555 10.5184C6.90485 10.5167 6.80553 10.4946 6.71353 10.4536C6.62154 10.4126 6.53873 10.3535 6.47007 10.2798L2.97007 6.77985C2.82962 6.63922 2.75073 6.4486 2.75073 6.24985C2.75073 6.0511 2.82962 5.86047 2.97007 5.71985L6.47007 2.21985C6.61225 2.08737 6.80029 2.01524 6.9946 2.01867C7.1889 2.0221 7.37428 2.10081 7.51169 2.23822C7.64911 2.37564 7.72782 2.56102 7.73125 2.75532C7.73468 2.94963 7.66255 3.13767 7.53007 3.27985L5.31007 5.49985H10.5001C11.6272 5.49985 12.7082 5.94761 13.5053 6.74464C14.3023 7.54167 14.7501 8.62268 14.7501 9.74985C14.7501 10.877 14.3023 11.958 13.5053 12.7551C12.7082 13.5521 11.6272 13.9998 10.5001 13.9998H9.50007C9.30116 13.9998 9.11039 13.9208 8.96974 13.7802C8.82909 13.6395 8.75007 13.4488 8.75007 13.2498C8.75007 13.0509 8.82909 12.8602 8.96974 12.7195C9.11039 12.5789 9.30116 12.4998 9.50007 12.4998H10.5001C10.8612 12.4998 11.2188 12.4287 11.5525 12.2905C11.8861 12.1523 12.1893 11.9498 12.4446 11.6944C12.7 11.439 12.9025 11.1359 13.0407 10.8022C13.1789 10.4686 13.2501 10.111 13.2501 9.74985Z"
+                                      fill="#F43F5E"
+                                    />
+                                  </svg>
+                                  <span>Refund</span>
+                                </div>
+                              </MenuItem>
+                            </DirectionAwareMenu>
+                          </td>
+                        </tr>
+                      ))}
+                    </>
+                  )
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      {/* resend email */}
+      <Dialog
+        open={sendTicketOpen}
+        onOpenChange={setSendTicketOpen}
+        className="!max-w-[400px] border border-white/10 rounded-xl !p-0"
+      >
+        <DialogContent className="max-h-[90vh] !gap-0">
+          <form onSubmit={handleResend}>
+            <div className="flex flex-col gap-y-3 bg-white/[0.03] border-b rounded-t-xl border-white/10 p-6">
+              <DialogTitle>Resend Ticket</DialogTitle>
+              <DialogDescription>
+                By providing email, user will get QR ticket for this booking
+              </DialogDescription>
+            </div>
+            <div className="flex flex-col gap-4 p-6">
+              <div className="flex flex-col items-start justify-between gap-4">
+                <div className="flex flex-col gap-3 w-full">
+                  <span className="text-sm font-medium text-white">
+                    Email Id
+                  </span>
+                  <input
+                    type="email"
+                    value={selectedPay?.email || ""}
+                    onChange={(e) =>
+                      setSelectedPay((prev) => ({ ...prev, email: e.target.value }))
+                    }
+                    placeholder="johndoe@gmail.com"
+                    className="border bg-primary text-white text-sm border-white/10 h-10 rounded-lg px-5 py-2.5 focus:outline-none w-full"
+                  />
                 </div>
               </div>
             </div>
-          </Link>
-        ))}
-      </div>
-
-      {/* Filter Buttons */}
-      <div className="flex flex-col @4xl:flex-row gap-3 w-full justify-between items-start @4xl:items-center mt-8">
-        <div className="flex gap-3 flex-wrap items-center">
-          {/* All time filter */}
-          <Dropdown>
-            <DropdownTrigger>
-              <button className="flex items-center gap-2 text-sm border border-white/10 px-3 py-2 rounded-full">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                >
-                  <path
-                    fillRule="evenodd"
-                    clipRule="evenodd"
-                    d="M4 1.75C4 1.55109 4.07902 1.36032 4.21967 1.21967C4.36032 1.07902 4.55109 1 4.75 1C4.94891 1 5.13968 1.07902 5.28033 1.21967C5.42098 1.36032 5.5 1.55109 5.5 1.75V3H10.5V1.75C10.5 1.55109 10.579 1.36032 10.7197 1.21967C10.8603 1.07902 11.0511 1 11.25 1C11.4489 1 11.6397 1.07902 11.7803 1.21967C11.921 1.36032 12 1.55109 12 1.75V3C12.5304 3 13.0391 3.21071 13.4142 3.58579C13.7893 3.96086 14 4.46957 14 5V12C14 12.5304 13.7893 13.0391 13.4142 13.4142C13.0391 13.7893 12.5304 14 12 14H4C3.46957 14 2.96086 13.7893 2.58579 13.4142C2.21071 13.0391 2 12.5304 2 12V5C2 4.46957 2.21071 3.96086 2.58579 3.58579C2.96086 3.21071 3.46957 3 4 3V1.75ZM4.5 6C4.23478 6 3.98043 6.10536 3.79289 6.29289C3.60536 6.48043 3.5 6.73478 3.5 7V11.5C3.5 11.7652 3.60536 12.0196 3.79289 12.2071C3.98043 12.3946 4.23478 12.5 4.5 12.5H11.5C11.7652 12.5 12.0196 12.3946 12.2071 12.2071C12.3946 12.0196 12.5 11.7652 12.5 11.5V7C12.5 6.73478 12.3946 6.48043 12.2071 6.29289C12.0196 6.10536 11.7652 6 11.5 6H4.5Z"
-                    fill="white"
-                    fillOpacity="0.5"
-                  />
-                </svg>
-                {timeFilter}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                >
-                  <path
-                    d="M4 6L8 10L12 6"
-                    stroke="white"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+            <div className="flex flex-col gap-3 p-6 pt-0">
+              <button
+                type="submit"
+                disabled={() => { }}
+                className="w-full bg-white hover:bg-white/90 disabled:opacity-50 disabled:cursor-not-allowed text-black border-white/10 border text-center rounded-full h-9 px-4 focus:outline-none flex items-center justify-center gap-2 font-semibold transition-colors text-sm"
+              >
+                Resend Ticket
               </button>
-            </DropdownTrigger>
-            <DropdownContent
-              align="left"
-              className="w-48 bg-[#151515] border border-white/10 rounded-lg shadow-lg overflow-hidden"
-            >
-              <DropdownItem
-                onClick={() => setTimeFilter("All time")}
-                className="px-4 py-2 hover:bg-white/5 text-white"
-              >
-                All time
-              </DropdownItem>
-              <DropdownItem
-                onClick={() => setTimeFilter("Last 7 days")}
-                className="px-4 py-2 hover:bg-white/5 text-white"
-              >
-                Last 7 days
-              </DropdownItem>
-              <DropdownItem
-                onClick={() => setTimeFilter("Last 30 days")}
-                className="px-4 py-2 hover:bg-white/5 text-white"
-              >
-                Last 30 days
-              </DropdownItem>
-              <DropdownItem
-                onClick={() => setTimeFilter("Last 90 days")}
-                className="px-4 py-2 hover:bg-white/5 text-white"
-              >
-                Last 90 days
-              </DropdownItem>
-            </DropdownContent>
-          </Dropdown>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
 
-          {/* All types filter */}
-          <Dropdown>
-            <DropdownTrigger>
-              <button className="flex items-center gap-2 text-sm border border-white/10 px-3 py-2 rounded-full">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                >
-                  <path
-                    fillRule="evenodd"
-                    clipRule="evenodd"
-                    d="M7.628 1.34876C7.7413 1.28404 7.86952 1.25 8 1.25C8.13048 1.25 8.2587 1.28404 8.372 1.34876L13.182 4.09676L8 7.13076L2.818 4.09676L7.628 1.34876ZM14 5.35676L8.75 8.42976V14.4348L13.622 11.6508C13.7368 11.5852 13.8322 11.4904 13.8986 11.3761C13.965 11.2618 14 11.132 14 10.9998V5.35676ZM7.25 14.4348V8.42976L2 5.35676V10.9998C2 11.2698 2.144 11.5178 2.378 11.6508L7.25 14.4348Z"
-                    fill="white"
-                    fillOpacity="0.5"
-                  />
-                </svg>
-                {typeFilter}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                >
-                  <path
-                    d="M4 6L8 10L12 6"
-                    stroke="white"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </button>
-            </DropdownTrigger>
-            <DropdownContent
-              align="left"
-              className="w-48 bg-[#151515] border border-white/10 rounded-lg shadow-lg overflow-hidden"
-            >
-              <DropdownItem
-                onClick={() => setTypeFilter("All types")}
-                className="px-4 py-2 hover:bg-white/5 text-white"
-              >
-                All types
-              </DropdownItem>
-              <DropdownItem
-                onClick={() => setTypeFilter("Sale")}
-                className="px-4 py-2 hover:bg-white/5 text-white"
-              >
-                Sale
-              </DropdownItem>
-              <DropdownItem
-                onClick={() => setTypeFilter("Refund")}
-                className="px-4 py-2 hover:bg-white/5 text-white"
+      {/* refund */}
+      <Dialog
+        open={isRefundOpen}
+        onOpenChange={setIsRefundOpen}
+        className="!max-w-[400px] border border-white/10 rounded-xl !p-0"
+      >
+        <DialogContent className="max-h-[90vh] !gap-0">
+          <form onSubmit={handleSubmit(onSubmitRefund)}>
+            <div className="flex flex-col gap-y-3 bg-white/[0.03] rounded-t-xl border-b border-white/10 p-6">
+              <DialogTitle>Refund Payment</DialogTitle>
+              <DialogDescription>
+                Refund may take 5-10 days to appear on your statement. Payment transaction and platform fees won’t be
+                returned by avenue, but there are no additional fee for the refund. Learn more
+              </DialogDescription>
+            </div>
+            <div className="flex flex-col gap-4 p-6">
+              {/* Amount Input */}
+              <div className="flex flex-col items-start justify-between gap-4">
+                <div className="flex flex-col gap-3 w-full">
+                  <span className="text-sm font-medium text-white">Amount</span>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50">
+                      $
+                    </span>
+                    <input
+                      type="number"
+                      step="0.01"
+                      placeholder="0.00"
+                      {...register("amount", {
+                        valueAsNumber: true,
+                        validate: (value) => {
+                          setAmountEntered(!!value);
+
+                          if (!selectedPay?.amount) return true;
+
+                          // Correctly determine the max refund amount based on fee inclusion
+                          const maxRefundableAmount = includeFee ? parseFloat(maxTotal) : parseFloat(ticketPrice);
+
+                          return value <= maxRefundableAmount || `Amount cannot exceed $${maxRefundableAmount}`;
+                        }
+                      })}
+                      className="border bg-primary text-white text-sm border-white/10 h-10 rounded-lg pl-8 pr-20 py-2.5 focus:outline-none w-full"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={handleMaxClick}
+                      className="absolute right-0 top-0 h-full px-3 text-xs text-white/50 hover:text-white transition-colors border-l border-white/10"
+                    >
+                      MAX
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-x-2">
+                    <span className="text-sm text-white/60">Ticket price:</span>
+                    <span className="text-sm font-medium text-white">
+                      ${ticketPrice}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-x-2">
+                    <input
+                      type="checkbox"
+                      checked={includeFee}
+                      onChange={(e) => handleFeeToggle(e.target.checked)}
+                      className="w-4 h-4 accent-gray-600 cursor-pointer"
+                      disabled={!isValid}
+                    />
+                    <span className="text-sm text-white/60">Refund fee (9% + $0.89):</span>
+                    <span className="text-sm font-medium text-white">
+                      ${feeAmount}
+                    </span>
+                  </div>
+                  {/* {errors.amount && (
+                    <span className="text-xs text-red-500">
+                      {errors.amount.message}
+                    </span>
+                  )} */}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-3 p-6 pt-0">
+              <button
+                type="submit"
+                disabled={!isValid}
+                className="w-full bg-white hover:bg-white/90 disabled:opacity-50 disabled:cursor-not-allowed text-black border-white/10 border text-center rounded-full h-9 px-4 focus:outline-none flex items-center justify-center gap-2 font-semibold transition-colors text-sm"
               >
                 Refund
-              </DropdownItem>
-            </DropdownContent>
-          </Dropdown>
-
-          {/* Ticket filter */}
-          <Dropdown>
-            <DropdownTrigger>
-              <button className="flex items-center gap-2 text-sm border border-white/10 px-3 py-2 rounded-full">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                >
-                  <path
-                    fillRule="evenodd"
-                    clipRule="evenodd"
-                    d="M1 4.5C1 4.10218 1.15804 3.72064 1.43934 3.43934C1.72064 3.15804 2.10218 3 2.5 3H13.5C13.8978 3 14.2794 3.15804 14.5607 3.43934C14.842 3.72064 15 4.10218 15 4.5V5.5C15 5.776 14.773 5.994 14.505 6.062C14.0743 6.1718 13.6925 6.42192 13.4198 6.77286C13.1472 7.1238 12.9991 7.55557 12.9991 8C12.9991 8.44443 13.1472 8.8762 13.4198 9.22714C13.6925 9.57808 14.0743 9.8282 14.505 9.938C14.773 10.006 15 10.224 15 10.5V11.5C15 11.8978 14.842 12.2794 14.5607 12.5607C14.2794 12.842 13.8978 13 13.5 13H2.5C2.10218 13 1.72064 12.842 1.43934 12.5607C1.15804 12.2794 1 11.8978 1 11.5V10.5C1 10.224 1.227 10.006 1.495 9.938C1.92565 9.8282 2.30747 9.57808 2.58016 9.22714C2.85285 8.8762 3.00088 8.44443 3.00088 8C3.00088 7.55557 2.85285 7.1238 2.58016 6.77286C2.30747 6.42192 1.92565 6.1718 1.495 6.062C1.227 5.994 1 5.776 1 5.5V4.5Z"
-                    fill="white"
-                    fillOpacity="0.5"
-                  />
-                </svg>
-                {ticketFilter}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                >
-                  <path
-                    d="M4 6L8 10L12 6"
-                    stroke="white"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
               </button>
-            </DropdownTrigger>
-            <DropdownContent
-              align="left"
-              className="w-48 bg-[#151515] border border-white/10 rounded-lg shadow-lg overflow-hidden"
-            >
-              <DropdownItem
-                onClick={() => setTicketFilter("All tickets")}
-                className="px-4 py-2 hover:bg-white/5 text-white"
-              >
-                All tickets
-              </DropdownItem>
-              {event?.tickets?.map((ticket, index) => (
-                <DropdownItem
-                  key={index}
-                  onClick={() => setTicketFilter(ticket.ticket_name)}
-                  className="px-4 py-2 hover:bg-white/5 text-white"
-                >
-                  {ticket.ticket_name}
-                </DropdownItem>
-              ))}
-            </DropdownContent>
-          </Dropdown>
-        </div>
-        <div className="relative w-full @4xl:w-fit flex justify-end h-fit">
-          <input
-            type="text"
-            placeholder="Search sales..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="h-10 w-full bg-white/5 border border-white/10 rounded-full pl-10 pr-4 text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-white/10 @4xl:w-[250px]"
-          />
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/50"
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+      {
+        resendNotificationModal && (
+          <motion.div
+            initial={{ y: -50, opacity: 0, scale: 0.9 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            exit={{ y: -50, opacity: 0, scale: 0.9 }}
+            transition={{
+              type: "spring",
+              stiffness: 150,
+              damping: 15,
+            }}
+            className="fixed top-20 sm:top-10 inset-x-0 mx-auto w-fit backdrop-blur-md text-white p-3 pl-4 rounded-lg flex items-center gap-2 border border-white/10 shadow-lg max-w-[400px] justify-between"
           >
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-        </div>
-      </div>
-      <div className="border rounded-xl h-fit border-white/10 overflow-hidden">
-        <div className="overflow-x-auto w-full">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-white/70 [&_th]:font-medium border-b border-white/5 bg-white/5 [&>th]:min-w-[180px] last:[&>th]:min-w-fit">
-                <th className="p-4 text-sm font-medium text-white/70 text-left">
-                  Date
-                </th>
-                <th className="p-4 text-sm font-medium text-white/70 text-left">
-                  Type
-                </th>
-                <th className="p-4 text-sm font-medium text-white/70 text-left">
-                  Ticket
-                </th>
-                <th className="p-4 text-sm font-medium text-white/70 text-left">
-                  Name
-                </th>
-                <th className="p-4 text-sm font-medium text-white/70 text-left">
-                  Amount
-                </th>
-                <th className="p-4 text-sm font-medium text-white/70 text-left">
-                  Status
-                </th>
-                <th className="p-4 text-sm font-medium text-white/70 text-left">
-                  <Ellipsis />
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {
-                loading ? (
-                  <tr>
-                    <td
-                      colSpan={8}
-                      className="text-center p-4 text-white/50"
-                    >
-                      <Spin size="small" />
-                    </td>
-                  </tr>
-                ) : (
-                  <>
-                    {filteredSalesHistory.slice().reverse().map((payout, index) => (
-                      <tr key={index} className="hover:bg-white/[0.01]">
-                        <td className="p-4">
-                          {(() => {
-                            const dateObj = new Date(payout.date);
-                            const formattedDate = dateObj.toLocaleString("en-US", {
-                              month: "short",
-                              day: "numeric",
-                            });
-                            const formattedTime = dateObj.toLocaleString("en-US", {
-                              hour: "numeric",
-                              minute: "2-digit",
-                              hour12: true,
-                            });
-                            return `${formattedDate} at ${formattedTime}`;
-                          })()}
-                        </td>
-                        <td className="p-4">
-                          <div className="flex items-center gap-2 capitalize">
-                            {payout.refund === 'true' ? saleTypesIcons['refund'] : saleTypesIcons['sale']}
-                            {payout.refund === 'true' ? "Refund" : "Sale"}
-                          </div>
-                        </td>
-                        <td className="p-4">
-                          <div className="flex items-center gap-2 capitalize">
-                            {/* {ticketTypesIcons[payout.ticket]} */}
-                            {payout?.tickets?.ticket_name} x {payout.count}
-                          </div>
-                        </td>
-                        <td className="p-4">
-                          <div className="flex flex-col">
-                            <span>{payout.firstName}</span>
-                            <span className="text-white/50 text-xs">
-                              {payout.email}
-                            </span>
-                          </div>
-                        </td>
-                        <td
-                          className={`p-4 ${payout.amount < 0 ? "text-white/50" : ""
-                            }`}
-                        >
-                          {payout.amount < 0
-                            ? `-$${(Math.abs((payout.amount / 100) - 0.89) / 1.09).toLocaleString("en-US", {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })}`
-                            : `$${(Math.abs((payout.amount / 100) - 0.89) / 1.09).toLocaleString("en-US", {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })}`}
-                        </td>
-                        <td className="p-4">
-                          <span className="flex items-center gap-2 capitalize">
-                            {payout.refund === 'true' ? statusIcons['refunded'] : statusIcons['completed']}
-                            {payout.refund === 'true' ? "Refunded" : "Completed"}
-                          </span>
-                        </td>
-                        <td className="p-4">
-                          <button className="hover:bg-white/10 p-1 rounded">
-                            <MoreHorizontal className="w-4 h-4 text-white/50" />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </>
-                )
-              }
-
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+            <div className="flex items-center gap-2">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+              >
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M8 15C9.85652 15 11.637 14.2625 12.9497 12.9497C14.2625 11.637 15 9.85652 15 8C15 6.14348 14.2625 4.36301 12.9497 3.05025C11.637 1.7375 9.85652 1 8 1C6.14348 1 4.36301 1.7375 3.05025 3.05025C1.7375 4.36301 1 6.14348 1 8C1 9.85652 1.7375 11.637 3.05025 12.9497C4.36301 14.2625 6.14348 15 8 15ZM11.844 6.209C11.9657 6.05146 12.0199 5.85202 11.9946 5.65454C11.9693 5.45706 11.8665 5.27773 11.709 5.156C11.5515 5.03427 11.352 4.9801 11.1545 5.00542C10.9571 5.03073 10.7777 5.13346 10.656 5.291L6.956 10.081L5.307 8.248C5.24174 8.17247 5.16207 8.11073 5.07264 8.06639C4.98322 8.02205 4.88584 7.99601 4.78622 7.98978C4.6866 7.98356 4.58674 7.99729 4.4925 8.03016C4.39825 8.06303 4.31151 8.11438 4.23737 8.1812C4.16322 8.24803 4.10316 8.32898 4.06071 8.41931C4.01825 8.50965 3.99425 8.60755 3.99012 8.70728C3.98599 8.807 4.00181 8.90656 4.03664 9.00009C4.07148 9.09363 4.12464 9.17927 4.193 9.252L6.443 11.752C6.51649 11.8335 6.60697 11.8979 6.70806 11.9406C6.80915 11.9833 6.91838 12.0034 7.02805 11.9993C7.13772 11.9952 7.24515 11.967 7.34277 11.9169C7.44038 11.8667 7.5258 11.7958 7.593 11.709L11.844 6.209Z"
+                  fill="#10B981"
+                />
+              </svg>
+              <p className="text-sm">Email sent successfully</p>
+            </div>
+            <button
+              onClick={() => setResendNotificationModal(false)}
+              className="ml-2 text-white/60 hover:text-white flex items-center justify-center border border-white/10 rounded-full p-1 flex-shrink-0 transition-colors"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+              >
+                <path
+                  d="M5.28033 4.21967C4.98744 3.92678 4.51256 3.92678 4.21967 4.21967C3.92678 4.51256 3.92678 4.98744 4.21967 5.28033L6.93934 8L4.21967 10.7197C3.92678 11.0126 3.92678 11.4874 4.21967 11.7803C4.51256 12.0732 4.98744 12.0732 5.28033 11.7803L8 9.06066L10.7197 11.7803C11.0126 12.0732 11.4874 12.0732 11.7803 11.7803C12.0732 11.4874 12.0732 11.0126 11.7803 10.7197L9.06066 8L11.7803 5.28033C12.0732 4.98744 12.0732 4.51256 11.7803 4.21967C11.4874 3.92678 11.0126 3.92678 10.7197 4.21967L8 6.93934L5.28033 4.21967Z"
+                  fill="white"
+                />
+              </svg>
+            </button>
+          </motion.div>
+        )
+      }
+    </>
   );
 }

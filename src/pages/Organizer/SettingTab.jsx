@@ -1,10 +1,63 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import url from "../../constants/url";
 
-export default function SettingTab() {
-    const [eventVisibility, setEventVisibility] = useState("public");
+export default function SettingTab({ eventId, event }) {
+    const [eventVisibility, setEventVisibility] = useState(true);
     const [attendeeVisibility, setAttendeeVisibility] = useState(true);
     const [emailActiveNotification, setEmailActiveNotification] = useState(true);
     const [smsActiveNotification, setSmsActiveNotification] = useState(true);
+
+    const toggleAttendeeVisibility = async () => {
+        const newStatus = !attendeeVisibility;
+        setAttendeeVisibility(newStatus);
+
+        try {
+            const response = await fetch(`${url}/event/visibility-change/${event._id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status: newStatus ? "YES" : "NO" }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to update visibility");
+            }
+
+            console.log("Visibility updated successfully");
+        } catch (error) {
+            console.error("Error updating attendee visibility:", error);
+            setAttendeeVisibility(!newStatus);
+        }
+    };
+
+    const toggleEventVisibility = async () => {
+        const newStatus = !eventVisibility;
+        setEventVisibility(newStatus);
+
+        try {
+            const response = await fetch(`${url}/event/event-visibility-change/${event._id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status: newStatus ? "YES" : "NO" }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to update visibility");
+            }
+
+            console.log("Event Visibility updated successfully");
+        } catch (error) {
+            console.error("Error updating attendee visibility:", error);
+            setEventVisibility(!newStatus);
+        }
+    };
+
+    useEffect(() => {
+        setAttendeeVisibility(event.show === "YES");
+    }, [event.show]);
+
+    useEffect(() => {
+        setEventVisibility(event.event_visibility === "YES");
+    }, [event.event_visibility]);
 
     return (
         <div className="flex flex-col gap-8 @container">
@@ -40,10 +93,10 @@ export default function SettingTab() {
                         <div className="flex flex-col gap-6 w-fit justify-end">
                             <div className="bg-[#151515] p-1 rounded-full flex items-center gap-2">
                                 <button
-                                    onClick={() => setEventVisibility("public")}
-                                    className={`flex items-center text-sm gap-2 p-2 px-4 rounded-full hover:bg-white/5 transition-colors ${eventVisibility === "public"
-                                            ? "bg-white/[0.05] opacity-100"
-                                            : "opacity-50"
+                                    onClick={toggleEventVisibility}
+                                    className={`flex items-center text-sm gap-2 p-2 px-4 rounded-full hover:bg-white/5 transition-colors ${eventVisibility
+                                        ? "bg-white/[0.05] opacity-100"
+                                        : "opacity-50"
                                         }`}
                                 >
                                     <svg
@@ -63,10 +116,10 @@ export default function SettingTab() {
                                     Public
                                 </button>
                                 <button
-                                    onClick={() => setEventVisibility("link_access")}
-                                    className={`flex items-center text-sm gap-2 p-2 px-4 rounded-full hover:bg-white/5 transition-colors ${eventVisibility === "link_access"
-                                            ? "bg-white/[0.05] opacity-100"
-                                            : "opacity-50"
+                                    onClick={toggleEventVisibility}
+                                    className={`flex items-center text-sm gap-2 p-2 px-4 rounded-full hover:bg-white/5 transition-colors ${!eventVisibility
+                                        ? "bg-white/[0.05] opacity-100"
+                                        : "opacity-50"
                                         }`}
                                 >
                                     <svg
@@ -105,10 +158,10 @@ export default function SettingTab() {
                             <div className="bg-[#151515] p-1 rounded-full flex items-center gap-2">
                                 <button
                                     className={`flex items-center text-sm gap-2 p-2 px-4 rounded-full hover:bg-white/5 transition-colors ${attendeeVisibility
-                                            ? "bg-white/[0.05] opacity-100"
-                                            : "opacity-50"
+                                        ? "bg-white/[0.05] opacity-100"
+                                        : "opacity-50"
                                         }`}
-                                    onClick={() => setAttendeeVisibility(!attendeeVisibility)}
+                                    onClick={toggleAttendeeVisibility}
                                 >
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
@@ -132,10 +185,10 @@ export default function SettingTab() {
                                 </button>
                                 <button
                                     className={`flex items-center text-sm gap-2 p-2 px-4 rounded-full hover:bg-white/5 transition-colors ${!attendeeVisibility
-                                            ? "bg-white/[0.05] opacity-100"
-                                            : "opacity-50"
+                                        ? "bg-white/[0.05] opacity-100"
+                                        : "opacity-50"
                                         }`}
-                                    onClick={() => setAttendeeVisibility(!attendeeVisibility)}
+                                    onClick={toggleAttendeeVisibility}
                                 >
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
@@ -164,7 +217,7 @@ export default function SettingTab() {
             </div>
 
             {/* Notifications Section */}
-            <div className="border border-white/10 rounded-xl overflow-hidden">
+            {/* <div className="border border-white/10 rounded-xl overflow-hidden">
                 <h2 className="text-sm font-semibold p-3 border-b border-white/10 bg-white/5 flex items-center gap-2">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -311,7 +364,7 @@ export default function SettingTab() {
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> */}
 
             {/* Legal Section */}
             <div className="border border-white/10 rounded-xl overflow-hidden">

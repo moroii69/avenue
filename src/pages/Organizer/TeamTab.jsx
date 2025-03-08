@@ -18,6 +18,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import axios from "axios";
 import url from "../../constants/url"
+import { motion } from "framer-motion"
 
 const statusIcons = {
     active: (
@@ -125,6 +126,7 @@ export default function TeamTab({ eventId }) {
     const [oragnizerId, setOragnizerId] = useState(null);
     const [members, setMembers] = useState([])
     const [loading, setLoading] = useState(false)
+    const [showActivateNotification, setShowActivateNotification] = useState(false);
 
     const {
         register,
@@ -410,6 +412,7 @@ export default function TeamTab({ eventId }) {
                                                                 <span>Edit member info</span>
                                                             </div>
                                                         </MenuItem>
+                                                        
                                                         <MenuItem
                                                             onClick={() => {
                                                                 setSelectedMember(member);
@@ -417,47 +420,42 @@ export default function TeamTab({ eventId }) {
                                                             }}
                                                         >
                                                             <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
-                                                                <svg
-                                                                    xmlns="http://www.w3.org/2000/svg"
-                                                                    width="14"
-                                                                    height="14"
-                                                                    viewBox="0 0 14 14"
-                                                                    fill="none"
-                                                                >
-                                                                    <path
-                                                                        fillRule="evenodd"
-                                                                        clipRule="evenodd"
-                                                                        d="M7 14C8.85652 14 10.637 13.2625 11.9497 11.9497C13.2625 10.637 14 8.85652 14 7C14 5.14348 13.2625 3.36301 11.9497 2.05025C10.637 0.737498 8.85652 0 7 0C5.14348 0 3.36301 0.737498 2.05025 2.05025C0.737498 3.36301 0 5.14348 0 7C0 8.85652 0.737498 10.637 2.05025 11.9497C3.36301 13.2625 5.14348 14 7 14ZM9.78 9.78C9.63937 9.92045 9.44875 9.99934 9.25 9.99934C9.05125 9.99934 8.86063 9.92045 8.72 9.78L7 8.06L5.28 9.78C5.21134 9.85369 5.12854 9.91279 5.03654 9.95378C4.94454 9.99477 4.84523 10.0168 4.74452 10.0186C4.64382 10.0204 4.54379 10.0018 4.4504 9.96412C4.35701 9.9264 4.27218 9.87026 4.20096 9.79904C4.12974 9.72782 4.0736 9.64299 4.03588 9.5496C3.99816 9.45621 3.97963 9.35618 3.98141 9.25548C3.98319 9.15477 4.00523 9.05546 4.04622 8.96346C4.08721 8.87146 4.14631 8.78866 4.22 8.72L5.94 7L4.22 5.28C4.08752 5.13783 4.0154 4.94978 4.01883 4.75548C4.02225 4.56118 4.10097 4.37579 4.23838 4.23838C4.37579 4.10097 4.56118 4.02225 4.75548 4.01883C4.94978 4.0154 5.13783 4.08752 5.28 4.22L7 5.94L8.72 4.22C8.78866 4.14631 8.87146 4.08721 8.96346 4.04622C9.05546 4.00523 9.15477 3.98319 9.25548 3.98141C9.35618 3.97963 9.45621 3.99816 9.5496 4.03588C9.64299 4.0736 9.72782 4.12974 9.79904 4.20096C9.87026 4.27218 9.9264 4.35701 9.96412 4.4504C10.0018 4.54379 10.0204 4.64382 10.0186 4.74452C10.0168 4.84523 9.99477 4.94454 9.95378 5.03654C9.91279 5.12854 9.85369 5.21134 9.78 5.28L8.06 7L9.78 8.72C9.92045 8.86063 9.99934 9.05125 9.99934 9.25C9.99934 9.44875 9.92045 9.63937 9.78 9.78Z"
-                                                                        fill="white"
-                                                                        fillOpacity="0.4"
-                                                                    />
-                                                                </svg>
-                                                                <span>Deactivate member</span>
-                                                            </div>
-                                                        </MenuItem>
-                                                        <MenuSeparator />
-                                                        <MenuItem
-                                                            onClick={() => {
-                                                                setSelectedMember(member);
-                                                                setRemoveMemberDialogOpen(true);
-                                                            }}
-                                                        >
-                                                            <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
-                                                                <svg
-                                                                    xmlns="http://www.w3.org/2000/svg"
-                                                                    width="16"
-                                                                    height="16"
-                                                                    viewBox="0 0 16 16"
-                                                                    fill="none"
-                                                                >
-                                                                    <path
-                                                                        fillRule="evenodd"
-                                                                        clipRule="evenodd"
-                                                                        d="M5 3.25V4H2.75C2.55109 4 2.36032 4.07902 2.21967 4.21967C2.07902 4.36032 2 4.55109 2 4.75C2 4.94891 2.07902 5.13968 2.21967 5.28033C2.36032 5.42098 2.55109 5.5 2.75 5.5H3.05L3.865 13.65C3.90218 14.0199 4.0754 14.3628 4.35107 14.6123C4.62675 14.8617 4.98523 14.9999 5.357 15H10.642C11.0139 15.0001 11.3727 14.8621 11.6486 14.6126C11.9244 14.3631 12.0978 14.0201 12.135 13.65L12.95 5.5H13.25C13.4489 5.5 13.6397 5.42098 13.7803 5.28033C13.921 5.13968 14 4.94891 14 4.75C14 4.55109 13.921 4.36032 13.7803 4.21967C13.6397 4.07902 13.4489 4 13.25 4H11V3.25C11 2.65326 10.7629 2.08097 10.341 1.65901C9.91903 1.23705 9.34674 1 8.75 1H7.25C6.65326 1 6.08097 1.23705 5.65901 1.65901C5.23705 2.08097 5 2.65326 5 3.25ZM7.25 2.5C7.05109 2.5 6.86032 2.57902 6.71967 2.71967C6.57902 2.86032 6.5 3.05109 6.5 3.25V4H9.5V3.25C9.5 3.05109 9.42098 2.86032 9.28033 2.71967C9.13968 2.57902 8.94891 2.5 8.75 2.5H7.25ZM6.05 6C6.14852 5.99502 6.24705 6.00952 6.33996 6.04268C6.43286 6.07584 6.51832 6.127 6.59142 6.19323C6.66453 6.25946 6.72385 6.33946 6.76599 6.42865C6.80813 6.51784 6.83226 6.61447 6.837 6.713L7.112 12.213C7.11933 12.4101 7.04872 12.6022 6.91546 12.7476C6.7822 12.893 6.59702 12.9801 6.40002 12.9899C6.20302 12.9998 6.01007 12.9317 5.86295 12.8003C5.71583 12.6689 5.62639 12.4849 5.614 12.288L5.339 6.788C5.33388 6.68956 5.34821 6.59107 5.38118 6.49818C5.41416 6.40528 5.46511 6.3198 5.53115 6.24661C5.59718 6.17343 5.677 6.11397 5.76603 6.07166C5.85506 6.02934 5.95155 6.00499 6.05 6ZM9.95 6C10.0484 6.00487 10.145 6.02909 10.234 6.07129C10.3231 6.11349 10.403 6.17283 10.4691 6.24592C10.5353 6.31901 10.5863 6.40442 10.6194 6.49726C10.6525 6.59011 10.667 6.68856 10.662 6.787L10.387 12.287C10.3746 12.4839 10.2852 12.6679 10.138 12.7993C9.99093 12.9307 9.79798 12.9988 9.60098 12.9889C9.40398 12.9791 9.2188 12.892 9.08554 12.7466C8.95228 12.6012 8.88167 12.4091 8.889 12.212L9.164 6.712C9.17409 6.51354 9.26253 6.32719 9.4099 6.19389C9.55727 6.06058 9.75152 5.99021 9.95 6Z"
-                                                                        fill="#F43F5E"
-                                                                    />
-                                                                </svg>
-                                                                <span>Remove from team</span>
+                                                                {
+                                                                    member.status === 'active' ? (
+                                                                        <svg
+                                                                            xmlns="http://www.w3.org/2000/svg"
+                                                                            width="16"
+                                                                            height="16"
+                                                                            viewBox="0 0 24 24"
+                                                                            fill="none"
+                                                                            stroke="currentColor"
+                                                                            strokeWidth="2"
+                                                                            strokeLinecap="round"
+                                                                            strokeLinejoin="round"
+                                                                            className="text-yellow-500"
+                                                                        >
+                                                                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                                                                            <line x1="12" y1="9" x2="12" y2="13" />
+                                                                            <line x1="12" y1="17" x2="12.01" y2="17" />
+                                                                        </svg>
+                                                                    ) : (
+                                                                        <svg
+                                                                            xmlns="http://www.w3.org/2000/svg"
+                                                                            width="17"
+                                                                            height="16"
+                                                                            viewBox="0 0 17 16"
+                                                                            fill="none"
+                                                                        >
+                                                                            <path
+                                                                                fillRule="evenodd"
+                                                                                clipRule="evenodd"
+                                                                                d="M8.25 15C10.1065 15 11.887 14.2625 13.1997 12.9497C14.5125 11.637 15.25 9.85652 15.25 8C15.25 6.14348 14.5125 4.36301 13.1997 3.05025C11.887 1.7375 10.1065 1 8.25 1C6.39348 1 4.61301 1.7375 3.30025 3.05025C1.9875 4.36301 1.25 6.14348 1.25 8C1.25 9.85652 1.9875 11.637 3.30025 12.9497C4.61301 14.2625 6.39348 15 8.25 15ZM12.094 6.209C12.2157 6.05146 12.2699 5.85202 12.2446 5.65454C12.2193 5.45706 12.1165 5.27773 11.959 5.156C11.8015 5.03427 11.602 4.9801 11.4045 5.00542C11.2071 5.03073 11.0277 5.13346 10.906 5.291L7.206 10.081L5.557 8.248C5.49174 8.17247 5.41207 8.11073 5.32264 8.06639C5.23322 8.02205 5.13584 7.99601 5.03622 7.98978C4.9366 7.98356 4.83674 7.99729 4.7425 8.03016C4.64825 8.06303 4.56151 8.11438 4.48737 8.1812C4.41322 8.24803 4.35316 8.32898 4.31071 8.41931C4.26825 8.50965 4.24425 8.60755 4.24012 8.70728C4.23599 8.807 4.25181 8.90656 4.28664 9.00009C4.32148 9.09363 4.37464 9.17927 4.443 9.252L6.693 11.752C6.76649 11.8335 6.85697 11.8979 6.95806 11.9406C7.05915 11.9833 7.16838 12.0034 7.27805 11.9993C7.38772 11.9952 7.49515 11.967 7.59277 11.9169C7.69038 11.8667 7.7758 11.7958 7.843 11.709L12.094 6.209Z"
+                                                                                fill="#10B981"
+                                                                            />
+                                                                        </svg>
+                                                                    )
+                                                                }
+                                                                <span>{member.status === 'active' ? "Deactivate" : "Activate"} member</span>
                                                             </div>
                                                         </MenuItem>
                                                     </DirectionAwareMenu>
@@ -511,7 +509,7 @@ export default function TeamTab({ eventId }) {
                                 </div>
                             </div>
 
-                            <div className="flex flex-col items-start justify-between gap-4">
+                            {/* <div className="flex flex-col items-start justify-between gap-4">
                                 <div className="flex flex-col gap-3 w-full">
                                     <span className="text-sm font-medium text-white">
                                         Email Id
@@ -527,7 +525,7 @@ export default function TeamTab({ eventId }) {
                                         </span>
                                     )}
                                 </div>
-                            </div>
+                            </div> */}
 
                             <div className="flex flex-col items-start justify-between gap-4">
                                 <div className="flex flex-col gap-3 w-full">
@@ -702,39 +700,92 @@ export default function TeamTab({ eventId }) {
             >
                 <DialogContent className="flex flex-col gap-3 p-6">
                     <DialogTitle className="flex items-center gap-2">
-                        Deactivate{" "}
-                        <span className="text-white bg-red-500/10 border border-white/10 border-dashed rounded-lg px-2 py-1 h-8 flex items-center justify-center text-sm w-fit">
+                        {selectedMember?.status === 'active' ? "Deactivate" : "Activate"}{" "}
+                        <span className={`text-white ${selectedMember?.status === 'active' ? "bg-yellow-500/10" : "bg-[#10B981]/10"} border border-white/10 border-dashed rounded-lg px-2 py-1 h-8 flex items-center justify-center text-sm w-fit`}>
                             {selectedMember?.name}
                         </span>
                         ?
                     </DialogTitle>
                     <DialogDescription>
-                        This member will no longer be able to access events. You can always
-                        activate them again later.
+                        {
+                            selectedMember?.status === 'active' ?
+                                "This member will no longer be able to access events and you can make them activate at anytime." :
+                                "This member will able to access events and you can make them deactivate at anytime."
+                        }
+                        {/* You can always activate them again later. */}
                     </DialogDescription>
                     <div className="flex flex-col gap-3 mt-3">
                         <button
-                            onClick={() => {
-                                console.log("Deactivate member:", selectedMember?.name);
-                                setDeactivateDialogOpen(false);
+                            onClick={async () => {
+                                if (!selectedMember?._id) return;
+
+                                try {
+                                    const newStatus = selectedMember.status === "active" ? "inactive" : "active";
+                                    const response = await axios.patch(
+                                        `${url}/member/status-change-member/${selectedMember._id}`,
+                                        { status: newStatus }
+                                    );
+
+                                    if (response.status === 200) {
+                                        setMembers((prevMembers) =>
+                                            prevMembers.map((member) =>
+                                                member._id === selectedMember._id ? { ...member, status: newStatus } : member
+                                            )
+                                        );
+
+                                        setDeactivateDialogOpen(false);
+                                        setShowActivateNotification(true);
+                                        setTimeout(() => {
+                                            setShowActivateNotification(false);
+                                        }, [3000])
+                                    } else {
+                                        console.error("Failed to change member status");
+                                    }
+                                } catch (error) {
+                                    console.error("Error updating member status:", error);
+                                    alert("Failed to change member status. Please try again.");
+                                }
                             }}
-                            className="w-full bg-[#f43f5e] hover:bg-[#f43f5e]/90 text-white border-white/10 border text-center rounded-full h-10 px-4 focus:outline-none flex items-center justify-center gap-2 font-medium transition-colors"
+
+
+                            className={`w-full ${selectedMember?.status === 'active' ? "bg-yellow-700" : "bg-[#10B981]"} text-white border-white/10 border text-center rounded-full h-10 px-4 focus:outline-none flex items-center justify-center gap-2 font-medium transition-colors`}
                         >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="14"
-                                height="14"
-                                viewBox="0 0 14 14"
-                                fill="none"
-                            >
-                                <path
-                                    fillRule="evenodd"
-                                    clipRule="evenodd"
-                                    d="M7 14C8.85652 14 10.637 13.2625 11.9497 11.9497C13.2625 10.637 14 8.85652 14 7C14 5.14348 13.2625 3.36301 11.9497 2.05025C10.637 0.737498 8.85652 0 7 0C5.14348 0 3.36301 0.737498 2.05025 2.05025C0.737498 3.36301 0 5.14348 0 7C0 8.85652 0.737498 10.637 2.05025 11.9497C3.36301 13.2625 5.14348 14 7 14ZM9.78 9.78C9.63937 9.92045 9.44875 9.99934 9.25 9.99934C9.05125 9.99934 8.86063 9.92045 8.72 9.78L7 8.06L5.28 9.78C5.21134 9.85369 5.12854 9.91279 5.03654 9.95378C4.94454 9.99477 4.84523 10.0168 4.74452 10.0186C4.64382 10.0204 4.54379 10.0018 4.4504 9.96412C4.35701 9.9264 4.27218 9.87026 4.20096 9.79904C4.12974 9.72782 4.0736 9.64299 4.03588 9.5496C3.99816 9.45621 3.97963 9.35618 3.98141 9.25548C3.98319 9.15477 4.00523 9.05546 4.04622 8.96346C4.08721 8.87146 4.14631 8.78866 4.22 8.72L5.94 7L4.22 5.28C4.08752 5.13783 4.0154 4.94978 4.01883 4.75548C4.02225 4.56118 4.10097 4.37579 4.23838 4.23838C4.37579 4.10097 4.56118 4.02225 4.75548 4.01883C4.94978 4.0154 5.13783 4.08752 5.28 4.22L7 5.94L8.72 4.22C8.78866 4.14631 8.87146 4.08721 8.96346 4.04622C9.05546 4.00523 9.15477 3.98319 9.25548 3.98141C9.35618 3.97963 9.45621 3.99816 9.5496 4.03588C9.64299 4.0736 9.72782 4.12974 9.79904 4.20096C9.87026 4.27218 9.9264 4.35701 9.96412 4.4504C10.0018 4.54379 10.0204 4.64382 10.0186 4.74452C10.0168 4.84523 9.99477 4.94454 9.95378 5.03654C9.91279 5.12854 9.85369 5.21134 9.78 5.28L8.06 7L9.78 8.72C9.92045 8.86063 9.99934 9.05125 9.99934 9.25C9.99934 9.44875 9.92045 9.63937 9.78 9.78Z"
-                                    fill="white"
-                                />
-                            </svg>
-                            <span>Deactivate member</span>
+                            {
+                                selectedMember?.status === 'active' ? (
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="16"
+                                        height="16"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        className="text-yellow-500"
+                                    >
+                                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                                        <line x1="12" y1="9" x2="12" y2="13" />
+                                        <line x1="12" y1="17" x2="12.01" y2="17" />
+                                    </svg>
+                                ) : (
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="17"
+                                        height="16"
+                                        viewBox="0 0 17 16"
+                                        fill="none"
+                                    >
+                                        <path
+                                            fillRule="evenodd"
+                                            clipRule="evenodd"
+                                            d="M8.25 15C10.1065 15 11.887 14.2625 13.1997 12.9497C14.5125 11.637 15.25 9.85652 15.25 8C15.25 6.14348 14.5125 4.36301 13.1997 3.05025C11.887 1.7375 10.1065 1 8.25 1C6.39348 1 4.61301 1.7375 3.30025 3.05025C1.9875 4.36301 1.25 6.14348 1.25 8C1.25 9.85652 1.9875 11.637 3.30025 12.9497C4.61301 14.2625 6.39348 15 8.25 15ZM12.094 6.209C12.2157 6.05146 12.2699 5.85202 12.2446 5.65454C12.2193 5.45706 12.1165 5.27773 11.959 5.156C11.8015 5.03427 11.602 4.9801 11.4045 5.00542C11.2071 5.03073 11.0277 5.13346 10.906 5.291L7.206 10.081L5.557 8.248C5.49174 8.17247 5.41207 8.11073 5.32264 8.06639C5.23322 8.02205 5.13584 7.99601 5.03622 7.98978C4.9366 7.98356 4.83674 7.99729 4.7425 8.03016C4.64825 8.06303 4.56151 8.11438 4.48737 8.1812C4.41322 8.24803 4.35316 8.32898 4.31071 8.41931C4.26825 8.50965 4.24425 8.60755 4.24012 8.70728C4.23599 8.807 4.25181 8.90656 4.28664 9.00009C4.32148 9.09363 4.37464 9.17927 4.443 9.252L6.693 11.752C6.76649 11.8335 6.85697 11.8979 6.95806 11.9406C7.05915 11.9833 7.16838 12.0034 7.27805 11.9993C7.38772 11.9952 7.49515 11.967 7.59277 11.9169C7.69038 11.8667 7.7758 11.7958 7.843 11.709L12.094 6.209Z"
+                                            fill="#ffffff"
+                                        />
+                                    </svg>
+                                )
+                            }
+                            {selectedMember?.status === 'active' ? "Deactivate" : "Activate"} member
                         </button>
                     </div>
                 </DialogContent>
@@ -896,6 +947,56 @@ export default function TeamTab({ eventId }) {
                     </form>
                 </DialogContent>
             </Dialog>
+
+            {
+                showActivateNotification && (
+                    <motion.div
+                        initial={{ y: -50, opacity: 0, scale: 0.9 }}
+                        animate={{ y: 0, opacity: 1, scale: 1 }}
+                        exit={{ y: -50, opacity: 0, scale: 0.9 }}
+                        transition={{
+                            type: "spring",
+                            stiffness: 150,
+                            damping: 15,
+                        }}
+                        className="fixed top-20 sm:top-10 inset-x-0 mx-auto w-fit backdrop-blur-md text-white p-3 pl-4 rounded-lg flex items-center gap-2 border border-white/10 shadow-lg max-w-[400px] justify-between"
+                    >
+                        <div className="flex items-center gap-2">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                viewBox="0 0 16 16"
+                                fill="none"
+                            >
+                                <path
+                                    fillRule="evenodd"
+                                    clipRule="evenodd"
+                                    d="M8 15C9.85652 15 11.637 14.2625 12.9497 12.9497C14.2625 11.637 15 9.85652 15 8C15 6.14348 14.2625 4.36301 12.9497 3.05025C11.637 1.7375 9.85652 1 8 1C6.14348 1 4.36301 1.7375 3.05025 3.05025C1.7375 4.36301 1 6.14348 1 8C1 9.85652 1.7375 11.637 3.05025 12.9497C4.36301 14.2625 6.14348 15 8 15ZM11.844 6.209C11.9657 6.05146 12.0199 5.85202 11.9946 5.65454C11.9693 5.45706 11.8665 5.27773 11.709 5.156C11.5515 5.03427 11.352 4.9801 11.1545 5.00542C10.9571 5.03073 10.7777 5.13346 10.656 5.291L6.956 10.081L5.307 8.248C5.24174 8.17247 5.16207 8.11073 5.07264 8.06639C4.98322 8.02205 4.88584 7.99601 4.78622 7.98978C4.6866 7.98356 4.58674 7.99729 4.4925 8.03016C4.39825 8.06303 4.31151 8.11438 4.23737 8.1812C4.16322 8.24803 4.10316 8.32898 4.06071 8.41931C4.01825 8.50965 3.99425 8.60755 3.99012 8.70728C3.98599 8.807 4.00181 8.90656 4.03664 9.00009C4.07148 9.09363 4.12464 9.17927 4.193 9.252L6.443 11.752C6.51649 11.8335 6.60697 11.8979 6.70806 11.9406C6.80915 11.9833 6.91838 12.0034 7.02805 11.9993C7.13772 11.9952 7.24515 11.967 7.34277 11.9169C7.44038 11.8667 7.5258 11.7958 7.593 11.709L11.844 6.209Z"
+                                    fill="#10B981"
+                                />
+                            </svg>
+                            <p className="text-sm">Member status changed successfully</p>
+                        </div>
+                        <button
+                            onClick={() => setShowActivateNotification(false)}
+                            className="ml-2 text-white/60 hover:text-white flex items-center justify-center border border-white/10 rounded-full p-1 flex-shrink-0 transition-colors"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                viewBox="0 0 16 16"
+                                fill="none"
+                            >
+                                <path
+                                    d="M5.28033 4.21967C4.98744 3.92678 4.51256 3.92678 4.21967 4.21967C3.92678 4.51256 3.92678 4.98744 4.21967 5.28033L6.93934 8L4.21967 10.7197C3.92678 11.0126 3.92678 11.4874 4.21967 11.7803C4.51256 12.0732 4.98744 12.0732 5.28033 11.7803L8 9.06066L10.7197 11.7803C11.0126 12.0732 11.4874 12.0732 11.7803 11.7803C12.0732 11.4874 12.0732 11.0126 11.7803 10.7197L9.06066 8L11.7803 5.28033C12.0732 4.98744 12.0732 4.51256 11.7803 4.21967C11.4874 3.92678 11.0126 3.92678 10.7197 4.21967L8 6.93934L5.28033 4.21967Z"
+                                    fill="white"
+                                />
+                            </svg>
+                        </button>
+                    </motion.div>
+                )}
         </div>
     );
 }

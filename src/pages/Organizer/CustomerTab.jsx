@@ -315,7 +315,7 @@ export default function CustomerTab({ eventId, event }) {
                                                 >
                                                     Pending{" "}
                                                     <span className="bg-[#1B1B1B] border border-white/[0.03] h-6 w-fit px-2 rounded-full flex items-center justify-center">
-                                                        {0}
+                                                        {book.filter(bok => bok.qr_status === 'false').length}
                                                     </span>
                                                 </TabTrigger>
                                             </TabsList>
@@ -347,41 +347,44 @@ export default function CustomerTab({ eventId, event }) {
                                             </div>
                                         </div>
 
-                                        <div className="border rounded-xl border-white/10 overflow-hidden">
-                                            <div className="overflow-x-auto w-full">
-                                                <table className="w-full text-sm border-collapse">
-                                                    <thead>
-                                                        <tr className="text-white/70 [&_th]:font-medium border-b border-white/5 bg-white/5 [&>th]:min-w-[220px] last:[&>th]:min-w-fit [&>th]:border-r [&>th]:border-white/10 last:[&>th]:border-r-0">
-                                                            <th className="text-left p-4">Customer</th>
-                                                            <th className="text-left p-4">Total tickets</th>
-                                                            <th className="text-left p-4">Total spent</th>
-                                                            <th className="text-left p-4">Purchased</th>
-                                                            <th className="py-4 px-4 sticky right-0 flex items-center justify-center">
-                                                                {" "}
-                                                                <div className="bg-white/5 sticky right-0 z-0 backdrop-blur-sm border-l border-white/5 h-10 w-10 flex items-center justify-center rounded-md">
-                                                                    <Ellipsis />
-                                                                </div>
-                                                            </th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {filteredCustomers.slice().reverse().map((customer) => (
-                                                            <tr
-                                                                key={customer._id}
-                                                                className="border-b last:border-b-0 border-white/10 hover:bg-white/[2.5%] cursor-pointer transition-colors [&>td]:border-r [&>td]:border-white/10 last:[&>td]:border-r-0"
-                                                            >
-                                                                <td className="py-4 pl-4">
-                                                                    <div className="flex items-center gap-3">
-                                                                        <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm">
-                                                                            {customer.firstName.slice(0, 2).toUpperCase()}
+                                        {
+                                            activeTab === 'pending' ? (
+                                                <div className="border rounded-xl border-white/10 overflow-hidden">
+                                                    <div className="overflow-x-auto w-full">
+                                                        <table className="w-full text-sm border-collapse">
+                                                            <thead>
+                                                                <tr className="text-white/70 [&_th]:font-medium border-b border-white/5 bg-white/5 [&>th]:min-w-[220px] last:[&>th]:min-w-fit [&>th]:border-r [&>th]:border-white/10 last:[&>th]:border-r-0">
+                                                                    <th className="text-left p-4">Customer</th>
+                                                                    <th className="text-left p-4">Total tickets</th>
+                                                                    <th className="text-left p-4">Total spent</th>
+                                                                    <th className="text-left p-4">Purchased at</th>
+                                                                    <th className="text-left p-4">Status</th>
+                                                                    <th className="py-4 px-4 sticky right-0 flex items-center justify-center">
+                                                                        {" "}
+                                                                        <div className="bg-white/5 sticky right-0 z-0 backdrop-blur-sm border-l border-white/5 h-10 w-10 flex items-center justify-center rounded-md">
+                                                                            <Ellipsis />
                                                                         </div>
-                                                                        <span>{customer.firstName}</span>
-                                                                    </div>
-                                                                </td>
-                                                                <td className="py-4 px-4">
-                                                                    <div className="flex items-center gap-2 w-full justify-between">
-                                                                        {customer.count} x tickets
-                                                                        {/* {customer.status === "pending" && (
+                                                                    </th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                {filteredCustomers.slice().reverse().filter(cus => cus.qr_status === 'false').map((customer) => (
+                                                                    <tr
+                                                                        key={customer._id}
+                                                                        className="border-b last:border-b-0 border-white/10 hover:bg-white/[2.5%] cursor-pointer transition-colors [&>td]:border-r [&>td]:border-white/10 last:[&>td]:border-r-0"
+                                                                    >
+                                                                        <td className="py-4 pl-4">
+                                                                            <div className="flex items-center gap-3">
+                                                                                <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm">
+                                                                                    {customer.firstName.slice(0, 2).toUpperCase()}
+                                                                                </div>
+                                                                                <span>{customer.firstName}</span>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td className="py-4 px-4">
+                                                                            <div className="flex items-center gap-2 w-full justify-between">
+                                                                                {customer.count} x tickets
+                                                                                {/* {customer.status === "pending" && (
                                                             <span className="border border-white/[0.03] bg-white/10 text-white/70 font-medium text-xs px-2 py-1 rounded-full flex items-center gap-2">
                                                                 <svg
                                                                     xmlns="http://www.w3.org/2000/svg"
@@ -401,93 +404,203 @@ export default function CustomerTab({ eventId, event }) {
                                                                 PENDING
                                                             </span>
                                                         )} */}
-                                                                    </div>
-                                                                </td>
-                                                                <td className="py-4 pl-4">${(((customer.amount / 100) - 0.89) / 1.09).toLocaleString("en-US", {
-                                                                    minimumFractionDigits: 2,
-                                                                    maximumFractionDigits: 2,
-                                                                })}</td>
-                                                                <td className="py-4 pl-4">{formatDate(customer.date)}</td>
-                                                                <td className="py-4 sticky right-0 flex items-center justify-center">
-                                                                    <div className="bg-white/5 sticky right-0 z-0 backdrop-blur-sm border-l border-white/5 h-10 w-10 flex items-center justify-center rounded-md">
-                                                                        <DirectionAwareMenu>
-                                                                            <MenuTrigger>
-                                                                                <Ellipsis />
-                                                                            </MenuTrigger>
-                                                                            <MenuItem
-                                                                                onClick={() => {
-                                                                                    setSelectedCustomer(customer);
-                                                                                    setTicketDialogOpen(true);
-                                                                                }}
-                                                                            >
-                                                                                <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
-                                                                                    <svg
-                                                                                        xmlns="http://www.w3.org/2000/svg"
-                                                                                        width="14"
-                                                                                        height="10"
-                                                                                        viewBox="0 0 14 10"
-                                                                                        fill="none"
+                                                                            </div>
+                                                                        </td>
+                                                                        <td className="py-4 pl-4">${(((customer.amount / 100) - 0.89) / 1.09).toLocaleString("en-US", {
+                                                                            minimumFractionDigits: 2,
+                                                                            maximumFractionDigits: 2,
+                                                                        })}</td>
+                                                                        <td className="py-4 pl-4">{formatDate(customer.date)}</td>
+                                                                        <td className="py-4 pl-4">
+                                                                            {
+                                                                                customer.qr_status === 'false' ?
+                                                                                    <p>Check in</p> :
+                                                                                    <p className="text-green-500">Checked in</p>
+                                                                            }
+                                                                        </td>
+                                                                        <td className="py-4 sticky right-0 flex items-center justify-center">
+                                                                            <div className="bg-white/5 sticky right-0 z-0 backdrop-blur-sm border-l border-white/5 h-10 w-10 flex items-center justify-center rounded-md">
+                                                                                <DirectionAwareMenu>
+                                                                                    <MenuTrigger>
+                                                                                        <Ellipsis />
+                                                                                    </MenuTrigger>
+                                                                                    <MenuItem
+                                                                                        onClick={() => {
+                                                                                            setSelectedCustomer(customer);
+                                                                                            setTicketDialogOpen(true);
+                                                                                        }}
                                                                                     >
-                                                                                        <path
-                                                                                            fillRule="evenodd"
-                                                                                            clipRule="evenodd"
-                                                                                            d="M0 1.5C0 1.10218 0.158035 0.720644 0.43934 0.43934C0.720644 0.158035 1.10218 0 1.5 0H12.5C12.8978 0 13.2794 0.158035 13.5607 0.43934C13.842 0.720644 14 1.10218 14 1.5V2.5C14 2.776 13.773 2.994 13.505 3.062C13.0743 3.1718 12.6925 3.42192 12.4198 3.77286C12.1472 4.1238 11.9991 4.55557 11.9991 5C11.9991 5.44443 12.1472 5.8762 12.4198 6.22714C12.6925 6.57808 13.0743 6.8282 13.505 6.938C13.773 7.006 14 7.224 14 7.5V8.5C14 8.89782 13.842 9.27936 13.5607 9.56066C13.2794 9.84196 12.8978 10 12.5 10H1.5C1.10218 10 0.720644 9.84196 0.43934 9.56066C0.158035 9.27936 0 8.89782 0 8.5V7.5C0 7.224 0.227 7.006 0.495 6.938C0.925654 6.8282 1.30747 6.57808 1.58016 6.22714C1.85285 5.8762 2.00088 5.44443 2.00088 5C2.00088 4.55557 1.85285 4.1238 1.58016 3.77286C1.30747 3.42192 0.925654 3.1718 0.495 3.062C0.227 2.994 0 2.776 0 2.5V1.5ZM9 2.75C9 2.55109 9.07902 2.36032 9.21967 2.21967C9.36032 2.07902 9.55109 2 9.75 2C9.94891 2 10.1397 2.07902 10.2803 2.21967C10.421 2.36032 10.5 2.55109 10.5 2.75V3.75C10.5 3.94891 10.421 4.13968 10.2803 4.28033C10.1397 4.42098 9.94891 4.5 9.75 4.5C9.55109 4.5 9.36032 4.42098 9.21967 4.28033C9.07902 4.13968 9 3.94891 9 3.75V2.75ZM9.75 5.5C9.55109 5.5 9.36032 5.57902 9.21967 5.71967C9.07902 5.86032 9 6.05109 9 6.25V7.25C9 7.44891 9.07902 7.63968 9.21967 7.78033C9.36032 7.92098 9.55109 8 9.75 8C9.94891 8 10.1397 7.92098 10.2803 7.78033C10.421 7.63968 10.5 7.44891 10.5 7.25V6.25C10.5 6.05109 10.421 5.86032 10.2803 5.71967C10.1397 5.57902 9.94891 5.5 9.75 5.5Z"
-                                                                                            fill="white"
-                                                                                            fillOpacity="0.5"
-                                                                                        />
-                                                                                    </svg>
-                                                                                    <span>View Tickets</span>
+                                                                                        <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
+                                                                                            <svg
+                                                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                                                width="16"
+                                                                                                height="16"
+                                                                                                viewBox="0 0 16 16"
+                                                                                                fill="none"
+                                                                                            >
+                                                                                                <path
+                                                                                                    d="M8 9.5C8.39782 9.5 8.77936 9.34196 9.06066 9.06066C9.34196 8.77936 9.5 8.39782 9.5 8C9.5 7.60218 9.34196 7.22064 9.06066 6.93934C8.77936 6.65804 8.39782 6.5 8 6.5C7.60218 6.5 7.22064 6.65804 6.93934 6.93934C6.65804 7.22064 6.5 7.60218 6.5 8C6.5 8.39782 6.65804 8.77936 6.93934 9.06066C7.22064 9.34196 7.60218 9.5 8 9.5Z"
+                                                                                                    fill="white"
+                                                                                                    fillOpacity="0.5"
+                                                                                                />
+                                                                                                <path
+                                                                                                    fillRule="evenodd"
+                                                                                                    clipRule="evenodd"
+                                                                                                    d="M1.37996 8.28012C1.31687 8.09672 1.31687 7.89751 1.37996 7.71412C1.85633 6.33749 2.75014 5.14368 3.93692 4.29893C5.1237 3.45419 6.54437 3.00056 8.00109 3.00122C9.45782 3.00188 10.8781 3.4568 12.0641 4.30262C13.2501 5.14844 14.1428 6.34306 14.618 7.72012C14.681 7.90351 14.681 8.10273 14.618 8.28612C14.1418 9.6631 13.248 10.8573 12.0611 11.7023C10.8742 12.5473 9.4533 13.0011 7.99632 13.0005C6.53934 12.9998 5.11883 12.5447 3.9327 11.6986C2.74657 10.8525 1.85387 9.65753 1.37896 8.28012H1.37996ZM11 8.00012C11 8.79577 10.6839 9.55883 10.1213 10.1214C9.55867 10.684 8.79561 11.0001 7.99996 11.0001C7.20431 11.0001 6.44125 10.684 5.87864 10.1214C5.31603 9.55883 4.99996 8.79577 4.99996 8.00012C4.99996 7.20447 5.31603 6.44141 5.87864 5.8788C6.44125 5.31619 7.20431 5.00012 7.99996 5.00012C8.79561 5.00012 9.55867 5.31619 10.1213 5.8788C10.6839 6.44141 11 7.20447 11 8.00012Z"
+                                                                                                    fill="white"
+                                                                                                    fillOpacity="0.5"
+                                                                                                />
+                                                                                            </svg>
+                                                                                            <span>View Details</span>
+                                                                                        </div>
+                                                                                    </MenuItem>
+                                                                                </DirectionAwareMenu>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                ))}
+                                                                {filteredCustomers.length === 0 && (
+                                                                    <tr>
+                                                                        <td
+                                                                            colSpan="5"
+                                                                            className="text-center py-8 text-white/60"
+                                                                        >
+                                                                            {searchQuery
+                                                                                ? "No customers found matching your search"
+                                                                                : "No customers found"}
+                                                                        </td>
+                                                                    </tr>
+                                                                )}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="border rounded-xl border-white/10 overflow-hidden">
+                                                    <div className="overflow-x-auto w-full">
+                                                        <table className="w-full text-sm border-collapse">
+                                                            <thead>
+                                                                <tr className="text-white/70 [&_th]:font-medium border-b border-white/5 bg-white/5 [&>th]:min-w-[220px] last:[&>th]:min-w-fit [&>th]:border-r [&>th]:border-white/10 last:[&>th]:border-r-0">
+                                                                    <th className="text-left p-4">Customer</th>
+                                                                    <th className="text-left p-4">Total tickets</th>
+                                                                    <th className="text-left p-4">Total spent</th>
+                                                                    <th className="text-left p-4">Purchased at</th>
+                                                                    <th className="text-left p-4">Status</th>
+                                                                    <th className="py-4 px-4 sticky right-0 flex items-center justify-center">
+                                                                        {" "}
+                                                                        <div className="bg-white/5 sticky right-0 z-0 backdrop-blur-sm border-l border-white/5 h-10 w-10 flex items-center justify-center rounded-md">
+                                                                            <Ellipsis />
+                                                                        </div>
+                                                                    </th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                {filteredCustomers.slice().reverse().map((customer) => (
+                                                                    <tr
+                                                                        key={customer._id}
+                                                                        className="border-b last:border-b-0 border-white/10 hover:bg-white/[2.5%] cursor-pointer transition-colors [&>td]:border-r [&>td]:border-white/10 last:[&>td]:border-r-0"
+                                                                    >
+                                                                        <td className="py-4 pl-4">
+                                                                            <div className="flex items-center gap-3">
+                                                                                <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm">
+                                                                                    {customer.firstName.slice(0, 2).toUpperCase() ? customer.firstName.slice(0, 2).toUpperCase() : "Complimentary".slice(0,2).toUpperCase()}
                                                                                 </div>
-                                                                            </MenuItem>
-                                                                            <MenuSeparator />
-                                                                            <MenuItem
-                                                                                onClick={() =>
-                                                                                    handleCopy(customer.id.toString())
-                                                                                }
-                                                                            >
-                                                                                <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
-                                                                                    <svg
-                                                                                        xmlns="http://www.w3.org/2000/svg"
-                                                                                        width="16"
-                                                                                        height="16"
-                                                                                        viewBox="0 0 16 16"
-                                                                                        fill="none"
+                                                                                <span>{customer.firstName ? customer.firstName : "Complimentary"}</span>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td className="py-4 px-4">
+                                                                            <div className="flex items-center gap-2 w-full justify-between">
+                                                                                {customer.count} x tickets
+                                                                                {/* {customer.status === "pending" && (
+                                                                                    <span className="border border-white/[0.03] bg-white/10 text-white/70 font-medium text-xs px-2 py-1 rounded-full flex items-center gap-2">
+                                                                                        <svg
+                                                                                            xmlns="http://www.w3.org/2000/svg"
+                                                                                            width="12"
+                                                                                            height="12"
+                                                                                            viewBox="0 0 12 12"
+                                                                                            fill="none"
+                                                                                        >
+                                                                                            <path
+                                                                                                fillRule="evenodd"
+                                                                                                clipRule="evenodd"
+                                                                                                d="M0 6C0 4.4087 0.632141 2.88258 1.75736 1.75736C2.88258 0.632141 4.4087 0 6 0C7.5913 0 9.11742 0.632141 10.2426 1.75736C11.3679 2.88258 12 4.4087 12 6C12 7.5913 11.3679 9.11742 10.2426 10.2426C9.11742 11.3679 7.5913 12 6 12C4.4087 12 2.88258 11.3679 1.75736 10.2426C0.632141 9.11742 0 7.5913 0 6ZM6.64286 2.35714C6.64286 2.18665 6.57513 2.02313 6.45457 1.90257C6.33401 1.78202 6.1705 1.71429 6 1.71429C5.8295 1.71429 5.66599 1.78202 5.54543 1.90257C5.42487 2.02313 5.35714 2.18665 5.35714 2.35714V6C5.35714 6.35486 5.64514 6.64286 6 6.64286H8.78571C8.95621 6.64286 9.11972 6.57513 9.24028 6.45457C9.36084 6.33401 9.42857 6.1705 9.42857 6C9.42857 5.8295 9.36084 5.66599 9.24028 5.54543C9.11972 5.42487 8.95621 5.35714 8.78571 5.35714H6.64286V2.35714Z"
+                                                                                                fill="white"
+                                                                                                fillOpacity="0.5"
+                                                                                            />
+                                                                                        </svg>
+                                                                                        PENDING
+                                                                                    </span>
+                                                                                )} */}
+                                                                            </div>
+                                                                        </td>
+                                                                        <td className="py-4 pl-4">${customer.transaction_id ? (((customer.amount / 100) - 0.89) / 1.09).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2}) : (0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                                                        <td className="py-4 pl-4">{formatDate(customer.date)}</td>
+                                                                        <td className="py-4 pl-4">
+                                                                            {
+                                                                                customer.qr_status === 'false' ?
+                                                                                    <p>Check in</p> :
+                                                                                    <p className="text-green-500">Checked in</p>
+                                                                            }
+                                                                        </td>
+                                                                        <td className="py-4 sticky right-0 flex items-center justify-center">
+                                                                            <div className="bg-white/5 sticky right-0 z-0 backdrop-blur-sm border-l border-white/5 h-10 w-10 flex items-center justify-center rounded-md">
+                                                                                <DirectionAwareMenu>
+                                                                                    <MenuTrigger>
+                                                                                        <Ellipsis />
+                                                                                    </MenuTrigger>
+                                                                                    <MenuItem
+                                                                                        onClick={() => {
+                                                                                            setSelectedCustomer(customer);
+                                                                                            setTicketDialogOpen(true);
+                                                                                        }}
                                                                                     >
-                                                                                        <path
-                                                                                            d="M5 6.5C5 6.10218 5.15804 5.72064 5.43934 5.43934C5.72064 5.15804 6.10218 5 6.5 5H12.5C12.8978 5 13.2794 5.15804 13.5607 5.43934C13.842 5.72064 14 6.10218 14 6.5V12.5C14 12.8978 13.842 13.2794 13.5607 13.5607C13.2794 13.842 12.8978 14 12.5 14H6.5C6.10218 14 5.72064 13.842 5.43934 13.5607C5.15804 13.2794 5 12.8978 5 12.5V6.5Z"
-                                                                                            fill="white"
-                                                                                            fillOpacity="0.5"
-                                                                                        />
-                                                                                        <path
-                                                                                            d="M3.5 2C3.10218 2 2.72064 2.15804 2.43934 2.43934C2.15804 2.72064 2 3.10218 2 3.5V9.5C2 9.89782 2.15804 10.2794 2.43934 10.5607C2.72064 10.842 3.10218 11 3.5 11V6.5C3.5 5.70435 3.81607 4.94129 4.37868 4.37868C4.94129 3.81607 5.70435 3.5 6.5 3.5H11C11 3.10218 10.842 2.72064 10.5607 2.43934C10.2794 2.15804 9.89782 2 9.5 2H3.5Z"
-                                                                                            fill="white"
-                                                                                            fillOpacity="0.5"
-                                                                                        />
-                                                                                    </svg>
-                                                                                    Copy ID
-                                                                                </div>
-                                                                            </MenuItem>
-                                                                        </DirectionAwareMenu>
-                                                                    </div>
-                                                                </td>
-                                                            </tr>
-                                                        ))}
-                                                        {filteredCustomers.length === 0 && (
-                                                            <tr>
-                                                                <td
-                                                                    colSpan="5"
-                                                                    className="text-center py-8 text-white/60"
-                                                                >
-                                                                    {searchQuery
-                                                                        ? "No customers found matching your search"
-                                                                        : "No customers found"}
-                                                                </td>
-                                                            </tr>
-                                                        )}
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
+                                                                                        <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
+                                                                                            <svg
+                                                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                                                width="16"
+                                                                                                height="16"
+                                                                                                viewBox="0 0 16 16"
+                                                                                                fill="none"
+                                                                                            >
+                                                                                                <path
+                                                                                                    d="M8 9.5C8.39782 9.5 8.77936 9.34196 9.06066 9.06066C9.34196 8.77936 9.5 8.39782 9.5 8C9.5 7.60218 9.34196 7.22064 9.06066 6.93934C8.77936 6.65804 8.39782 6.5 8 6.5C7.60218 6.5 7.22064 6.65804 6.93934 6.93934C6.65804 7.22064 6.5 7.60218 6.5 8C6.5 8.39782 6.65804 8.77936 6.93934 9.06066C7.22064 9.34196 7.60218 9.5 8 9.5Z"
+                                                                                                    fill="white"
+                                                                                                    fillOpacity="0.5"
+                                                                                                />
+                                                                                                <path
+                                                                                                    fillRule="evenodd"
+                                                                                                    clipRule="evenodd"
+                                                                                                    d="M1.37996 8.28012C1.31687 8.09672 1.31687 7.89751 1.37996 7.71412C1.85633 6.33749 2.75014 5.14368 3.93692 4.29893C5.1237 3.45419 6.54437 3.00056 8.00109 3.00122C9.45782 3.00188 10.8781 3.4568 12.0641 4.30262C13.2501 5.14844 14.1428 6.34306 14.618 7.72012C14.681 7.90351 14.681 8.10273 14.618 8.28612C14.1418 9.6631 13.248 10.8573 12.0611 11.7023C10.8742 12.5473 9.4533 13.0011 7.99632 13.0005C6.53934 12.9998 5.11883 12.5447 3.9327 11.6986C2.74657 10.8525 1.85387 9.65753 1.37896 8.28012H1.37996ZM11 8.00012C11 8.79577 10.6839 9.55883 10.1213 10.1214C9.55867 10.684 8.79561 11.0001 7.99996 11.0001C7.20431 11.0001 6.44125 10.684 5.87864 10.1214C5.31603 9.55883 4.99996 8.79577 4.99996 8.00012C4.99996 7.20447 5.31603 6.44141 5.87864 5.8788C6.44125 5.31619 7.20431 5.00012 7.99996 5.00012C8.79561 5.00012 9.55867 5.31619 10.1213 5.8788C10.6839 6.44141 11 7.20447 11 8.00012Z"
+                                                                                                    fill="white"
+                                                                                                    fillOpacity="0.5"
+                                                                                                />
+                                                                                            </svg>
+                                                                                            <span>View Details</span>
+                                                                                        </div>
+                                                                                    </MenuItem>
+                                                                                </DirectionAwareMenu>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                ))}
+                                                                {filteredCustomers.length === 0 && (
+                                                                    <tr>
+                                                                        <td
+                                                                            colSpan="5"
+                                                                            className="text-center py-8 text-white/60"
+                                                                        >
+                                                                            {searchQuery
+                                                                                ? "No customers found matching your search"
+                                                                                : "No customers found"}
+                                                                        </td>
+                                                                    </tr>
+                                                                )}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            )
+                                        }
                                     </div>
                                 </Tabs>
                             </div>
