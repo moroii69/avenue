@@ -3,7 +3,7 @@ import { Calendar, Calendar1Icon, ChevronDown, CircleUser, Globe, Locate, LockIc
 import "../../css/global.css"
 import axios from "axios"
 import url from "../../constants/url"
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { IoLockClosed, IoDocumentTextSharp } from "react-icons/io5";
 import { MdDone } from "react-icons/md";
 import { FaCheck } from 'react-icons/fa';
@@ -492,6 +492,17 @@ const Profile = () => {
                                             className="bg-primary border text-sm font-inter text-center border-zinc-800 rounded-full px-5 py-2.5 focus:outline-none w-full lg:w-52"
                                             readOnly
                                         />
+                                    </div>
+                                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                                        <div
+                                            className="flex flex-col gap-2">
+                                            <span className="text-sm font-medium font-inter">Privacy Policy</span>
+                                            <span className="text-xs text-zinc-500">View legal documents</span>
+                                        </div>
+                                        <Link
+                                            to="/privacy-policy"
+                                            className="bg-primary border text-sm font-inter text-center text-white border-zinc-800 rounded-full px-5 py-2.5 focus:outline-none w-full lg:w-52"
+                                        >Privacy Policy</Link>
                                     </div>
 
                                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">

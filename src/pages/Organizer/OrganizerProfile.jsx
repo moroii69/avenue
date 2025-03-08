@@ -725,14 +725,14 @@ const OrganizerProfile = () => {
                                                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                                                     <div className="flex flex-col gap-3">
                                                         <span className="text-sm font-medium text-white">
-                                                            Terms and privacy
+                                                            Terms and conditions
                                                         </span>
                                                         <span className="text-sm text-white/60">
                                                             View legal documents
                                                         </span>
                                                     </div>
                                                     <button className="bg-primary border text-sm text-center text-white border-white/10 rounded-full px-5 py-2.5 focus:outline-none w-full lg:w-auto flex items-center justify-center gap-2">
-                                                        Terms and privacy
+                                                        Terms and conditions
                                                         <svg
                                                             xmlns="http://www.w3.org/2000/svg"
                                                             width="16"
@@ -749,6 +749,35 @@ const OrganizerProfile = () => {
                                                             />
                                                         </svg>
                                                     </button>
+                                                </div>
+
+                                                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                                                    <div className="flex flex-col gap-3">
+                                                        <span className="text-sm font-medium text-white">
+                                                            Privacy Policy
+                                                        </span>
+                                                        <span className="text-sm text-white/60">
+                                                            View legal documents
+                                                        </span>
+                                                    </div>
+                                                    <Link to="/privacy-policy" className="bg-primary border text-sm text-center text-white border-white/10 rounded-full px-5 py-2.5 focus:outline-none w-full lg:w-auto flex items-center justify-center gap-2">
+                                                    Privacy Policy
+                                                        <svg
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                            width="16"
+                                                            height="16"
+                                                            viewBox="0 0 16 16"
+                                                            fill="none"
+                                                        >
+                                                            <path
+                                                                fillRule="evenodd"
+                                                                clipRule="evenodd"
+                                                                d="M4.22007 11.78C4.07962 11.6394 4.00073 11.4488 4.00073 11.25C4.00073 11.0512 4.07962 10.8606 4.22007 10.72L9.44007 5.5H5.75007C5.55116 5.5 5.36039 5.42098 5.21974 5.28033C5.07909 5.13968 5.00007 4.94891 5.00007 4.75C5.00007 4.55109 5.07909 4.36032 5.21974 4.21967C5.36039 4.07902 5.55116 4 5.75007 4H11.2501C11.449 4 11.6398 4.07902 11.7804 4.21967C11.9211 4.36032 12.0001 4.55109 12.0001 4.75V10.25C12.0001 10.4489 11.9211 10.6397 11.7804 10.7803C11.6398 10.921 11.449 11 11.2501 11C11.0512 11 10.8604 10.921 10.7197 10.7803C10.5791 10.6397 10.5001 10.4489 10.5001 10.25V6.56L5.28007 11.78C5.13945 11.9205 4.94882 11.9993 4.75007 11.9993C4.55132 11.9993 4.3607 11.9205 4.22007 11.78Z"
+                                                                fill="white"
+                                                                fillOpacity="0.5"
+                                                            />
+                                                        </svg>
+                                                    </Link>
                                                 </div>
 
                                                 {/* Logout */}
