@@ -1130,6 +1130,21 @@ export default function OrganizerWallet() {
                                     <span>View Ticket</span>
                                   </div>
                                 </MenuItem>
+                                <MenuItem>
+                                  <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
+                                    <span>View QR</span>
+                                  </div>
+                                </MenuItem>
+                                <MenuItem>
+                                  <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
+                                    <span>Resend Email Confirmation</span>
+                                  </div>
+                                </MenuItem>
+                                <MenuItem>
+                                  <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
+                                    <span>Refund</span>
+                                  </div>
+                                </MenuItem>
                               </DirectionAwareMenu>
                             </div>
                           </td>
