@@ -17,6 +17,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Ellipsis } from "lucide-react";
+import {
+  DirectionAwareMenu,
+  MenuItem,
+  MenuSeparator,
+  MenuTrigger,
+} from "../../components/ui/DirectionAwareMenu";
 
 const salesHistory = [
   {
@@ -452,6 +458,11 @@ export default function OrganizerWallet() {
   const [typeFilter, setTypeFilter] = useState("All types");
   const [ticketFilter, setTicketFilter] = useState("All tickets");
   const [searchQuery, setSearchQuery] = useState("");
+  const [isViewTicketOpen, setIsViewTicketOpen] = useState(false);
+
+  const handleViewTicket = () => {
+    setIsViewTicketOpen(true);
+  };
 
   const filteredSalesHistory = salesHistory.filter((sale) => {
     // Search filter
@@ -1068,10 +1079,42 @@ export default function OrganizerWallet() {
                               </span>
                             </div>
                           </td>
-                          <td className="p-4">
-                            <button className="hover:bg-white/10 p-2 rounded-lg transition-colors">
-                              <Ellipsis className="w-4 h-4" />
-                            </button>
+                          <td className="p-4 sticky right-0">
+                            <div className="bg-white/[0.03] backdrop-blur-sm border-l border-white/5 h-8 w-8 flex items-center justify-center rounded-md">
+                              <DirectionAwareMenu>
+                                <MenuTrigger>
+                                  <Ellipsis />
+                                </MenuTrigger>
+                                <MenuItem
+                                  onClick={() => handleViewTicket(sale.id)}
+                                >
+                                  <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="16"
+                                      height="16"
+                                      viewBox="0 0 16 16"
+                                      fill="none"
+                                    >
+                                      <path
+                                        d="M8 9.5C8.39782 9.5 8.77936 9.34196 9.06066 9.06066C9.34196 8.77936 9.5 8.39782 9.5 8C9.5 7.60218 9.34196 7.22064 9.06066 6.93934C8.77936 6.65804 8.39782 6.5 8 6.5C7.60218 6.5 7.22064 6.65804 6.93934 6.93934C6.65804 7.22064 6.5 7.60218 6.5 8C6.5 8.39782 6.65804 8.77936 6.93934 9.06066C7.22064 9.34196 7.60218 9.5 8 9.5Z"
+                                        fill="white"
+                                        fillOpacity="0.5"
+                                      />
+                                      <path
+                                        fillRule="evenodd"
+                                        clipRule="evenodd"
+                                        d="M1.37996 8.28012C1.31687 8.09672 1.31687 7.89751 1.37996 7.71412C1.85633 6.33749 2.75014 5.14368 3.93692 4.29893C5.1237 3.45419 6.54437 3.00056 8.00109 3.00122C9.45782 3.00188 10.8781 3.4568 12.0641 4.30262C13.2501 5.14844 14.1428 6.34306 14.618 7.72012C14.681 7.90351 14.681 8.10273 14.618 8.28612C14.1418 9.6631 13.248 10.8573 12.0611 11.7023C10.8742 12.5473 9.4533 13.0011 7.99632 13.0005C6.53934 12.9998 5.11883 12.5447 3.9327 11.6986C2.74657 10.8525 1.85387 9.65753 1.37896 8.28012H1.37996ZM11 8.00012C11 8.79577 10.6839 9.55883 10.1213 10.1214C9.55867 10.684 8.79561 11.0001 7.99996 11.0001C7.20431 11.0001 6.44125 10.684 5.87864 10.1214C5.31603 9.55883 4.99996 8.79577 4.99996 8.00012C4.99996 7.20447 5.31603 6.44141 5.87864 5.8788C6.44125 5.31619 7.20431 5.00012 7.99996 5.00012C8.79561 5.00012 9.55867 5.31619 10.1213 5.8788C10.6839 6.44141 11 7.20447 11 8.00012Z"
+                                        fill="white"
+                                        fillOpacity="0.5"
+                                      />
+                                    </svg>
+                                    <span>View Ticket</span>
+                                  </div>
+                                </MenuItem>
+                                <MenuSeparator />
+                              </DirectionAwareMenu>
+                            </div>
                           </td>
                         </tr>
                       ))
@@ -1092,6 +1135,84 @@ export default function OrganizerWallet() {
           </div>
         </div>
       </div>
+
+      {/* View Ticket Dialog */}
+      <Dialog
+        open={isViewTicketOpen}
+        onOpenChange={setIsViewTicketOpen}
+        className="!max-w-[400px] border border-white/10 rounded-xl !p-0"
+      >
+        <DialogContent className="max-h-[90vh] !gap-0 text-white overflow-y-auto">
+          <div className="flex flex-col gap-y-3 bg-white/[0.03] rounded-t-xl border-b border-white/10 p-6">
+            <DialogTitle>Ticket Details</DialogTitle>
+            <DialogDescription>
+              View the details of the ticket.
+            </DialogDescription>
+          </div>
+          <div className="flex flex-col">
+            {/* Ticket Image and Basic Info */}
+            <div className="flex gap-4 p-6">
+              <div className="w-20 h-20 rounded-lg bg-white/10">
+                <img src="" alt="" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <h3 className="font-medium">After Hours Neon</h3>
+                <p className="text-sm text-white/70">Reference: #R291012</p>
+                <div className="flex items-center gap-2 mt-1">
+                  {statusIcons["completed"]}
+                  <span className="text-sm">Completed</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className="h-px bg-white/10" />
+
+            {/* Transaction Details */}
+            <div className="flex flex-col gap-4 p-6">
+              <h4 className="text-sm font-medium text-white/70">
+                Transaction Details
+              </h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1">
+                  <span className="text-sm text-white/50">Amount</span>
+                  <span className="font-medium">$198.00</span>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-sm text-white/50">Date</span>
+                  <span className="font-medium">Today 14:23</span>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-sm text-white/50">Payment Method</span>
+                  <div className="flex items-center gap-2">
+                    <div className="border border-white/10 rounded h-6 w-fit px-1 py-1 flex items-center justify-center">
+                      {cardIcons["visa"]}
+                    </div>
+                    <span className="font-medium">•••• 4468</span>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-sm text-white/50">Type</span>
+                  <div className="flex items-center gap-2">
+                    {saleTypeIcons["Sale"]}
+                    <span className="font-medium">Sale</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3 mt-2 p-6 border-t border-white/10">
+              <button className="flex-1 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-lg px-4 py-2 text-sm font-medium transition-colors">
+                Download Receipt
+              </button>
+              <button className="flex-1 bg-white hover:bg-white/90 text-black rounded-lg px-4 py-2 text-sm font-medium transition-colors">
+                Contact Support
+              </button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Add Withdraw Dialog */}
       <Dialog
