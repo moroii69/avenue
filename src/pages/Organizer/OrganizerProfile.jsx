@@ -725,14 +725,14 @@ const OrganizerProfile = () => {
                                                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                                                     <div className="flex flex-col gap-3">
                                                         <span className="text-sm font-medium text-white">
-                                                            Terms and conditions
+                                                            Terms and Conditions
                                                         </span>
                                                         <span className="text-sm text-white/60">
                                                             View legal documents
                                                         </span>
                                                     </div>
-                                                    <button className="bg-primary border text-sm text-center text-white border-white/10 rounded-full px-5 py-2.5 focus:outline-none w-full lg:w-auto flex items-center justify-center gap-2">
-                                                        Terms and conditions
+                                                    <Link to="/terms-and-conditions" className="bg-primary border text-sm text-center text-white border-white/10 rounded-full px-5 py-2.5 focus:outline-none w-full lg:w-auto flex items-center justify-center gap-2">
+                                                        Terms and Conditions
                                                         <svg
                                                             xmlns="http://www.w3.org/2000/svg"
                                                             width="16"
@@ -748,7 +748,7 @@ const OrganizerProfile = () => {
                                                                 fillOpacity="0.5"
                                                             />
                                                         </svg>
-                                                    </button>
+                                                    </Link>
                                                 </div>
 
                                                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
