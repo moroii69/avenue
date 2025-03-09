@@ -20,7 +20,6 @@ import { Ellipsis } from "lucide-react";
 import {
   DirectionAwareMenu,
   MenuItem,
-  MenuSeparator,
   MenuTrigger,
 } from "../../components/ui/DirectionAwareMenu";
 
@@ -431,9 +430,10 @@ const payoutHistory = [
 ];
 
 // Add sample cards data
+// First, move the cards data to the top, before the component definition
 const cards = [
-  { id: 1, type: "visa", last4: "4468" },
-  { id: 2, type: "mastercard", last4: "1234" },
+  { id: 1, type: "visa", last4: "4468", isDefault: true },
+  { id: 2, type: "mastercard", last4: "1234", isDefault: false },
 ];
 
 // Add withdrawal form schema
@@ -459,6 +459,21 @@ export default function OrganizerWallet() {
   const [ticketFilter, setTicketFilter] = useState("All tickets");
   const [searchQuery, setSearchQuery] = useState("");
   const [isViewTicketOpen, setIsViewTicketOpen] = useState(false);
+  const [isPaymentMethodsOpen, setIsPaymentMethodsOpen] = useState(false);
+  const [isAddNewCardOpen, setIsAddNewCardOpen] = useState(false);
+  const [setDefaultDialogOpen, setSetDefaultDialogOpen] = useState(false);
+
+  const [removeCardDialogOpen, setRemoveCardDialogOpen] = useState(false);
+
+  const handleSetDefault = (cardId) => {
+    // Add logic to set default card
+    console.log("Setting default card:", cardId);
+  };
+
+  const handleRemoveCard = (cardId) => {
+    // Add logic to remove card
+    console.log("Removing card:", cardId);
+  };
 
   const handleViewTicket = () => {
     setIsViewTicketOpen(true);
@@ -668,7 +683,10 @@ export default function OrganizerWallet() {
                     </span>
                   </div>
                 </div>
-                <button className="text-white/70 group h-6 w-6 flex items-center justify-center">
+                <button
+                  className="text-white/70 group h-6 w-6 flex items-center justify-center border border-white/10 rounded-full hover:bg-white/5 transition-colors"
+                  onClick={() => setIsPaymentMethodsOpen(true)}
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="16"
@@ -1112,7 +1130,6 @@ export default function OrganizerWallet() {
                                     <span>View Ticket</span>
                                   </div>
                                 </MenuItem>
-                                <MenuSeparator />
                               </DirectionAwareMenu>
                             </div>
                           </td>
@@ -1209,6 +1226,143 @@ export default function OrganizerWallet() {
               <button className="flex-1 bg-white hover:bg-white/90 text-black rounded-lg px-4 py-2 text-sm font-medium transition-colors">
                 Contact Support
               </button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Payment Methods Dialog */}
+      <Dialog
+        open={isPaymentMethodsOpen}
+        onOpenChange={setIsPaymentMethodsOpen}
+        className="!max-w-[1000px] border border-white/10 rounded-xl !p-0"
+      >
+        <DialogContent className="max-h-[90vh] !gap-0 text-white overflow-y-auto">
+          <div className="flex flex-col gap-y-3 bg-white/[0.03] rounded-t-xl border-b border-white/10 p-6">
+            <DialogTitle>Payment methods</DialogTitle>
+            <DialogDescription>Manage your bank accounts</DialogDescription>
+          </div>
+
+          <div className="flex flex-col">
+            {/* Add New Payment Method Button */}
+            <div className="p-6">
+              <button
+                onClick={() => setIsAddNewCardOpen(true)}
+                className="flex items-center gap-2 w-fit text-white border border-white/10 h-8 rounded-lg px-3 text-sm"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                >
+                  <path
+                    d="M8 3.5V12.5M12.5 8H3.5"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                New payment method
+              </button>
+            </div>
+            <div className="border-t border-white/10 rounded-b-xl overflow-hidden">
+              <div className=" max-h-[80vh] overflow-y-auto">
+                <table className="w-full text-white text-sm">
+                  <thead className="bg-white/[0.03] border-b border-white/10">
+                    <tr className="text-left [&>th]:font-medium [&>th]:min-w-[180px]">
+                      <th className="p-4 font-medium text-sm">Bank</th>
+                      <th className="p-4 font-medium text-sm">
+                        Account number
+                      </th>
+                      <th className="p-4 font-medium text-sm">Type</th>
+                      <th className="p-4 font-medium text-sm">Status</th>
+                      <th className="p-4 font-medium text-sm">Default</th>
+                      <th className="p-4 w-10"></th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {cards.map((card) => (
+                      <tr key={card.id} className="hover:bg-white/[0.02]">
+                        <td className="p-4">
+                          <div className="flex items-center gap-2">
+                            <div className="border border-white/10 rounded h-6 w-fit px-2 py-1 flex items-center justify-center">
+                              {cardIcons[card.type]}
+                            </div>
+                            <span className="capitalize">{card.type}</span>
+                          </div>
+                        </td>
+                        <td className="p-4">•••• {card.last4}</td>
+                        <td className="p-4">Debit card</td>
+                        <td className="p-4">
+                          <div className="flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]"></span>
+                            <span>Active</span>
+                          </div>
+                        </td>
+                        <td className="p-4 ">
+                          <button
+                            onClick={() => {
+                              handleSetDefault(card);
+                              setSetDefaultDialogOpen(true);
+                            }}
+                            className={`text-sm ${
+                              card.isDefault
+                                ? "bg-white text-black font-semibold"
+                                : "border border-white/10 hover:bg-white/5"
+                            } px-3 py-1 rounded-full transition-colors`}
+                          >
+                            {card.isDefault
+                              ? "Default method"
+                              : "Set as default"}
+                          </button>
+                        </td>
+                        <td className="p-4 flex items-center justify-center w-30">
+                          <button
+                            onClick={() => {
+                              handleRemoveCard(card);
+                              setRemoveCardDialogOpen(true);
+                            }}
+                            className="h-8 w-8 flex items-center justify-center rounded-md hover:bg-white/5"
+                          >
+                            <svg
+                              width="16"
+                              height="16"
+                              viewBox="0 0 16 16"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M6 2H10"
+                                stroke="currentColor"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                              <path
+                                d="M2 4H14"
+                                stroke="currentColor"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                              <path
+                                d="M3.33334 4L3.73393 10.0089C3.80831 11.1245 3.84551 11.6823 4.02779 12.1304C4.35877 12.9441 5.02972 13.5718 5.86357 13.8479C6.32285 14 6.88338 14 8.00445 14V14C9.12972 14 9.69235 14 10.1537 13.8468C10.9901 13.5693 11.663 12.9397 11.994 12.1235C12.1757 11.6741 12.2122 11.1145 12.2852 9.99539L12.6667 4"
+                                stroke="currentColor"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </DialogContent>
@@ -1404,6 +1558,174 @@ export default function OrganizerWallet() {
               </tbody>
             </table>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Set as Default Dialog */}
+      <Dialog
+        open={setDefaultDialogOpen}
+        onOpenChange={setSetDefaultDialogOpen}
+        className="!max-w-[400px] border border-white/10 rounded-xl !p-0"
+      >
+        <DialogContent className="max-h-[90vh] !gap-0 text-white">
+          <div className="flex flex-col gap-y-3 bg-white/[0.03] rounded-t-xl border-b border-white/10 p-6">
+            <DialogTitle>Set as default payment method?</DialogTitle>
+            <DialogDescription>
+              This card will be used as your default payment method for all
+              future withdrawals.
+            </DialogDescription>
+          </div>
+          <div className="flex flex-col gap-3 p-6">
+            <div className="flex items-center gap-2 p-4 border border-white/10 rounded-lg bg-white/[0.03]">
+              <div className="border border-white/10 rounded h-6 w-fit px-1 py-1 flex items-center justify-center">
+                {selectedCard && cardIcons[selectedCard.type]}
+              </div>
+              <span>•••• {selectedCard?.last4}</span>
+            </div>
+            <button
+              onClick={() => {
+                // Add your logic here to set the card as default
+                console.log("Setting card as default:", selectedCard);
+                setSetDefaultDialogOpen(false);
+              }}
+              className="w-full bg-white hover:bg-white/90 text-black border-white/10 border text-center rounded-full h-9 px-4 focus:outline-none flex items-center justify-center gap-2 font-semibold transition-colors text-sm"
+            >
+              Set as default
+            </button>
+            <button
+              onClick={() => setSetDefaultDialogOpen(false)}
+              className="w-full border border-white/10 hover:bg-white/5 text-white text-center rounded-full h-9 px-4 focus:outline-none flex items-center justify-center gap-2 font-semibold transition-colors text-sm"
+            >
+              Cancel
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Remove Payment Method Dialog */}
+      <Dialog
+        open={removeCardDialogOpen}
+        onOpenChange={setRemoveCardDialogOpen}
+        className="!max-w-[400px] border border-white/10 rounded-xl !p-0"
+      >
+        <DialogContent className="max-h-[90vh] !gap-0 text-white">
+          <div className="flex flex-col gap-y-3 bg-white/[0.03] rounded-t-xl border-b border-white/10 p-6">
+            <DialogTitle>Remove payment method?</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to remove this card? You won&apos;t be able
+              to use it for withdrawals.
+            </DialogDescription>
+          </div>
+          <div className="flex flex-col gap-3 p-6">
+            <div className="flex items-center gap-2 p-4 border border-white/10 rounded-lg bg-white/[0.03]">
+              <div className="border border-white/10 rounded h-6 w-fit px-1 py-1 flex items-center justify-center">
+                {selectedCard && cardIcons[selectedCard.type]}
+              </div>
+              <span>•••• {selectedCard?.last4}</span>
+            </div>
+            <button
+              onClick={() => {
+                // Add your logic here to remove the card
+                console.log("Removing card:", selectedCard);
+                setRemoveCardDialogOpen(false);
+              }}
+              className="w-full bg-[#F43F5E] hover:bg-[#F43F5E]/90 text-white border-white/10 border text-center rounded-full h-9 px-4 focus:outline-none flex items-center justify-center gap-2 font-semibold transition-colors text-sm"
+            >
+              Remove method
+            </button>
+            <button
+              onClick={() => setRemoveCardDialogOpen(false)}
+              className="w-full border border-white/10 hover:bg-white/5 text-white text-center rounded-full h-9 px-4 focus:outline-none flex items-center justify-center gap-2 font-semibold transition-colors text-sm"
+            >
+              Cancel
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add New Payment Method Dialog */}
+      <Dialog
+        open={isAddNewCardOpen}
+        onOpenChange={setIsAddNewCardOpen}
+        className="!max-w-[400px] border border-white/10 rounded-xl !p-0"
+      >
+        <DialogContent className="max-h-[90vh] !gap-0 text-white">
+          <div className="flex flex-col gap-y-3 bg-white/[0.03] rounded-t-xl border-b border-white/10 p-6">
+            <DialogTitle>Add payment method</DialogTitle>
+            <DialogDescription>
+              Enter your bank account details.
+            </DialogDescription>
+          </div>
+          <form className="flex flex-col gap-4 p-6">
+            {/* Card Number */}
+            <div className="flex flex-col gap-2">
+              <label className="text-sm text-white/70">Card number</label>
+              <input
+                type="text"
+                placeholder="0000 0000 0000 0000"
+                className="bg-transparent border border-white/10 rounded-lg px-4 h-10 text-sm focus:outline-none focus:ring-2 focus:ring-white/10"
+              />
+            </div>
+
+            {/* Expiry Date & CVV */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col gap-2">
+                <label className="text-sm text-white/70">Expiry date</label>
+                <input
+                  type="text"
+                  placeholder="MM/YY"
+                  className="bg-transparent border border-white/10 rounded-lg px-4 h-10 text-sm focus:outline-none focus:ring-2 focus:ring-white/10"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-sm text-white/70">CVV/CVC</label>
+                <input
+                  type="text"
+                  placeholder="000"
+                  className="bg-transparent border border-white/10 rounded-lg px-4 h-10 text-sm focus:outline-none focus:ring-2 focus:ring-white/10"
+                />
+              </div>
+            </div>
+
+            {/* Card Holder Name */}
+            <div className="flex flex-col gap-2">
+              <label className="text-sm text-white/70">Card holder name</label>
+              <input
+                type="text"
+                placeholder="John John"
+                className="bg-transparent border border-white/10 rounded-lg px-4 h-10 text-sm focus:outline-none focus:ring-2 focus:ring-white/10"
+              />
+            </div>
+
+            {/* Submit Button */}
+            <div className="flex flex-col gap-2 mt-2">
+              <button
+                type="submit"
+                className="w-full bg-white hover:bg-white/90 text-black border-white/10 border text-center rounded-full h-9 px-4 focus:outline-none flex items-center justify-center gap-2 font-semibold transition-colors text-sm"
+              >
+                Add payment method
+              </button>
+              <div className="flex items-center justify-center gap-2 text-xs text-white/50">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="12"
+                  height="12"
+                  viewBox="0 0 12 12"
+                  fill="none"
+                  stroke="currentColor"
+                  className="w-3 h-3"
+                >
+                  <path
+                    d="M5.00033 7.66667H7.00033M3.66699 2.33333H8.33366C9.25413 2.33333 10.0003 3.07952 10.0003 4V8C10.0003 8.92047 9.25413 9.66667 8.33366 9.66667H3.66699C2.74652 9.66667 2.00033 8.92047 2.00033 8V4C2.00033 3.07952 2.74652 2.33333 3.66699 2.33333Z"
+                    strokeWidth="1"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                Your data is secure
+              </div>
+            </div>
+          </form>
         </DialogContent>
       </Dialog>
     </SidebarLayout>
