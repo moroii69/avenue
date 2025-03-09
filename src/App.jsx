@@ -32,6 +32,7 @@ import TicketEvent from "./pages/Organizer/TicketEvent"
 import EditEvent from "./pages/Organizer/EditEvent";
 import Preview from "./pages/Organizer/Preview";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsCondition from "./pages/TermsCondition";
 
 function App() {
   const location = useLocation();
@@ -48,7 +49,8 @@ function App() {
     "/organizer/create-event",
     "/organizer/create-ticket/ticketedevent",
     "/organizer/edit-event",
-    "/privacy-policy"
+    "/privacy-policy",
+    "/terms-and-conditions"
   ];
   const hideFooter = [
     "/login",
@@ -68,7 +70,8 @@ function App() {
     "/organizer/create-event",
     "/organizer/create-ticket/ticketedevent",
     "/organizer/edit-event",
-    "/privacy-policy"
+    "/privacy-policy",
+    "/terms-and-conditions"
 
   ];
 
@@ -129,6 +132,7 @@ function App() {
           <Route path="/organizer/create-event" element={<CreateEvent />} />
           <Route path="/organizer/edit-event/:id" element={<EditEvent />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-and-conditions" element={<TermsCondition />} />
           <Route
             path="/organizer/create-ticket/ticketedevent/:id"
             element={<TicketEvent />}
