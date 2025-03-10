@@ -183,198 +183,199 @@ export default function PromosTab() {
   };
 
   return (
-    <div className="@container grid gap-6">
-      <div className="grid @4xl:grid-cols-3 gap-4 h-fit">
-        <div className="border border-white/10 p-4 rounded-xl h-full flex flex-col gap-y-3">
-          <h2 className="font-medium text-white/70 text-sm">Total members</h2>
-          <p className="text-2xl font-medium">12</p>
+    <>
+      <div className="@container grid gap-6">
+        <div className="grid @4xl:grid-cols-3 gap-4 h-fit">
+          <div className="border border-white/10 p-4 rounded-xl h-full flex flex-col gap-y-3">
+            <h2 className="font-medium text-white/70 text-sm">Total members</h2>
+            <p className="text-2xl font-medium">12</p>
+          </div>
+          <div className="border border-white/10 p-4 rounded-xl h-full flex flex-col gap-y-3">
+            <h2 className="font-medium text-white/70 text-sm">Active members</h2>
+            <p className="text-2xl font-medium">10</p>
+          </div>
+          <div className="border border-white/10 p-4 rounded-xl h-full flex flex-col gap-y-3">
+            <h2 className="font-medium text-white/70 text-sm">Door staff</h2>
+            <p className="text-2xl font-medium">8</p>
+          </div>
         </div>
-        <div className="border border-white/10 p-4 rounded-xl h-full flex flex-col gap-y-3">
-          <h2 className="font-medium text-white/70 text-sm">Active members</h2>
-          <p className="text-2xl font-medium">10</p>
-        </div>
-        <div className="border border-white/10 p-4 rounded-xl h-full flex flex-col gap-y-3">
-          <h2 className="font-medium text-white/70 text-sm">Door staff</h2>
-          <p className="text-2xl font-medium">8</p>
-        </div>
-      </div>
-      <div className="flex flex-col @4xl:flex-row w-full justify-between gap-4">
-        <button
-          onClick={() => setAddPromoDialogOpen(true)}
-          className="border w-fit border-white/10 hover:bg-white/10 h-10 text-white rounded-full px-4 py-2 font-medium text-sm flex items-center gap-2"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
+        <div className="flex flex-col @4xl:flex-row w-full justify-between gap-4">
+          <button
+            onClick={() => setAddPromoDialogOpen(true)}
+            className="border w-fit border-white/10 hover:bg-white/10 h-10 text-white rounded-full px-4 py-2 font-medium text-sm flex items-center gap-2"
           >
-            <path
-              d="M8 3.5V12.5M12.5 8H3.5"
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+            >
+              <path
+                d="M8 3.5V12.5M12.5 8H3.5"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            Add promo code
+          </button>
+          <div className="relative w-full @4xl:w-fit flex justify-end h-fit">
+            <input
+              type="text"
+              placeholder="Search promo codes..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="h-10 w-full bg-white/5 border border-white/10 rounded-full pl-10 pr-4 text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-white/10 @4xl:w-[250px]"
+            />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
               stroke="currentColor"
-              strokeWidth="1.5"
+              strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-            />
-          </svg>
-          Add promo code
-        </button>
-        <div className="relative w-full @4xl:w-fit flex justify-end h-fit">
-          <input
-            type="text"
-            placeholder="Search promo codes..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="h-10 w-full bg-white/5 border border-white/10 rounded-full pl-10 pr-4 text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-white/10 @4xl:w-[250px]"
-          />
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/50"
-          >
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/50"
+            >
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </div>
         </div>
-      </div>
-      <div className="border rounded-xl border-white/10 overflow-hidden">
-        <div className="overflow-x-auto w-full">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-white/70 [&_th]:font-medium border-b border-white/5 bg-white/5 [&>th]:min-w-[180px] last:[&>th]:min-w-fit">
-                <th className="text-left p-4 border-r border-white/10">Code</th>
-                <th className="text-left p-4 border-r border-white/10">
-                  Discount
-                </th>
-                <th className="text-left p-4 border-r border-white/10">Uses</th>
-                <th className="text-left p-4 border-r border-white/10">
-                  Revenue
-                </th>
-                <th className="text-left p-4 border-r border-white/10">
-                  Revenue %
-                </th>
-                <th className="text-left p-4 border-r border-white/10">
-                  Status
-                </th>
-                <th className="py-4 px-4 sticky right-0 border-b border-white/10">
-                  {" "}
-                  <div className="bg-white/5 sticky right-0 z-0 backdrop-blur-sm border-l border-white/5 h-10 w-10 flex items-center justify-center rounded-md">
-                    <Ellipsis />
-                  </div>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredDiscountCodes.map((code) => (
-                <tr
-                  key={code.code}
-                  className="border-b last:border-b-0 border-white/10 [&_td]:font-medium hover:bg-white/[2.5%] cursor-pointer transition-colors"
-                >
-                  <td className="py-4 pl-4 border-r border-white/10">
-                    {code.code}
-                  </td>
-                  <td className="py-4 pl-4 border-r border-white/10">
-                    {code.discount}
-                  </td>
-                  <td className="py-4 pl-4 border-r border-white/10">
-                    {code.uses}
-                  </td>
-                  <td className="py-4 pl-4 border-r border-white/10">
-                    {code.revenue}
-                  </td>
-                  <td className="py-4 pl-4 border-r border-white/10">
-                    {code.revenuePercentage}%
-                  </td>
-                  <td className="py-4 pl-4 border-r border-white/10">
-                    <div className="flex items-center gap-2">
-                      {statusIcons[code.status]}
-                      <span className="capitalize">{code.status}</span>
-                    </div>
-                  </td>
-                  <td className="py-4 pl-4 sticky right-0">
+        <div className="border rounded-xl border-white/10 overflow-hidden">
+          <div className="overflow-x-auto w-full">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-white/70 [&_th]:font-medium border-b border-white/5 bg-white/5 [&>th]:min-w-[180px] last:[&>th]:min-w-fit">
+                  <th className="text-left p-4 border-r border-white/10">Code</th>
+                  <th className="text-left p-4 border-r border-white/10">
+                    Discount
+                  </th>
+                  <th className="text-left p-4 border-r border-white/10">Uses</th>
+                  <th className="text-left p-4 border-r border-white/10">
+                    Revenue
+                  </th>
+                  <th className="text-left p-4 border-r border-white/10">
+                    Revenue %
+                  </th>
+                  <th className="text-left p-4 border-r border-white/10">
+                    Status
+                  </th>
+                  <th className="py-4 px-4 sticky right-0 border-b border-white/10">
+                    {" "}
                     <div className="bg-white/5 sticky right-0 z-0 backdrop-blur-sm border-l border-white/5 h-10 w-10 flex items-center justify-center rounded-md">
-                      <DirectionAwareMenu>
-                        <MenuTrigger>
-                          <Ellipsis />
-                        </MenuTrigger>
-                        <MenuItem onClick={() => handleEditClick(code)}>
-                          <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="16"
-                              height="16"
-                              viewBox="0 0 16 16"
-                              fill="none"
-                            >
-                              <path
-                                d="M13.4872 2.51263C13.3247 2.3501 13.1318 2.22118 12.9194 2.13323C12.7071 2.04527 12.4795 2 12.2497 2C12.0199 2 11.7923 2.04527 11.58 2.13323C11.3676 2.22118 11.1747 2.3501 11.0122 2.51263L6.74919 6.77363C6.49389 7.02895 6.29137 7.33205 6.15319 7.66563L5.30519 9.71263C5.24839 9.84968 5.23351 10.0005 5.26244 10.146C5.29137 10.2915 5.36281 10.4252 5.46772 10.5301C5.57262 10.635 5.70629 10.7064 5.8518 10.7354C5.99731 10.7643 6.14814 10.7494 6.28519 10.6926L8.33219 9.84463C8.66577 9.70644 8.96887 9.50392 9.22419 9.24863L13.4852 4.98663C13.8131 4.65847 13.9973 4.21354 13.9973 3.74963C13.9973 3.28571 13.8131 2.84078 13.4852 2.51263H13.4872Z"
-                                fill="white"
-                              />
-                              <path
-                                d="M4.75 3.5C4.06 3.5 3.5 4.06 3.5 4.75V11.25C3.5 11.94 4.06 12.5 4.75 12.5H11.25C11.94 12.5 12.5 11.94 12.5 11.25V9C12.5 8.80109 12.579 8.61032 12.7197 8.46967C12.8603 8.32902 13.0511 8.25 13.25 8.25C13.4489 8.25 13.6397 8.32902 13.7803 8.46967C13.921 8.61032 14 8.80109 14 9V11.25C14 11.9793 13.7103 12.6788 13.1945 13.1945C12.6788 13.7103 11.9793 14 11.25 14H4.75C4.02065 14 3.32118 13.7103 2.80546 13.1945C2.28973 12.6788 2 11.9793 2 11.25V4.75C2 4.02065 2.28973 3.32118 2.80546 2.80546C3.32118 2.28973 4.02065 2 4.75 2H7C7.19891 2 7.38968 2.07902 7.53033 2.21967C7.67098 2.36032 7.75 2.55109 7.75 2.75C7.75 2.94891 7.67098 3.13968 7.53033 3.28033C7.38968 3.42098 7.19891 3.5 7 3.5H4.75Z"
-                                fill="white"
-                              />
-                            </svg>
-                            <span>Edit</span>
-                          </div>
-                        </MenuItem>
-                        <MenuSeparator />
-                        <MenuItem onClick={() => handlePauseClick(code)}>
-                          <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="16"
-                              height="16"
-                              viewBox="0 0 16 16"
-                              fill="none"
-                            >
-                              <path
-                                d="M4.5 2C4.36739 2 4.24021 2.05268 4.14645 2.14645C4.05268 2.24021 4 2.36739 4 2.5V13.5C4 13.6326 4.05268 13.7598 4.14645 13.8536C4.24021 13.9473 4.36739 14 4.5 14H5.5C5.63261 14 5.75979 13.9473 5.85355 13.8536C5.94732 13.7598 6 13.6326 6 13.5V2.5C6 2.36739 5.94732 2.24021 5.85355 2.14645C5.75979 2.05268 5.63261 2 5.5 2H4.5ZM10.5 2C10.3674 2 10.2402 2.05268 10.1464 2.14645C10.0527 2.24021 10 2.36739 10 2.5V13.5C10 13.6326 10.0527 13.7598 10.1464 13.8536C10.2402 13.9473 10.3674 14 10.5 14H11.5C11.6326 14 11.7598 13.9473 11.8536 13.8536C11.9473 13.7598 12 13.6326 12 13.5V2.5C12 2.36739 11.9473 2.24021 11.8536 2.14645C11.7598 2.05268 11.6326 2 11.5 2H10.5Z"
-                                fill="white"
-                                fillOpacity="0.5"
-                              />
-                            </svg>
-                            Pause
-                          </div>
-                        </MenuItem>
-                        <MenuSeparator />
-                        <MenuItem onClick={() => handleDeleteClick(code)}>
-                          <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="16"
-                              height="16"
-                              viewBox="0 0 16 16"
-                              fill="none"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                clipRule="evenodd"
-                                d="M5 3.25V4H2.75C2.55109 4 2.36032 4.07902 2.21967 4.21967C2.07902 4.36032 2 4.55109 2 4.75C2 4.94891 2.07902 5.13968 2.21967 5.28033C2.36032 5.42098 2.55109 5.5 2.75 5.5H3.05L3.865 13.65C3.90218 14.0199 4.0754 14.3628 4.35107 14.6123C4.62675 14.8617 4.98523 14.9999 5.357 15H10.642C11.0139 15.0001 11.3727 14.8621 11.6486 14.6126C11.9244 14.3631 12.0978 14.0201 12.135 13.65L12.95 5.5H13.25C13.4489 5.5 13.6397 5.42098 13.7803 5.28033C13.921 5.13968 14 4.94891 14 4.75C14 4.55109 13.921 4.36032 13.7803 4.21967C13.6397 4.07902 13.4489 4 13.25 4H11V3.25C11 2.65326 10.7629 2.08097 10.341 1.65901C9.91903 1.23705 9.34674 1 8.75 1H7.25C6.65326 1 6.08097 1.23705 5.65901 1.65901C5.23705 2.08097 5 2.65326 5 3.25ZM7.25 2.5C7.05109 2.5 6.86032 2.57902 6.71967 2.71967C6.57902 2.86032 6.5 3.05109 6.5 3.25V4H9.5V3.25C9.5 3.05109 9.42098 2.86032 9.28033 2.71967C9.13968 2.57902 8.94891 2.5 8.75 2.5H7.25ZM6.05 6C6.14852 5.99502 6.24705 6.00952 6.33996 6.04268C6.43286 6.07584 6.51832 6.127 6.59142 6.19323C6.66453 6.25946 6.72385 6.33946 6.76599 6.42865C6.80813 6.51784 6.83226 6.61447 6.837 6.713L7.112 12.213C7.11933 12.4101 7.04872 12.6022 6.91546 12.7476C6.7822 12.893 6.59702 12.9801 6.40002 12.9899C6.20302 12.9998 6.01007 12.9317 5.86295 12.8003C5.71583 12.6689 5.62639 12.4849 5.614 12.288L5.339 6.788C5.33388 6.68956 5.34821 6.59107 5.38118 6.49818C5.41416 6.40528 5.46511 6.3198 5.53115 6.24661C5.59718 6.17343 5.677 6.11397 5.76603 6.07166C5.85506 6.02934 5.95155 6.00499 6.05 6ZM9.95 6C10.0484 6.00487 10.145 6.02909 10.234 6.07129C10.3231 6.11349 10.403 6.17283 10.4691 6.24592C10.5353 6.31901 10.5863 6.40442 10.6194 6.49726C10.6525 6.59011 10.667 6.68856 10.662 6.787L10.387 12.287C10.3746 12.4839 10.2852 12.6679 10.138 12.7993C9.99093 12.9307 9.79798 12.9988 9.60098 12.9889C9.40398 12.9791 9.2188 12.892 9.08554 12.7466C8.95228 12.6012 8.88167 12.4091 8.889 12.212L9.164 6.712C9.17409 6.51354 9.26253 6.32719 9.4099 6.19389C9.55727 6.06058 9.75152 5.99021 9.95 6Z"
-                                fill="#F43F5E"
-                              />
-                            </svg>
-                            Delete
-                          </div>
-                        </MenuItem>
-                      </DirectionAwareMenu>
+                      <Ellipsis />
                     </div>
-                  </td>
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredDiscountCodes.map((code) => (
+                  <tr
+                    key={code.code}
+                    className="border-b last:border-b-0 border-white/10 [&_td]:font-medium hover:bg-white/[2.5%] cursor-pointer transition-colors"
+                  >
+                    <td className="py-4 pl-4 border-r border-white/10">
+                      {code.code}
+                    </td>
+                    <td className="py-4 pl-4 border-r border-white/10">
+                      {code.discount}
+                    </td>
+                    <td className="py-4 pl-4 border-r border-white/10">
+                      {code.uses}
+                    </td>
+                    <td className="py-4 pl-4 border-r border-white/10">
+                      {code.revenue}
+                    </td>
+                    <td className="py-4 pl-4 border-r border-white/10">
+                      {code.revenuePercentage}%
+                    </td>
+                    <td className="py-4 pl-4 border-r border-white/10">
+                      <div className="flex items-center gap-2">
+                        {statusIcons[code.status]}
+                        <span className="capitalize">{code.status}</span>
+                      </div>
+                    </td>
+                    <td className="py-4 pl-4 sticky right-0">
+                      <div className="bg-white/5 sticky right-0 z-0 backdrop-blur-sm border-l border-white/5 h-10 w-10 flex items-center justify-center rounded-md">
+                        <DirectionAwareMenu>
+                          <MenuTrigger>
+                            <Ellipsis />
+                          </MenuTrigger>
+                          <MenuItem onClick={() => handleEditClick(code)}>
+                            <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                viewBox="0 0 16 16"
+                                fill="none"
+                              >
+                                <path
+                                  d="M13.4872 2.51263C13.3247 2.3501 13.1318 2.22118 12.9194 2.13323C12.7071 2.04527 12.4795 2 12.2497 2C12.0199 2 11.7923 2.04527 11.58 2.13323C11.3676 2.22118 11.1747 2.3501 11.0122 2.51263L6.74919 6.77363C6.49389 7.02895 6.29137 7.33205 6.15319 7.66563L5.30519 9.71263C5.24839 9.84968 5.23351 10.0005 5.26244 10.146C5.29137 10.2915 5.36281 10.4252 5.46772 10.5301C5.57262 10.635 5.70629 10.7064 5.8518 10.7354C5.99731 10.7643 6.14814 10.7494 6.28519 10.6926L8.33219 9.84463C8.66577 9.70644 8.96887 9.50392 9.22419 9.24863L13.4852 4.98663C13.8131 4.65847 13.9973 4.21354 13.9973 3.74963C13.9973 3.28571 13.8131 2.84078 13.4852 2.51263H13.4872Z"
+                                  fill="white"
+                                />
+                                <path
+                                  d="M4.75 3.5C4.06 3.5 3.5 4.06 3.5 4.75V11.25C3.5 11.94 4.06 12.5 4.75 12.5H11.25C11.94 12.5 12.5 11.94 12.5 11.25V9C12.5 8.80109 12.579 8.61032 12.7197 8.46967C12.8603 8.32902 13.0511 8.25 13.25 8.25C13.4489 8.25 13.6397 8.32902 13.7803 8.46967C13.921 8.61032 14 8.80109 14 9V11.25C14 11.9793 13.7103 12.6788 13.1945 13.1945C12.6788 13.7103 11.9793 14 11.25 14H4.75C4.02065 14 3.32118 13.7103 2.80546 13.1945C2.28973 12.6788 2 11.9793 2 11.25V4.75C2 4.02065 2.28973 3.32118 2.80546 2.80546C3.32118 2.28973 4.02065 2 4.75 2H7C7.19891 2 7.38968 2.07902 7.53033 2.21967C7.67098 2.36032 7.75 2.55109 7.75 2.75C7.75 2.94891 7.67098 3.13968 7.53033 3.28033C7.38968 3.42098 7.19891 3.5 7 3.5H4.75Z"
+                                  fill="white"
+                                />
+                              </svg>
+                              <span>Edit</span>
+                            </div>
+                          </MenuItem>
+                          <MenuSeparator />
+                          <MenuItem onClick={() => handlePauseClick(code)}>
+                            <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                viewBox="0 0 16 16"
+                                fill="none"
+                              >
+                                <path
+                                  d="M4.5 2C4.36739 2 4.24021 2.05268 4.14645 2.14645C4.05268 2.24021 4 2.36739 4 2.5V13.5C4 13.6326 4.05268 13.7598 4.14645 13.8536C4.24021 13.9473 4.36739 14 4.5 14H5.5C5.63261 14 5.75979 13.9473 5.85355 13.8536C5.94732 13.7598 6 13.6326 6 13.5V2.5C6 2.36739 5.94732 2.24021 5.85355 2.14645C5.75979 2.05268 5.63261 2 5.5 2H4.5ZM10.5 2C10.3674 2 10.2402 2.05268 10.1464 2.14645C10.0527 2.24021 10 2.36739 10 2.5V13.5C10 13.6326 10.0527 13.7598 10.1464 13.8536C10.2402 13.9473 10.3674 14 10.5 14H11.5C11.6326 14 11.7598 13.9473 11.8536 13.8536C11.9473 13.7598 12 13.6326 12 13.5V2.5C12 2.36739 11.9473 2.24021 11.8536 2.14645C11.7598 2.05268 11.6326 2 11.5 2H10.5Z"
+                                  fill="white"
+                                  fillOpacity="0.5"
+                                />
+                              </svg>
+                              Pause
+                            </div>
+                          </MenuItem>
+                          <MenuSeparator />
+                          <MenuItem onClick={() => handleDeleteClick(code)}>
+                            <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                viewBox="0 0 16 16"
+                                fill="none"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  clipRule="evenodd"
+                                  d="M5 3.25V4H2.75C2.55109 4 2.36032 4.07902 2.21967 4.21967C2.07902 4.36032 2 4.55109 2 4.75C2 4.94891 2.07902 5.13968 2.21967 5.28033C2.36032 5.42098 2.55109 5.5 2.75 5.5H3.05L3.865 13.65C3.90218 14.0199 4.0754 14.3628 4.35107 14.6123C4.62675 14.8617 4.98523 14.9999 5.357 15H10.642C11.0139 15.0001 11.3727 14.8621 11.6486 14.6126C11.9244 14.3631 12.0978 14.0201 12.135 13.65L12.95 5.5H13.25C13.4489 5.5 13.6397 5.42098 13.7803 5.28033C13.921 5.13968 14 4.94891 14 4.75C14 4.55109 13.921 4.36032 13.7803 4.21967C13.6397 4.07902 13.4489 4 13.25 4H11V3.25C11 2.65326 10.7629 2.08097 10.341 1.65901C9.91903 1.23705 9.34674 1 8.75 1H7.25C6.65326 1 6.08097 1.23705 5.65901 1.65901C5.23705 2.08097 5 2.65326 5 3.25ZM7.25 2.5C7.05109 2.5 6.86032 2.57902 6.71967 2.71967C6.57902 2.86032 6.5 3.05109 6.5 3.25V4H9.5V3.25C9.5 3.05109 9.42098 2.86032 9.28033 2.71967C9.13968 2.57902 8.94891 2.5 8.75 2.5H7.25ZM6.05 6C6.14852 5.99502 6.24705 6.00952 6.33996 6.04268C6.43286 6.07584 6.51832 6.127 6.59142 6.19323C6.66453 6.25946 6.72385 6.33946 6.76599 6.42865C6.80813 6.51784 6.83226 6.61447 6.837 6.713L7.112 12.213C7.11933 12.4101 7.04872 12.6022 6.91546 12.7476C6.7822 12.893 6.59702 12.9801 6.40002 12.9899C6.20302 12.9998 6.01007 12.9317 5.86295 12.8003C5.71583 12.6689 5.62639 12.4849 5.614 12.288L5.339 6.788C5.33388 6.68956 5.34821 6.59107 5.38118 6.49818C5.41416 6.40528 5.46511 6.3198 5.53115 6.24661C5.59718 6.17343 5.677 6.11397 5.76603 6.07166C5.85506 6.02934 5.95155 6.00499 6.05 6ZM9.95 6C10.0484 6.00487 10.145 6.02909 10.234 6.07129C10.3231 6.11349 10.403 6.17283 10.4691 6.24592C10.5353 6.31901 10.5863 6.40442 10.6194 6.49726C10.6525 6.59011 10.667 6.68856 10.662 6.787L10.387 12.287C10.3746 12.4839 10.2852 12.6679 10.138 12.7993C9.99093 12.9307 9.79798 12.9988 9.60098 12.9889C9.40398 12.9791 9.2188 12.892 9.08554 12.7466C8.95228 12.6012 8.88167 12.4091 8.889 12.212L9.164 6.712C9.17409 6.51354 9.26253 6.32719 9.4099 6.19389C9.55727 6.06058 9.75152 5.99021 9.95 6Z"
+                                  fill="#F43F5E"
+                                />
+                              </svg>
+                              Delete
+                            </div>
+                          </MenuItem>
+                        </DirectionAwareMenu>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
-
       <Dialog
         open={addPromoDialogOpen}
         onOpenChange={setAddPromoDialogOpen}
@@ -442,11 +443,10 @@ export default function PromosTab() {
               <div className="flex gap-2 bg-[#0F0F0F] p-1 border border-white/[0.03] h-12 rounded-full">
                 <button
                   onClick={() => setDiscountType("percentage")}
-                  className={`flex-1 flex items-center justify-center gap-2 rounded-full py-2 text-sm ${
-                    discountType === "percentage"
+                  className={`flex-1 flex items-center justify-center gap-2 rounded-full py-2 text-sm ${discountType === "percentage"
                       ? "bg-white/5 border border-white/[0.03] opacity-100"
                       : "opacity-50"
-                  }`}
+                    }`}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -466,11 +466,10 @@ export default function PromosTab() {
                 </button>
                 <button
                   onClick={() => setDiscountType("fixed")}
-                  className={`flex-1 flex items-center justify-center gap-2 rounded-full py-2 text-sm ${
-                    discountType === "fixed"
+                  className={`flex-1 flex items-center justify-center gap-2 rounded-full py-2 text-sm ${discountType === "fixed"
                       ? "bg-white/5 border border-white/[0.03] opacity-100"
                       : "opacity-50"
-                  }`}
+                    }`}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -613,11 +612,10 @@ export default function PromosTab() {
               <div className="flex gap-2 bg-[#0F0F0F] p-1 border border-white/[0.03] h-12 rounded-full">
                 <button
                   onClick={() => setDiscountType("percentage")}
-                  className={`flex-1 flex items-center justify-center gap-2 rounded-full py-2 text-sm ${
-                    discountType === "percentage"
+                  className={`flex-1 flex items-center justify-center gap-2 rounded-full py-2 text-sm ${discountType === "percentage"
                       ? "bg-white/5 border border-white/[0.03] opacity-100"
                       : "opacity-50"
-                  }`}
+                    }`}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -637,11 +635,10 @@ export default function PromosTab() {
                 </button>
                 <button
                   onClick={() => setDiscountType("fixed")}
-                  className={`flex-1 flex items-center justify-center gap-2 rounded-full py-2 text-sm ${
-                    discountType === "fixed"
+                  className={`flex-1 flex items-center justify-center gap-2 rounded-full py-2 text-sm ${discountType === "fixed"
                       ? "bg-white/5 border border-white/[0.03] opacity-100"
                       : "opacity-50"
-                  }`}
+                    }`}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -835,6 +832,7 @@ export default function PromosTab() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
+
   );
 }
