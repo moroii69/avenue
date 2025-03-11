@@ -2419,11 +2419,14 @@ export default function OrganizerWallet() {
               <button className="flex-1 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-lg px-4 py-2 text-sm font-medium transition-colors">
                 Download Receipt
               </button>
-              <a href="mailto:support@avenue.tickets">
-                <button className="flex-1 bg-white hover:bg-white/90 text-black rounded-lg px-4 py-2 text-sm font-medium transition-colors">
-                  Contact Support
-                </button>
-              </a>
+              <button
+                onClick={() =>
+                  (window.location.href = "mailto:support@avenue.tickets")
+                }
+                className="flex-1 bg-white hover:bg-white/90 text-black rounded-lg px-4 py-2 text-sm font-medium transition-colors"
+              >
+                Contact Support
+              </button>
             </div>
           </div>
         </DialogContent>
