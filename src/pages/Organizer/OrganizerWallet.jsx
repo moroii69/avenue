@@ -456,6 +456,7 @@ const cards = [
     { id: 2, type: "mastercard", last4: "1234" },
 ];
 
+
 // Add withdrawal form schema
 
 
@@ -469,7 +470,8 @@ export default function OrganizerWallet() {
     const [typeFilter, setTypeFilter] = useState("All types");
     const [ticketFilter, setTicketFilter] = useState("All events");
     const [searchQuery, setSearchQuery] = useState("");
-
+    const [isViewTicketOpen, setIsViewTicketOpen] = useState(false);
+    const [selectedTicket, setSelectedTicket] = useState(null);
     const [accountId, setAccountId] = useState("");
     const [oragnizerId, setOragnizerId] = useState(null);
     const [organizer, setOrganizer] = useState(null);
@@ -495,7 +497,31 @@ export default function OrganizerWallet() {
     const [amountEntered, setAmountEntered] = useState(false);
     const [sortColumn, setSortColumn] = useState(null);
     const [sortOrder, setSortOrder] = useState("asc");
-
+    const handleViewTicket = (sale) => {
+        setSelectedTicket(sale);
+        setIsViewTicketOpen(true);
+      };
+      // Format date for display
+  const formatDate = (dateString) => {
+    const dateObj = new Date(dateString);
+    const formattedDate = dateObj.toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
+    const formattedTime = dateObj.toLocaleString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+    return `${formattedDate} at ${formattedTime}`;
+  };
+      const formatAmount = (amount) => {
+        return (Math.abs((amount / 100) - 0.89) / 1.09).toLocaleString("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
+      };
+    
     const filteredSalesHistory = orgEventList.filter((sale) => {
         // Search filter
         if (searchQuery) {
@@ -1310,7 +1336,7 @@ export default function OrganizerWallet() {
                                         </DropdownItem>
                                     </DropdownContent>
                                 </Dropdown>
-
+                                       
                                 {/* Ticket filter */}
                                 <Dropdown>
                                     <DropdownTrigger>
@@ -1369,6 +1395,87 @@ export default function OrganizerWallet() {
                                     </DropdownContent>
                                 </Dropdown>
                             </div>
+                             {/* View Ticket Dialog */}
+                             <Dialog
+        open={isViewTicketOpen}
+        onOpenChange={setIsViewTicketOpen}
+        className="!max-w-[400px] border border-white/10 rounded-xl !p-0"
+      >
+        <DialogContent className="max-h-[90vh] !gap-0 text-white overflow-y-auto">
+          <div className="flex flex-col gap-y-3 bg-white/[0.03] rounded-t-xl border-b border-white/10 p-6">
+            <DialogTitle>Ticket Details</DialogTitle>
+            <DialogDescription>
+              View the details of the ticket.
+            </DialogDescription>
+          </div>
+          <div className="flex flex-col">
+            {/* Ticket Image and Basic Info */}
+            <div className="flex gap-4 p-6">
+              <div className="w-16 h-16 rounded-lg bg-white/10">
+                <img src={selectedTicket?.party?.flyer || ""} alt="" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <h3 className="font-medium">{selectedTicket?.party?.event_name || "Event Name"}</h3>
+                <p className="text-sm text-white/70">Reference: #{selectedTicket?.transaction_id?.slice(-6) || "000000"}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  {statusIcons["paid"]}
+                  <span className="text-sm">Completed</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className="h-px bg-white/10" />
+
+            {/* Transaction Details */}
+            <div className="flex flex-col gap-4 p-6">
+              <h4 className="text-sm font-medium text-white/70">
+                Transaction Details
+              </h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1">
+                  <span className="text-sm text-white/50">Amount</span>
+                  <span className="font-medium">
+                    ${selectedTicket?.amount ? formatAmount(selectedTicket.amount) : "0.00"}
+                  </span>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-sm text-white/50">Date</span>
+                  <span className="font-medium">
+                    {selectedTicket?.date ? formatDate(selectedTicket.date) : "Today"}
+                  </span>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-sm text-white/50">Payment Method</span>
+                  <div className="flex items-center gap-2">
+                    <div className="border border-white/10 rounded h-6 w-fit px-1 py-1 flex items-center justify-center">
+                      {cardIcons["visa"]}
+                    </div>
+                    <span className="font-medium">•••• {selectedTicket?.last4 || "4468"}</span>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-sm text-white/50">Type</span>
+                  <div className="flex items-center gap-2">
+                    {saleTypeIcons["Sale"]}
+                    <span className="font-medium">Sale</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3 mt-2 p-6 border-t border-white/10">
+              <button className="flex-1 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-lg px-4 py-2 text-sm font-medium transition-colors">
+                Download Receipt
+              </button>
+              <button className="flex-1 bg-white hover:bg-white/90 text-black rounded-lg px-4 py-2 text-sm font-medium transition-colors">
+                Contact Support
+              </button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
                             <div className="relative w-full @4xl:w-fit flex justify-end h-fit">
                                 <input
                                     type="text"
@@ -1714,7 +1821,7 @@ export default function OrganizerWallet() {
                                                                                 <MenuTrigger>
                                                                                     <Ellipsis />
                                                                                 </MenuTrigger>
-                                                                                <MenuItem onClick={() => handleViewEvent(sale.party?.id)}>
+                                                                                <MenuItem onClick={() => handleViewTicket(sale)}>
                                                                                     <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
                                                                                         <svg
                                                                                             xmlns="http://www.w3.org/2000/svg"
