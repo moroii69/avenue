@@ -2304,6 +2304,7 @@ export default function OrganizerWallet() {
                       className="w-4 h-4 accent-gray-600 cursor-pointer"
                       disabled={!isValid}
                     />
+
                     <span className="text-sm text-white/60">
                       Refund fee (9% + $0.89):
                     </span>
