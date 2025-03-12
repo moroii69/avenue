@@ -921,18 +921,40 @@ export default function OrganizerWallet() {
     }
   };
 
+  // const handleFeeToggle = (checked) => {
+  //   setIncludeFee(checked);
+  //   const currentInputValue = document.querySelector(
+  //     'input[type="number"]'
+  //   ).value;
+  //   const currentAmount = parseFloat(currentInputValue || 0);
+
+  //   if (checked) {
+  //     const amountWithoutFee = Math.min(currentAmount, parseFloat(ticketPrice));
+  //     const totalWithFee = (amountWithoutFee * 1.09 + 0.89).toFixed(2);
+  //     setValue("amount", totalWithFee, { shouldValidate: true });
+  //   } else {
+  //     const amountWithoutFee = (
+  //       (Math.min(currentAmount, parseFloat(maxTotal)) - 0.89) /
+  //       1.09
+  //     ).toFixed(2);
+  //     setValue("amount", amountWithoutFee, { shouldValidate: true });
+  //   }
+  // };
+
   const handleFeeToggle = (checked) => {
     setIncludeFee(checked);
-    const currentInputValue = document.querySelector(
-      'input[type="number"]'
-    ).value;
-    const currentAmount = parseFloat(currentInputValue || 0);
+
+    // Get current amount value directly from the form state
+    const currentInputValue = watch("amount") || 0;
+    const currentAmount = parseFloat(currentInputValue);
 
     if (checked) {
+      // If including fee, calculate the total with fee
       const amountWithoutFee = Math.min(currentAmount, parseFloat(ticketPrice));
       const totalWithFee = (amountWithoutFee * 1.09 + 0.89).toFixed(2);
       setValue("amount", totalWithFee, { shouldValidate: true });
     } else {
+      // If excluding fee, calculate the amount without fee
       const amountWithoutFee = (
         (Math.min(currentAmount, parseFloat(maxTotal)) - 0.89) /
         1.09
@@ -940,7 +962,6 @@ export default function OrganizerWallet() {
       setValue("amount", amountWithoutFee, { shouldValidate: true });
     }
   };
-
   const onSubmitRefund = async () => {
     //console.log("Refund", amountValue)
     try {
@@ -2249,7 +2270,7 @@ export default function OrganizerWallet() {
               <DialogTitle>Refund Payment</DialogTitle>
               <DialogDescription>
                 Refund may take 5-10 days to appear on your statement. Payment
-                transaction and platform fees won’t be returned by avenue, but
+                transaction and platform fees won't be returned by avenue, but
                 there are no additional fee for the refund. Learn more
               </DialogDescription>
             </div>
@@ -2297,13 +2318,47 @@ export default function OrganizerWallet() {
                     </span>
                   </div>
                   <div className="flex items-center gap-x-2">
-                    <input
+                  {/* <input
                       type="checkbox"
                       checked={includeFee}
                       onChange={(e) => handleFeeToggle(e.target.checked)}
                       className="w-4 h-4 accent-gray-600 cursor-pointer"
                       disabled={!isValid}
+                    /> */}
+                    <input
+                      id="includeFee"
+                      type="checkbox"
+                      checked={includeFee}
+                      onChange={(e) => handleFeeToggle(e.target.checked)}
+                      className="hidden"
                     />
+                    <label
+                      htmlFor="includeFee"
+                      className={`w-5 h-5 flex items-center justify-center cursor-pointer border 
+              ${
+                includeFee
+                  ? "bg-[#34B2DA] border-[#34B2DA] border-2"
+                  : "bg-black border-gray-600 border-2"
+              } 
+              rounded-md transition-all`}
+                    >
+                      {includeFee && (
+                        <svg
+                          width="11"
+                          height="10"
+                          viewBox="0 0 10 9"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            clipRule="evenodd"
+                            d="M8.86374 0.954217C9.00854 1.05076 9.10906 1.20087 9.14319 1.37153C9.17733 1.54218 9.14227 1.71941 9.04574 1.86422L4.67074 8.42672C4.61686 8.50743 4.54574 8.57519 4.46252 8.62511C4.3793 8.67503 4.28604 8.70587 4.18946 8.71541C4.09288 8.72495 3.99539 8.71296 3.90401 8.68028C3.81263 8.64761 3.72963 8.59508 3.66099 8.52647L1.03599 5.90147C0.920074 5.77706 0.856966 5.61252 0.859966 5.44251C0.862965 5.2725 0.931838 5.11028 1.05207 4.99005C1.17231 4.86981 1.33452 4.80094 1.50454 4.79794C1.67455 4.79494 1.83909 4.85805 1.96349 4.97397L4.02237 7.03284L7.95374 1.13534C8.05043 0.990685 8.2006 0.890343 8.37124 0.856378C8.54189 0.822413 8.71904 0.857605 8.86374 0.954217Z"
+                            fill="black"
+                          />
+                        </svg>
+                      )}
+                    </label>
 
                     <span className="text-sm text-white/60">
                       Refund fee (9% + $0.89):
@@ -2333,7 +2388,6 @@ export default function OrganizerWallet() {
           </form>
         </DialogContent>
       </Dialog>
-
       {/* View Ticket Dialog */}
       <Dialog
         open={isViewTicketOpen}
