@@ -856,11 +856,11 @@ export default function OrganizeMembers() {
                                 </td>
                                 <td className="py-4 pl-4">{member.events?.length + " events" || "-"}</td>
                                 <td className="py-4 pl-4">
-                                  <div className="flex items-center gap-2">
-                                    {statusIcons[member.status]}
-                                    <span>{member.status || "-"}</span>
-                                  </div>
-                                </td>
+                                <div className="flex items-center gap-2">
+                                  {statusIcons[member.status]}
+                                  <span>{member.status ? member.status.charAt(0).toUpperCase() + member.status.slice(1) : "-"}</span>
+                                </div>
+                              </td>
                                 <td className="py-4 pl-4">
                                   <DirectionAwareMenu>
                                     <MenuTrigger>
