@@ -16,7 +16,8 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Ellipsis } from "lucide-react";
+import { Ellipsis, X } from "lucide-react";
+import { BsFillTicketFill } from "react-icons/bs";
 import url from "../../constants/url";
 import axios from "axios";
 import { Spin } from "antd";
@@ -470,6 +471,7 @@ export default function OrganizerWallet() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isViewTicketOpen, setIsViewTicketOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState(null);
+  const [isQROpen, setIsQROpen] = useState(false);
   const [accountId, setAccountId] = useState("");
   const [oragnizerId, setOragnizerId] = useState(null);
   const [organizer, setOrganizer] = useState(null);
@@ -498,6 +500,14 @@ export default function OrganizerWallet() {
   const handleViewTicket = (sale) => {
     setSelectedTicket(sale);
     setIsViewTicketOpen(true);
+  };
+  const handleViewQR = (sale) => {
+    setSelectedTicket(sale);
+    setIsQROpen(true);
+  };
+
+  const handleCloseQR = () => {
+    setIsQROpen(false);
   };
   // Format date for display
   const formatDate = (dateString) => {
@@ -1853,6 +1863,63 @@ export default function OrganizerWallet() {
                                           <span>View ticket</span>
                                         </div>
                                       </MenuItem>
+                                      <MenuItem
+                                        onClick={() => handleViewQR(sale)}
+                                      >
+                                        <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
+                                          <svg
+                                            width="16"
+                                            height="16"
+                                            viewBox="0 0 16 16"
+                                            fill="none"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                          >
+                                            <path
+                                              d="M4.75 4.25C4.61739 4.25 4.49021 4.30268 4.39645 4.39645C4.30268 4.49021 4.25 4.61739 4.25 4.75C4.25 4.88261 4.30268 5.00979 4.39645 5.10355C4.49021 5.19732 4.61739 5.25 4.75 5.25C4.88261 5.25 5.00979 5.19732 5.10355 5.10355C5.19732 5.00979 5.25 4.88261 5.25 4.75C5.25 4.61739 5.19732 4.49021 5.10355 4.39645C5.00979 4.30268 4.88261 4.25 4.75 4.25Z"
+                                              fill="white"
+                                              fill-opacity="0.5"
+                                            />
+                                            <path
+                                              fill-rule="evenodd"
+                                              clip-rule="evenodd"
+                                              d="M2 3.5C2 3.10218 2.15804 2.72064 2.43934 2.43934C2.72064 2.15804 3.10218 2 3.5 2H6C6.39782 2 6.77936 2.15804 7.06066 2.43934C7.34196 2.72064 7.5 3.10218 7.5 3.5V6C7.5 6.39782 7.34196 6.77936 7.06066 7.06066C6.77936 7.34196 6.39782 7.5 6 7.5H3.5C3.10218 7.5 2.72064 7.34196 2.43934 7.06066C2.15804 6.77936 2 6.39782 2 6V3.5ZM3.5 3.5H6V6H3.5V3.5Z"
+                                              fill="white"
+                                              fill-opacity="0.5"
+                                            />
+                                            <path
+                                              d="M4.25 11.25C4.25 11.1174 4.30268 10.9902 4.39645 10.8964C4.49021 10.8027 4.61739 10.75 4.75 10.75C4.88261 10.75 5.00979 10.8027 5.10355 10.8964C5.19732 10.9902 5.25 11.1174 5.25 11.25C5.25 11.3826 5.19732 11.5098 5.10355 11.6036C5.00979 11.6973 4.88261 11.75 4.75 11.75C4.61739 11.75 4.49021 11.6973 4.39645 11.6036C4.30268 11.5098 4.25 11.3826 4.25 11.25Z"
+                                              fill="white"
+                                              fill-opacity="0.5"
+                                            />
+                                            <path
+                                              fill-rule="evenodd"
+                                              clip-rule="evenodd"
+                                              d="M2 10C2 9.60218 2.15804 9.22064 2.43934 8.93934C2.72064 8.65804 3.10218 8.5 3.5 8.5H6C6.39782 8.5 6.77936 8.65804 7.06066 8.93934C7.34196 9.22064 7.5 9.60218 7.5 10V12.5C7.5 12.8978 7.34196 13.2794 7.06066 13.5607C6.77936 13.842 6.39782 14 6 14H3.5C3.10218 14 2.72064 13.842 2.43934 13.5607C2.15804 13.2794 2 12.8978 2 12.5V10ZM3.5 12.5V10H6V12.5H3.5Z"
+                                              fill="white"
+                                              fill-opacity="0.5"
+                                            />
+                                            <path
+                                              d="M11.25 4.25C11.1174 4.25 10.9902 4.30268 10.8964 4.39645C10.8027 4.49021 10.75 4.61739 10.75 4.75C10.75 4.88261 10.8027 5.00979 10.8964 5.10355C10.9902 5.19732 11.1174 5.25 11.25 5.25C11.3826 5.25 11.5098 5.19732 11.6036 5.10355C11.6973 5.00979 11.75 4.88261 11.75 4.75C11.75 4.61739 11.6973 4.49021 11.6036 4.39645C11.5098 4.30268 11.3826 4.25 11.25 4.25Z"
+                                              fill="white"
+                                              fill-opacity="0.5"
+                                            />
+                                            <path
+                                              fill-rule="evenodd"
+                                              clip-rule="evenodd"
+                                              d="M10 2C9.60218 2 9.22064 2.15804 8.93934 2.43934C8.65804 2.72064 8.5 3.10218 8.5 3.5V6C8.5 6.39782 8.65804 6.77936 8.93934 7.06066C9.22064 7.34196 9.60218 7.5 10 7.5H12.5C12.8978 7.5 13.2794 7.34196 13.5607 7.06066C13.842 6.77936 14 6.39782 14 6V3.5C14 3.10218 13.842 2.72064 13.5607 2.43934C13.2794 2.15804 12.8978 2 12.5 2H10ZM12.5 3.5H10V6H12.5V3.5Z"
+                                              fill="white"
+                                              fill-opacity="0.5"
+                                            />
+                                            <path
+                                              d="M8.50001 9.417C8.49595 9.2941 8.51665 9.17164 8.56088 9.0569C8.60511 8.94215 8.67197 8.83748 8.75748 8.7491C8.84298 8.66073 8.94539 8.59045 9.05861 8.54246C9.17183 8.49446 9.29354 8.46973 9.41651 8.46973C9.53948 8.46973 9.6612 8.49446 9.77442 8.54246C9.88763 8.59045 9.99004 8.66073 10.0755 8.7491C10.1611 8.83748 10.2279 8.94215 10.2721 9.0569C10.3164 9.17164 10.3371 9.2941 10.333 9.417C10.3252 9.65484 10.2252 9.8803 10.0541 10.0458C9.88311 10.2112 9.65447 10.3037 9.41651 10.3037C9.17855 10.3037 8.94991 10.2112 8.77889 10.0458C8.60787 9.8803 8.50787 9.65484 8.50001 9.417ZM8.50001 13.083C8.49595 12.9601 8.51665 12.8376 8.56088 12.7229C8.60511 12.6082 8.67197 12.5035 8.75748 12.4151C8.84298 12.3267 8.94539 12.2565 9.05861 12.2085C9.17183 12.1605 9.29354 12.1357 9.41651 12.1357C9.53948 12.1357 9.6612 12.1605 9.77442 12.2085C9.88763 12.2565 9.99004 12.3267 10.0755 12.4151C10.1611 12.5035 10.2279 12.6082 10.2721 12.7229C10.3164 12.8376 10.3371 12.9601 10.333 13.083C10.3252 13.3208 10.2252 13.5463 10.0541 13.7118C9.88311 13.8772 9.65447 13.9697 9.41651 13.9697C9.17855 13.9697 8.94991 13.8772 8.77889 13.7118C8.60787 13.5463 8.50787 13.3208 8.50001 13.083ZM13.083 8.5C12.9601 8.49594 12.8376 8.51665 12.7229 8.56088C12.6082 8.60511 12.5035 8.67196 12.4151 8.75747C12.3267 8.84298 12.2565 8.94538 12.2085 9.0586C12.1605 9.17182 12.1357 9.29353 12.1357 9.4165C12.1357 9.53948 12.1605 9.66119 12.2085 9.77441C12.2565 9.88763 12.3267 9.99003 12.4151 10.0755C12.5035 10.161 12.6082 10.2279 12.7229 10.2721C12.8376 10.3164 12.9601 10.3371 13.083 10.333C13.3208 10.3251 13.5463 10.2251 13.7118 10.0541C13.8772 9.88311 13.9697 9.65447 13.9697 9.4165C13.9697 9.17854 13.8772 8.9499 13.7118 8.77888C13.5463 8.60786 13.3208 8.50786 13.083 8.5ZM12.166 13.084C12.162 12.9611 12.1827 12.8386 12.2269 12.7239C12.2711 12.6092 12.338 12.5045 12.4235 12.4161C12.509 12.3277 12.6114 12.2575 12.7246 12.2095C12.8378 12.1615 12.9595 12.1367 13.0825 12.1367C13.2055 12.1367 13.3272 12.1615 13.4404 12.2095C13.5536 12.2575 13.656 12.3277 13.7415 12.4161C13.8271 12.5045 13.8939 12.6092 13.9381 12.7239C13.9824 12.8386 14.0031 12.9611 13.999 13.084C13.9912 13.3218 13.8912 13.5473 13.7201 13.7128C13.5491 13.8782 13.3205 13.9707 13.0825 13.9707C12.8446 13.9707 12.6159 13.8782 12.4449 13.7128C12.2739 13.5473 12.1739 13.3218 12.166 13.084ZM11.25 10.333C11.1271 10.3289 11.0046 10.3496 10.8899 10.3939C10.7752 10.4381 10.6705 10.505 10.5821 10.5905C10.4937 10.676 10.4235 10.7784 10.3755 10.8916C10.3275 11.0048 10.3027 11.1265 10.3027 11.2495C10.3027 11.3725 10.3275 11.4942 10.3755 11.6074C10.4235 11.7206 10.4937 11.823 10.5821 11.9085C10.6705 11.994 10.7752 12.0609 10.8899 12.1051C11.0046 12.1494 11.1271 12.1701 11.25 12.166C11.4878 12.1581 11.7133 12.0581 11.8788 11.8871C12.0442 11.7161 12.1367 11.4875 12.1367 11.2495C12.1367 11.0115 12.0442 10.7829 11.8788 10.6119C11.7133 10.4409 11.4878 10.3409 11.25 10.333Z"
+                                              fill="white"
+                                              fill-opacity="0.5"
+                                            />
+                                          </svg>
+
+                                          <span>View QR</span>
+                                        </div>
+                                      </MenuItem>
                                       <MenuSeparator />
                                       <MenuItem
                                         onClick={() => {
@@ -2318,7 +2385,7 @@ export default function OrganizerWallet() {
                     </span>
                   </div>
                   <div className="flex items-center gap-x-2">
-                  {/* <input
+                    {/* <input
                       type="checkbox"
                       checked={includeFee}
                       onChange={(e) => handleFeeToggle(e.target.checked)}
@@ -2486,6 +2553,100 @@ export default function OrganizerWallet() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* QR Code Modal */}
+      {isQROpen && selectedTicket && (
+        <div className="fixed inset-0 z-50 backdrop-blur-sm">
+          <div
+            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            onClick={handleCloseQR}
+          />
+          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-xs">
+            <div className="bg-[#151515] rounded-xl overflow-hidden shadow-lg relative">
+              <button
+                onClick={handleCloseQR}
+                className="absolute right-3 top-3 text-gray-400 hover:text-white z-10"
+              >
+                <X size={16} />
+              </button>
+              <div className="p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <BsFillTicketFill color="#cccccc" />
+                  <span className="text-xs text-gray-400 uppercase tracking-wide font-inter font-semibold">
+                    Ticket Pass
+                  </span>
+                </div>
+                <div className="flex justify-start mb-4 mt-5">
+                  <img
+                    src={selectedTicket?.party?.flyer}
+                    alt="Event Profile"
+                    className="w-14 h-14 rounded-xl object-cover"
+                  />
+                </div>
+
+                <div className="text-lg text-white mb-2 font-inter">
+                  {selectedTicket?.party?.start_date
+                    ? formatDate(selectedTicket.party.start_date)
+                    : "Date information unavailable"}
+                </div>
+                <div className="flex flex-row space-x-3">
+                  <div className="text-xs text-gray-400 font-inter">
+                    {selectedTicket?.party?.event_name}
+                  </div>
+                  <div className="text-xs text-gray-400">
+                    <svg
+                      width="10"
+                      height="14"
+                      viewBox="0 0 10 14"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        clip-rule="evenodd"
+                        d="M4.539 13.3415L4.542 13.3445L4.544 13.3465C4.67522 13.446 4.83535 13.4998 5 13.4998C5.16465 13.4998 5.32478 13.446 5.456 13.3465L5.458 13.3445L5.461 13.3415L5.473 13.3325C5.53744 13.2829 5.60079 13.2319 5.663 13.1795C6.40862 12.5511 7.09362 11.854 7.709 11.0975C8.81 9.73555 10 7.75555 10 5.50055C10 4.17447 9.47322 2.9027 8.53553 1.96502C7.59785 1.02733 6.32608 0.500549 5 0.500549C3.67392 0.500549 2.40215 1.02733 1.46447 1.96502C0.526784 2.9027 0 4.17447 0 5.50055C0 7.75555 1.19 9.73555 2.292 11.0975C2.90739 11.854 3.59239 12.5511 4.338 13.1795C4.4003 13.2314 4.46331 13.2824 4.527 13.3325L4.539 13.3425V13.3415ZM5 7.00055C5.19698 7.00055 5.39204 6.96175 5.57403 6.88637C5.75601 6.81099 5.92137 6.7005 6.06066 6.56121C6.19995 6.42192 6.31044 6.25656 6.38582 6.07457C6.4612 5.89259 6.5 5.69753 6.5 5.50055C6.5 5.30357 6.4612 5.10851 6.38582 4.92652C6.31044 4.74454 6.19995 4.57918 6.06066 4.43989C5.92137 4.3006 5.75601 4.19011 5.57403 4.11473C5.39204 4.03935 5.19698 4.00055 5 4.00055C4.60218 4.00055 4.22064 4.15858 3.93934 4.43989C3.65804 4.72119 3.5 5.10272 3.5 5.50055C3.5 5.89837 3.65804 6.27991 3.93934 6.56121C4.22064 6.84251 4.60218 7.00055 5 7.00055Z"
+                        fill="white"
+                        fill-opacity="0.5"
+                      />
+                    </svg>
+                  </div>
+                  <div className="text-xs text-gray-400 font-inter">
+                    {selectedTicket?.party?.venue_name}
+                  </div>
+                </div>
+              </div>
+              <div className="px-2 rounded-lg">
+                <div className="bg-[#ffffff] p-7 flex justify-center items-center relative rounded-t-2xl">
+                  <div>
+                    <img
+                      src={selectedTicket?.qrcode}
+                      alt="QR Code"
+                      className="w-full max-w-xs rounded-lg"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-between items-center bg-[#0b6694] bg-opacity-50 p-1 rounded-b-2xl px-4">
+                  <div className="flex items-center">
+                    <div className="rounded-full py-1.5">
+                      <span className="text-xs text-white font-medium font-inter">
+                        {selectedTicket?.tickets?.ticket_name
+                          ? `${selectedTicket.tickets.ticket_name} x ${selectedTicket.count}`
+                          : `Ticket x ${selectedTicket.count || 1}`}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="text-white text-md font-bold font-inter">
+                    $
+                    {selectedTicket?.amount
+                      ? selectedTicket.amount / 100
+                      : "0.00"}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </SidebarLayout>
   );
 }
