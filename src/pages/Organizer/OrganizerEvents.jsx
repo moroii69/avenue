@@ -153,36 +153,64 @@ export default function OrganizerEvents() {
         };
     }, []);
 
+    // const filterEvents = (events) => {
+    //     if (!searchQuery) return events;
+
+    //     const searchLower = searchQuery.toLowerCase();
+
+    //     return events.filter(event => {
+    //         const formattedDate = new Date(event.start_date)
+    //             .toLocaleString("en-US", {
+    //                 month: "short",
+    //                 day: "numeric",
+    //                 hour: "numeric",
+    //                 minute: "2-digit",
+    //                 hour12: true,
+    //             })
+    //             .replace(",", "")
+    //             .toLowerCase();
+    //         console.log("event", event)
+    //         return (
+    //             event &&
+    //             event.event_name &&
+    //             event.venue_name &&
+    //             event.event_name.toLowerCase().includes(searchLower) ||
+    //             event.venue_name.toLowerCase().includes(searchLower) ||
+    //             formattedDate.includes(searchLower) &&
+    //             event.explore === "YES"
+    //         )
+    //     }
+    //     );
+    // };
     const filterEvents = (events) => {
-        if (!searchQuery) return events;
-
-        const searchLower = searchQuery.toLowerCase();
-
-        return events.filter(event => {
-            const formattedDate = new Date(event.start_date)
-                .toLocaleString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    hour: "numeric",
-                    minute: "2-digit",
-                    hour12: true,
-                })
-                .replace(",", "")
-                .toLowerCase();
-            console.log("event", event)
-            return (
-                event &&
-                event.event_name &&
-                event.venue_name &&
-                event.event_name.toLowerCase().includes(searchLower) ||
-                event.venue_name.toLowerCase().includes(searchLower) ||
-                formattedDate.includes(searchLower) &&
-                event.explore === "YES"
-            )
-        }
-        );
+        if (!events) return [];
+    
+        const searchLower = searchQuery ? searchQuery.toLowerCase() : "";
+        const currentDate = new Date();
+    
+        return events
+            .filter(event => {
+                const formattedDate = new Date(event.start_date)
+                    .toLocaleString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        hour: "numeric",
+                        minute: "2-digit",
+                        hour12: true,
+                    })
+                    .replace(",", "")
+                    .toLowerCase();
+    
+                const matchesSearch = !searchQuery || 
+                    event.event_name.toLowerCase().includes(searchLower) ||
+                    event.venue_name.toLowerCase().includes(searchLower) ||
+                    formattedDate.includes(searchLower);
+    
+                return matchesSearch;
+            })
+            .sort((a, b) => new Date(b.start_date) - new Date(a.start_date)); // Newest first
     };
-
+    
     const handleViewEvent = (eventId) => {
         navigate(`/organizer/events/${eventId}`);
     };
