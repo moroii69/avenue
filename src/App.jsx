@@ -101,7 +101,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/:name" element={<Info />} />
           <Route path="/preview/:name" element={<Preview />} />
-          <Route path="/creater/:id" element={<Creater />} />
+          <Route path="/creator/:id" element={<Creater />} />
           <Route
             path="/checkout"
             element={
