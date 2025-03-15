@@ -482,7 +482,7 @@ const OrganizerProfile = () => {
     }, [organizer, oragnizerId, dataFetched]);
 
     const handleCopy = async () => {
-        const profileUrl = `https://avenue.tickets/creater/${organizer.url}`;
+        const profileUrl = `https://avenue.tickets/creator/${organizer.url}`;
         try {
             await navigator.clipboard.writeText(profileUrl);
             setCopied(true);
@@ -634,7 +634,7 @@ const OrganizerProfile = () => {
 
                                                 <UrlInputField
                                                     label="Custom Profile Link"
-                                                    description="https://avenue.tickets/creater/"
+                                                    description="https://avenue.tickets/creator/"
                                                     placeholder="Enter business name"
                                                     value={organizer.url === 'undefined' ? "" : organizer.url}
                                                     onChange={(e) =>

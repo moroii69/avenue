@@ -100,6 +100,7 @@ export function DirectionAwareMenu({ children }) {
         React.cloneElement(trigger, {
           ref: buttonRef,
           onClick: handleToggle,
+          isOpen,
         })}
       {isOpen &&
         createPortal(
@@ -120,13 +121,13 @@ export function DirectionAwareMenu({ children }) {
 }
 
 export const MenuTrigger = React.forwardRef(
-  ({ children, className, ...props }, ref) => {
+  ({ children, className, isOpen, ...props }, ref) => {
     return (
       <button
         ref={ref}
-        className={`text-gray-400 hover:text-white transition-colors ${
-          className || ""
-        }`}
+        className={`transition-colors ${
+          isOpen ? "text-white" : "text-gray-400 hover:text-white"
+        } ${className || ""}`}
         {...props}
       >
         {children}
