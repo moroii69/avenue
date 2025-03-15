@@ -142,7 +142,7 @@ function App() {
             element={<TicketEvent />}
           />
         </Routes>
-        {/* {!shouldHideFooter && <Footer />} */}
+        {!shouldHideFooter && <Footer />}
       </div >
     </>
   );
