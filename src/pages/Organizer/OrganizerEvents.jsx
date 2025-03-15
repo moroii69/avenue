@@ -679,7 +679,7 @@ export default function OrganizerEvents() {
                                 fillOpacity="0.4"
                               />
                             </svg>
-                            Tickets left
+                            Tickets sold
                           </div>
                         </th>
                         <th className="text-left p-4">
@@ -1005,7 +1005,7 @@ export default function OrganizerEvents() {
                                 fillOpacity="0.4"
                               />
                             </svg>
-                            Tickets left
+                            Tickets sold
                           </div>
                         </th>
                         <th className="text-left p-4">
