@@ -57,11 +57,71 @@ const eventData = {
 };
 const newMemberSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
-  email: z.string().min(1, "Email Id is required"),
-  phoneNumber: z.string().optional(),
+  email: z
+    .string()
+    .min(1, { message: "Email is required" })
+    .email({ message: "Invalid email address" }),
+  phoneNumber: z
+    .string()
+    .min(1, { message: "Phone number is required" })
+    .regex(/^[0-9]{10}$/, { message: "Phone number must be 10 digits" }),
   role: z.string().min(1, "Role is required"),
   events: z.array(z.string()).optional(),
 });
+const ticketTypesIcons = {
+  regular: (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+    >
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M1 4.5C1 4.10218 1.15804 3.72064 1.43934 3.43934C1.72064 3.15804 2.10218 3 2.5 3H13.5C13.8978 3 14.2794 3.15804 14.5607 3.43934C14.842 3.72064 15 4.10218 15 4.5V5.5C15 5.776 14.773 5.994 14.505 6.062C14.0743 6.1718 13.6925 6.42192 13.4198 6.77286C13.1472 7.1238 12.9991 7.55557 12.9991 8C12.9991 8.44443 13.1472 8.8762 13.4198 9.22714C13.6925 9.57808 14.0743 9.8282 14.505 9.938C14.773 10.006 15 10.224 15 10.5V11.5C15 11.8978 14.842 12.2794 14.5607 12.5607C14.2794 12.842 13.8978 13 13.5 13H2.5C2.10218 13 1.72064 12.842 1.43934 12.5607C1.15804 12.2794 1 11.8978 1 11.5V10.5C1 10.224 1.227 10.006 1.495 9.938C1.92565 9.8282 2.30747 9.57808 2.58016 9.22714C2.85285 8.8762 3.00088 8.44443 3.00088 8C3.00088 7.55557 2.85285 7.1238 2.58016 6.77286C2.30747 6.42192 1.92565 6.1718 1.495 6.062C1.227 5.994 1 5.776 1 5.5V4.5ZM10 5.75C10 5.55109 10.079 5.36032 10.2197 5.21967C10.3603 5.07902 10.5511 5 10.75 5C10.9489 5 11.1397 5.07902 11.2803 5.21967C11.421 5.36032 11.5 5.55109 11.5 5.75V6.75C11.5 6.94891 11.421 7.13968 11.2803 7.28033C11.1397 7.42098 10.9489 7.5 10.75 7.5C10.5511 7.5 10.3603 7.42098 10.2197 7.28033C10.079 7.13968 10 6.94891 10 6.75V5.75ZM10.75 8.5C10.5511 8.5 10.3603 8.57902 10.2197 8.71967C10.079 8.86032 10 9.05109 10 9.25V10.25C10 10.4489 10.079 10.6397 10.2197 10.7803C10.3603 10.921 10.5511 11 10.75 11C10.9489 11 11.1397 10.921 11.2803 10.7803C11.421 10.6397 11.5 10.4489 11.5 10.25V9.25C11.5 9.05109 11.421 8.86032 11.2803 8.71967C11.1397 8.57902 10.9489 8.5 10.75 8.5Z"
+        fill="#A3E635"
+        // fillOpacity="0.5"
+      />
+    </svg>
+  ),
+  vip: (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+    >
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M1 4.5C1 4.10218 1.15804 3.72064 1.43934 3.43934C1.72064 3.15804 2.10218 3 2.5 3H13.5C13.8978 3 14.2794 3.15804 14.5607 3.43934C14.842 3.72064 15 4.10218 15 4.5V5.5C15 5.776 14.773 5.994 14.505 6.062C14.0743 6.1718 13.6925 6.42192 13.4198 6.77286C13.1472 7.1238 12.9991 7.55557 12.9991 8C12.9991 8.44443 13.1472 8.8762 13.4198 9.22714C13.6925 9.57808 14.0743 9.8282 14.505 9.938C14.773 10.006 15 10.224 15 10.5V11.5C15 11.8978 14.842 12.2794 14.5607 12.5607C14.2794 12.842 13.8978 13 13.5 13H2.5C2.10218 13 1.72064 12.842 1.43934 12.5607C1.15804 12.2794 1 11.8978 1 11.5V10.5C1 10.224 1.227 10.006 1.495 9.938C1.92565 9.8282 2.30747 9.57808 2.58016 9.22714C2.85285 8.8762 3.00088 8.44443 3.00088 8C3.00088 7.55557 2.85285 7.1238 2.58016 6.77286C2.30747 6.42192 1.92565 6.1718 1.495 6.062C1.227 5.994 1 5.776 1 5.5V4.5ZM10 5.75C10 5.55109 10.079 5.36032 10.2197 5.21967C10.3603 5.07902 10.5511 5 10.75 5C10.9489 5 11.1397 5.07902 11.2803 5.21967C11.421 5.36032 11.5 5.55109 11.5 5.75V6.75C11.5 6.94891 11.421 7.13968 11.2803 7.28033C11.1397 7.42098 10.9489 7.5 10.75 7.5C10.5511 7.5 10.3603 7.42098 10.2197 7.28033C10.079 7.13968 10 6.94891 10 6.75V5.75ZM10.75 8.5C10.5511 8.5 10.3603 8.57902 10.2197 8.71967C10.079 8.86032 10 9.05109 10 9.25V10.25C10 10.4489 10.079 10.6397 10.2197 10.7803C10.3603 10.921 10.5511 11 10.75 11C10.9489 11 11.1397 10.921 11.2803 10.7803C11.421 10.6397 11.5 10.4489 11.5 10.25V9.25C11.5 9.05109 11.421 8.86032 11.2803 8.71967C11.1397 8.57902 10.9489 8.5 10.75 8.5Z"
+        fill="#A3E635"
+        // fillOpacity="0.5"
+      />
+    </svg>
+  ),
+  "early bird": (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+    >
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M1 4.5C1 4.10218 1.15804 3.72064 1.43934 3.43934C1.72064 3.15804 2.10218 3 2.5 3H13.5C13.8978 3 14.2794 3.15804 14.5607 3.43934C14.842 3.72064 15 4.10218 15 4.5V5.5C15 5.776 14.773 5.994 14.505 6.062C14.0743 6.1718 13.6925 6.42192 13.4198 6.77286C13.1472 7.1238 12.9991 7.55557 12.9991 8C12.9991 8.44443 13.1472 8.8762 13.4198 9.22714C13.6925 9.57808 14.0743 9.8282 14.505 9.938C14.773 10.006 15 10.224 15 10.5V11.5C15 11.8978 14.842 12.2794 14.5607 12.5607C14.2794 12.842 13.8978 13 13.5 13H2.5C2.10218 13 1.72064 12.842 1.43934 12.5607C1.15804 12.2794 1 11.8978 1 11.5V10.5C1 10.224 1.227 10.006 1.495 9.938C1.92565 9.8282 2.30747 9.57808 2.58016 9.22714C2.85285 8.8762 3.00088 8.44443 3.00088 8C3.00088 7.55557 2.85285 7.1238 2.58016 6.77286C2.30747 6.42192 1.92565 6.1718 1.495 6.062C1.227 5.994 1 5.776 1 5.5V4.5ZM10 5.75C10 5.55109 10.079 5.36032 10.2197 5.21967C10.3603 5.07902 10.5511 5 10.75 5C10.9489 5 11.1397 5.07902 11.2803 5.21967C11.421 5.36032 11.5 5.55109 11.5 5.75V6.75C11.5 6.94891 11.421 7.13968 11.2803 7.28033C11.1397 7.42098 10.9489 7.5 10.75 7.5C10.5511 7.5 10.3603 7.42098 10.2197 7.28033C10.079 7.13968 10 6.94891 10 6.75V5.75ZM10.75 8.5C10.5511 8.5 10.3603 8.57902 10.2197 8.71967C10.079 8.86032 10 9.05109 10 9.25V10.25C10 10.4489 10.079 10.6397 10.2197 10.7803C10.3603 10.921 10.5511 11 10.75 11C10.9489 11 11.1397 10.921 11.2803 10.7803C11.421 10.6397 11.5 10.4489 11.5 10.25V9.25C11.5 9.05109 11.421 8.86032 11.2803 8.71967C11.1397 8.57902 10.9489 8.5 10.75 8.5Z"
+        fill="#A3E635"
+        // fillOpacity="0.5"
+      />
+    </svg>
+  ),
+};
+
 export default function EventDetails() {
   const { id } = useParams();
   //const event = eventData[id];
@@ -72,7 +132,16 @@ export default function EventDetails() {
   const [showCopied, setShowCopied] = useState(false);
   const [newMemberDialogOpen, setNewMemberDialogOpen] = useState(false);
   const [events, setEvents] = useState([]);
+  const [showTicketCards, setShowTicketCards] = useState(false);
+  const [soldTickets, setSoldTickets] = useState(0);
+  const [remainCount, setRemainCount] = useState(0);
 
+  // New onSubmit handler that toggles the view
+  const handleSelectTicket = (data) => {
+    // Optionally, do something with the submitted data
+    // Then transition to show ticket cards:
+    setShowTicketCards(true);
+  };
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const dayOfWeek = date.toLocaleString("en-US", { weekday: "short" });
@@ -106,20 +175,20 @@ export default function EventDetails() {
     const formattedHour = hourNum % 12 || 12;
     return `${formattedHour}:${minute} ${suffix}`;
   };
-  
-const roles = ["Door Staff", "Security", "Event Coordinator"];
-const onSubmit = async (data) => {
-  try {
-    const formData = {
-      organizer_id: oragnizerId,
-      name: data.fullName,
-      email: data.email,
-      phone_number: "+1" + data.phoneNumber,
-      password: "123",
-      role: data.role,
-      events: data.events
-    };
- const response = await fetch(`${url}/member/add-member`, {
+
+  const roles = ["Door Staff", "Security", "Event Coordinator"];
+  const onSubmit = async (data) => {
+    try {
+      const formData = {
+        organizer_id: oragnizerId,
+        name: data.fullName,
+        email: data.email,
+        phone_number: "+1" + data.phoneNumber,
+        password: "123",
+        role: data.role,
+        events: data.events,
+      };
+      const response = await fetch(`${url}/member/add-member`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -138,8 +207,8 @@ const onSubmit = async (data) => {
         setNewMemberDialogOpen(false);
         setShowAddNotification(true);
         setTimeout(() => {
-          setShowAddNotification(false)
-        }, [3000])
+          setShowAddNotification(false);
+        }, [3000]);
       } else {
         console.error("Failed to add member");
       }
@@ -147,28 +216,32 @@ const onSubmit = async (data) => {
       console.error("Error:", error);
     }
   };
-  const liveEvents = events.filter(event => {
+  const liveEvents = events.filter((event) => {
     const eventDate = new Date(event.start_date);
     eventDate.setHours(0, 0, 0, 0);
     return eventDate >= currentDate && event.explore === "YES";
   });
   const fetchAssignEvents = async (member) => {
-    setAssignLoading(true)
+    setAssignLoading(true);
     setSelectedMember(member);
     setAssignEventsDialogOpen(true);
     try {
-      const response = await axios.get(`${url}/member/get-member-events/${member._id}`);
-      setAssignEvents(response?.data?.data?.events)
+      const response = await axios.get(
+        `${url}/member/get-member-events/${member._id}`
+      );
+      setAssignEvents(response?.data?.data?.events);
     } catch (error) {
-      console.error('Error fetching events:', error);
+      console.error("Error fetching events:", error);
     } finally {
-      setAssignLoading(false)
+      setAssignLoading(false);
     }
-  }
+  };
 
   const handleRemoveEvent = async (eventId, data) => {
     try {
-      const updatedEvents = assignEvents.filter(event => event._id !== eventId);
+      const updatedEvents = assignEvents.filter(
+        (event) => event._id !== eventId
+      );
       setAssignEvents(updatedEvents);
       const formData = {
         organizer_id: oragnizerId,
@@ -177,8 +250,8 @@ const onSubmit = async (data) => {
         phone_number: data.phone_number,
         password: "123",
         role: data.role,
-        events: updatedEvents.map(event => event._id),
-        status: "active"
+        events: updatedEvents.map((event) => event._id),
+        status: "active",
       };
 
       console.log("Updating member with data:", formData);
@@ -210,8 +283,8 @@ const onSubmit = async (data) => {
         phone_number: data.phone_number,
         password: "123",
         role: data.role,
-        events: updatedEvents.map(event => event._id),
-        status: "active"
+        events: updatedEvents.map((event) => event._id),
+        status: "active",
       };
 
       console.log("Adding event and updating member:", formData);
@@ -238,6 +311,7 @@ const onSubmit = async (data) => {
     watch,
   } = useForm({
     resolver: zodResolver(newMemberSchema),
+    mode: "onChange",
     defaultValues: {
       id: "",
       fullName: "",
@@ -827,19 +901,20 @@ const onSubmit = async (data) => {
             </div>
           </div>
 
-          <Dialog
+          {/* <Dialog
             open={newMemberDialogOpen}
             onOpenChange={setNewMemberDialogOpen}
             className="!max-w-[400px] border border-white/10 rounded-xl !p-0"
           >
             <DialogContent className="max-h-[90vh] !gap-0">
-              <form onSubmit={handleSubmit(onSubmit)}>
-                <div className="flex flex-col gap-y-3 bg-white/[0.03] border-b rounded-t-xl border-white/10 p-6">
-                  <DialogTitle>Send a complimentary ticket</DialogTitle>
-                  <DialogDescription>
-                  Send a free ticket for your event, without requiring payment.
-                  </DialogDescription>
-                </div>
+            {!showTicketCards ? (
+          <form onSubmit={handleSubmit(handleSelectTicket)}>
+               <div className="flex flex-col gap-y-3 bg-white/[0.03] border-b rounded-t-xl border-white/10 p-6">
+      <DialogTitle>Send a complimentary ticket</DialogTitle>
+      <DialogDescription>
+        Send a free ticket for your event, without requiring payment.
+      </DialogDescription>
+    </div>
                 <div className="flex flex-col gap-4 p-6">
                   <div className="flex flex-col items-start justify-between gap-4">
                     <div className="flex flex-col gap-3 w-full">
@@ -907,9 +982,8 @@ const onSubmit = async (data) => {
                       )}
                     </div>
                   </div>
-
-                  
                 </div>
+
                 <div className="flex flex-col gap-3 p-6 pt-0">
                   <button
                     type="submit"
@@ -920,6 +994,442 @@ const onSubmit = async (data) => {
                   </button>
                 </div>
               </form>
+            ) : (
+          // Ticket cards view with transition
+          <div
+            className="grid grid-cols-1 md:grid-cols-1 gap-4 pt-4 transition-all duration-500 ease-in-out"
+          >
+            {event?.tickets?.map((ticket) => {
+              const totalTickets =
+                (soldTickets[ticket.ticket_name] || 0) +
+                (remainCount[ticket.ticket_name] || 0);
+              const soldPercentage =
+                totalTickets > 0
+                  ? ((soldTickets[ticket.ticket_name] || 0) / totalTickets) * 100
+                  : 0;
+              return (
+                <div key={ticket.id} className="bg-white/[0.03] rounded-2xl space-y-2">
+                  <div className="flex w-full">
+                    <div className="w-full">
+                      <div className="w-full flex items-center justify-between p-4 border-b-2 border-dashed border-[#0F0F0F]">
+                        <div className="flex items-center gap-2">
+                          {ticketTypesIcons["regular"]}
+                          <span className="flex items-center uppercase text-sm">
+                            {ticket.ticket_name}
+                          </span>
+                        </div>
+                        <div className="text-white/70">
+                          <div className="flex items-center gap-3">
+                            <div className="flex gap-0.5">
+                              {[...Array(4)].map((_, i) => {
+                                const barFillPercentage = Math.min(
+                                  Math.max(soldPercentage - i * 25, 0),
+                                  25
+                                );
+                                let barColor;
+                                if (soldPercentage <= 25) {
+                                  barColor = "#10B981";
+                                } else if (soldPercentage <= 50) {
+                                  barColor = "#A3E635";
+                                } else {
+                                  barColor = "#F97316";
+                                }
+                                return (
+                                  <div
+                                    key={i}
+                                    className="h-4 w-1.5 rounded-full bg-white/10 overflow-hidden"
+                                  >
+                                    <div
+                                      className="h-full transition-all duration-300 ease-out"
+                                      style={{
+                                        transform: `scaleY(${barFillPercentage / 25})`,
+                                        transformOrigin: "bottom",
+                                        backgroundColor: barColor,
+                                      }}
+                                    />
+                                  </div>
+                                );
+                              })}
+                            </div>
+                            <span>
+                              {soldTickets[ticket.ticket_name] || 0}/
+                              {totalTickets || 0}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col items-baseline gap-y-2.5 p-4">
+                        <p className="text-2xl font-bold">
+                          {ticket.status === "paused" && (
+                            <span className="text-white/70">Paused – {""}</span>
+                          )}
+                          <span className="text-white/70">$ </span>
+                          {ticket.price}
+                        </p>
+                        <p
+                          className="text-white/70"
+                          dangerouslySetInnerHTML={{ __html: ticket.ticket_description }}
+                        ></p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between p-4">
+                    {ticket.status === "inactive" ? (
+                      <button
+                        onClick={() => {
+                          handleRenewSales(ticket);
+                          setTicketData(ticket);
+                        }}
+                        className="bg-[#0F0F0F] rounded-full px-4 py-2 h-10 flex items-center gap-2"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                        >
+                          <path
+                            d="M3 3.73173C3.00012 3.46303 3.07242 3.19929 3.20934 2.96809C3.34626 2.73689 3.54277 2.54671 3.77833 2.41744C4.01389 2.28816 4.27985 2.22453 4.54841 2.2332C4.81697 2.24187 5.07827 2.32253 5.305 2.46673L12.011 6.73373C12.2239 6.86921 12.3992 7.0562 12.5206 7.27741C12.642 7.49862 12.7057 7.74688 12.7057 7.99923C12.7057 8.25158 12.642 8.49984 12.5206 8.72105C12.3992 8.94226 12.2239 9.12925 12.011 9.26473L5.305 13.5327C5.0782 13.677 4.81681 13.7576 4.54816 13.7663C4.27951 13.7749 4.01348 13.7112 3.77789 13.5818C3.5423 13.4524 3.3458 13.2621 3.20896 13.0307C3.07211 12.7994 2.99994 12.5355 3 12.2667V3.73173Z"
+                            fill="white"
+                            fillOpacity="0.5"
+                          />
+                        </svg>
+                        <span>Renew sales</span>
+                      </button>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => {
+                            setTicketData(ticket);
+                            handleEditTicket(ticket);
+                          }}
+                          className="bg-[#0F0F0F] rounded-full px-4 py-2 h-10 flex items-center gap-2"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                          >
+                            <path
+                              d="M13.4872 2.51263C13.3247 2.3501 13.1318 2.22118 12.9194 2.13323C12.7071 2.04527 12.4795 2 12.2497 2C12.0199 2 11.7923 2.04527 11.58 2.13323C11.3676 2.22118 11.1747 2.3501 11.0122 2.51263L6.74919 6.77363C6.49389 7.02895 6.29137 7.33205 6.15319 7.66563L5.30519 9.71263C5.24839 9.84968 5.23351 10.0005 5.26244 10.146C5.29137 10.2915 5.36281 10.4252 5.46772 10.5301C5.57262 10.635 5.70629 10.7064 5.8518 10.7354C5.99731 10.7643 6.14814 10.7494 6.28519 10.6926L8.33219 9.84463C8.66577 9.70644 8.96887 9.50392 9.22419 9.24863L13.4852 4.98663C13.8131 4.65847 13.9973 4.21354 13.9973 3.74963C13.9973 3.28571 13.8131 2.84078 13.4852 2.51263H13.4872Z"
+                              fill="white"
+                              fillOpacity="0.5"
+                            />
+                            <path
+                              d="M4.75 3.5C4.06 3.5 3.5 4.06 3.5 4.75V11.25C3.5 11.94 4.06 12.5 4.75 12.5H11.25C11.94 12.5 12.5 11.94 12.5 11.25V9C12.5 8.80109 12.579 8.61032 12.7197 8.46967C12.8603 8.32902 13.0511 8.25 13.25 8.25C13.4489 8.25 13.6397 8.32902 13.7803 8.46967C13.921 8.61032 14 8.80109 14 9V11.25C14 11.9793 13.7103 12.6788 13.1945 13.1945C12.6788 13.7103 11.9793 14 11.25 14H4.75C4.02065 14 3.32118 13.7103 2.80546 13.1945C2.28973 12.6788 2 11.9793 2 11.25V4.75C2 4.02065 2.28973 3.32118 2.80546 2.80546C3.32118 2.28973 4.02065 2 4.75 2H7C7.19891 2 7.38968 2.07902 7.53033 2.21967C7.67098 2.36032 7.75 2.55109 7.75 2.75C7.75 2.94891 7.67098 3.13968 7.53033 3.28033C7.38968 3.42098 7.19891 3.5 7 3.5H4.75Z"
+                              fill="white"
+                              fillOpacity="0.5"
+                            />
+                          </svg>
+                          <span>Edit Ticket</span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            setTicketData(ticket);
+                            handlePause(ticket);
+                          }}
+                          className="bg-[#0F0F0F] rounded-full w-10 h-10 flex items-center justify-center"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="17"
+                            height="16"
+                            viewBox="0 0 17 16"
+                            fill="none"
+                          >
+                            <path
+                              d="M5 2C4.86739 2 4.74021 2.05268 4.64645 2.14645C4.55268 2.24021 4.5 2.36739 4.5 2.5V13.5C4.5 13.6326 4.55268 13.7598 4.64645 13.8536C4.74021 13.9473 4.86739 14 5 14H6C6.13261 14 6.25979 13.9473 6.35355 13.8536C6.44732 13.7598 6.5 13.6326 6.5 13.5V2.5C6.5 2.36739 6.44732 2.24021 6.35355 2.14645C6.25979 2.05268 6.13261 2 6 2H5ZM11 2C10.8674 2 10.7402 2.05268 10.6464 2.14645C10.5527 2.24021 10.5 2.36739 10.5 2.5V13.5C10.5 13.6326 10.5527 13.7598 10.6464 13.8536C10.7402 13.9473 10.8674 14 11 14H12C12.1326 14 12.2598 13.9473 12.3536 13.8536C12.4473 13.7598 12.5 13.6326 12.5 13.5V2.5C12.5 2.36739 12.4473 2.24021 12.3536 2.14645C12.2598 2.05268 12.1326 2 12 2H11Z"
+                              fill="white"
+                            />
+                          </svg>
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+            </DialogContent>
+          </Dialog> */}
+          <Dialog
+            open={newMemberDialogOpen}
+            onOpenChange={setNewMemberDialogOpen}
+            className="!max-w-[400px] border border-white/10 rounded-xl !p-0"
+          >
+            <DialogContent className="max-h-[90vh] !gap-0">
+              {/* Conditional header area */}
+              <div className="flex flex-col gap-y-3 bg-white/[0.03] border-b rounded-t-xl border-white/10 p-6">
+                {!showTicketCards ? (
+                  <>
+                  <button
+                      onClick={() => setShowTicketCards(false)}
+                      className="flex items-center gap-2 text-sm h-8 w-fit rounded-md border border-white/10 border-dashed px-2 text-white/70 hover:text-white transition-colors"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M19 12H5M12 19l-7-7 7-7" />
+                      </svg>
+                      Back
+                    </button>
+                    <DialogTitle>Send a complimentary ticket</DialogTitle>
+                    <DialogDescription>
+                      Send a free ticket for your event, without requiring
+                      payment.
+                    </DialogDescription>
+                  </>
+                ) : (
+                  <>
+                    <DialogTitle>Select a ticket</DialogTitle>
+                    <DialogDescription>
+                      Choose a ticket from below to proceed.
+                    </DialogDescription>
+                  </>
+                )}
+              </div>
+
+              {/* Content area that changes; scrollable if needed */}
+              <div
+                className="p-6 overflow-y-auto hide-scrollbar"
+                style={{ maxHeight: "calc(90vh - 150px)" }}
+              >
+                {!showTicketCards ? (
+                  <form onSubmit={handleSubmit(handleSelectTicket)}>
+                    {/* Form fields */}
+                    <div className="flex flex-col gap-4">
+                      {/* Full Name */}
+                      <div className="flex flex-col gap-3 w-full">
+                        <span className="text-sm font-medium text-white">
+                          Full Name
+                        </span>
+                        <input
+                          {...register("fullName", {
+                            required: "Full Name is required",
+                          })}
+                          placeholder="John Doe"
+                          className="border bg-primary text-white text-sm border-white/10 h-10 rounded-lg px-5 py-2.5 focus:outline-none w-full"
+                        />
+                        {errors.fullName && (
+                          <span className="text-xs text-red-500">
+                            {errors.fullName.message}
+                          </span>
+                        )}
+                      </div>
+                      {/* Email */}
+                      <div className="flex flex-col gap-3 w-full">
+                        <span className="text-sm font-medium text-white">
+                          Email
+                        </span>
+                        <input
+                          {...register("email", {
+                            required: "Email is required",
+                            pattern: {
+                              value: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/,
+                              message: "Invalid email address",
+                            },
+                          })}
+                          placeholder="johndoe@gmail.com"
+                          className="border bg-primary text-white text-sm border-white/10 h-10 rounded-lg px-5 py-2.5 focus:outline-none w-full"
+                        />
+                        {errors.email && (
+                          <span className="text-xs text-red-500">
+                            {errors.email.message}
+                          </span>
+                        )}
+                      </div>
+                      {/* Phone Number */}
+                      <div className="flex flex-col gap-3 w-full">
+                        <span className="text-sm font-medium text-white">
+                          Phone Number
+                        </span>
+                        <div className="relative w-full">
+                          <div className="flex items-center bg-primary border border-white/10 h-10 rounded-lg px-2 py-2.5 w-full">
+                            <div className="flex items-center h-10 gap-1 px-1 pr-3 border-r border-white/10">
+                              <img
+                                src="https://flagcdn.com/w40/us.png"
+                                alt="US Flag"
+                                className="w-4 h-4 rounded-full"
+                              />
+                              <span className="text-white text-sm">+1</span>
+                            </div>
+                            <input
+                              {...register("phoneNumber", {
+                                required: "Phone number is required",
+                                pattern: {
+                                  value: /^[0-9]{10}$/,
+                                  message: "Phone number must be 10 digits",
+                                },
+                              })}
+                              type="tel"
+                              placeholder="Enter phone number"
+                              className="bg-transparent text-sm flex-1 focus:outline-none px-2 text-white mx-3"
+                            />
+                          </div>
+                        </div>
+                        {errors.phoneNumber && (
+                          <span className="text-xs text-red-500">
+                            {errors.phoneNumber.message}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-3 pt-6">
+                      <button
+                        type="submit"
+                        disabled={!isValid}
+                        className="w-full bg-white hover:bg-white/90 disabled:opacity-50 disabled:cursor-not-allowed text-black border-white/10 border text-center rounded-full h-9 px-4 focus:outline-none flex items-center justify-center gap-2 font-semibold transition-colors text-sm"
+                      >
+                        Select ticket
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  // Grid of ticket cards (scrollable)
+                  <div className="grid grid-cols-1 md:grid-cols-1 gap-4 pt-4">
+                    {event?.tickets?.map((ticket) => {
+                      const totalTickets =
+                        (soldTickets[ticket.ticket_name] || 0) +
+                        (remainCount[ticket.ticket_name] || 0);
+                      const soldPercentage =
+                        totalTickets > 0
+                          ? ((soldTickets[ticket.ticket_name] || 0) /
+                              totalTickets) *
+                            100
+                          : 0;
+                      return (
+                        <div
+                          key={ticket.id}
+                          className="bg-white/[0.03] rounded-2xl space-y-2"
+                        >
+                          <div className="flex w-full">
+                            <div className="w-full">
+                              <div className="w-full flex items-center justify-between p-4 border-b-2 border-dashed border-[#0F0F0F]">
+                                <div className="flex items-center gap-2">
+                                  {ticketTypesIcons["regular"]}
+                                  <span className="flex items-center uppercase text-sm">
+                                    {ticket.ticket_name}
+                                  </span>
+                                </div>
+                                <div className="text-white/70">
+                                  <div className="flex items-center gap-3">
+                                    <div className="flex gap-0.5">
+                                      {[...Array(4)].map((_, i) => {
+                                        const barFillPercentage = Math.min(
+                                          Math.max(soldPercentage - i * 25, 0),
+                                          25
+                                        );
+                                        let barColor;
+                                        if (soldPercentage <= 25) {
+                                          barColor = "#10B981";
+                                        } else if (soldPercentage <= 50) {
+                                          barColor = "#A3E635";
+                                        } else {
+                                          barColor = "#F97316";
+                                        }
+                                        return (
+                                          <div
+                                            key={i}
+                                            className="h-4 w-1.5 rounded-full bg-white/10 overflow-hidden"
+                                          >
+                                            <div
+                                              className="h-full transition-all duration-300 ease-out"
+                                              style={{
+                                                transform: `scaleY(${
+                                                  barFillPercentage / 25
+                                                })`,
+                                                transformOrigin: "bottom",
+                                                backgroundColor: barColor,
+                                              }}
+                                            />
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                    <span>
+                                      {soldTickets[ticket.ticket_name] || 0}/
+                                      {totalTickets || 0}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="flex flex-col items-baseline gap-y-2.5 p-4">
+                                <p className="text-2xl font-bold">
+                                  {ticket.status === "paused" && (
+                                    <span className="text-white/70">
+                                      Paused –{" "}
+                                    </span>
+                                  )}
+                                  <span className="text-white/70">$ </span>
+                                  {ticket.price}
+                                </p>
+                                <p
+                                  className="text-white/70"
+                                  dangerouslySetInnerHTML={{
+                                    __html: ticket.ticket_description,
+                                  }}
+                                ></p>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between p-4">
+                            {ticket.status === "inactive" ? (
+                              <button
+                                onClick={() => {
+                                  handleRenewSales(ticket);
+                                  setTicketData(ticket);
+                                }}
+                                className="bg-[#0F0F0F] rounded-full px-4 py-2 h-10 flex items-center gap-2"
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="16"
+                                  height="16"
+                                  viewBox="0 0 16 16"
+                                  fill="none"
+                                >
+                                  <path
+                                    d="M3 3.73173C3 3.46303 3.07242 3.19929 3.20934 2.96809C3.34626 2.73689 3.54277 2.54671 3.77833 2.41744C4.01389 2.28816 4.27985 2.22453 4.54841 2.2332C4.81697 2.24187 5.07827 2.32253 5.305 2.46673L12.011 6.73373C12.2239 6.86921 12.3992 7.0562 12.5206 7.27741C12.642 7.49862 12.7057 7.74688 12.7057 7.99923C12.7057 8.25158 12.642 8.49984 12.5206 8.72105C12.3992 8.94226 12.2239 9.12925 12.011 9.26473L5.305 13.5327C5.0782 13.677 4.81681 13.7576 4.54816 13.7663C4.27951 13.7749 4.01348 13.7112 3.77789 13.5818C3.5423 13.4524 3.3458 13.2621 3.20896 13.0307C3.07211 12.7994 2.99994 12.5355 3 12.2667V3.73173Z"
+                                    fill="white"
+                                    fillOpacity="0.5"
+                                  />
+                                </svg>
+                                <span>Renew sales</span>
+                              </button>
+                            ) : (
+                              <>
+                                <button
+                                  onClick={() => {
+                                    setTicketData(ticket);
+                                    handleEditTicket(ticket);
+                                  }}
+                                  className="bg-[#0F0F0F] rounded-full px-4 py-2 h-10 flex items-center gap-2"
+                                >
+                                  <span>Select ticket</span>
+                                </button>
+                                
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             </DialogContent>
           </Dialog>
 
