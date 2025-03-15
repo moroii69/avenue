@@ -13,6 +13,12 @@ import {
   DropdownContent,
   DropdownItem,
 } from "../../components/ui/Dropdown";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from "../../components/ui/Dailog";
 import { useEffect, useState } from "react";
 import SalesTab from "./SalesTab";
 import AnalyticsTab from "./AnalyticsTab";
@@ -27,6 +33,9 @@ import { Spin } from "antd";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
 // Mock data structure (you should replace this with actual data fetching)
 const eventData = {
@@ -46,7 +55,13 @@ const eventData = {
   },
   // Add more events as needed
 };
-
+const newMemberSchema = z.object({
+  fullName: z.string().min(1, "Full name is required"),
+  email: z.string().min(1, "Email Id is required"),
+  phoneNumber: z.string().optional(),
+  role: z.string().min(1, "Role is required"),
+  events: z.array(z.string()).optional(),
+});
 export default function EventDetails() {
   const { id } = useParams();
   //const event = eventData[id];
@@ -55,6 +70,8 @@ export default function EventDetails() {
   const [event, setEvent] = useState({});
   const navigate = useNavigate();
   const [showCopied, setShowCopied] = useState(false);
+  const [newMemberDialogOpen, setNewMemberDialogOpen] = useState(false);
+  const [events, setEvents] = useState([]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -89,6 +106,147 @@ export default function EventDetails() {
     const formattedHour = hourNum % 12 || 12;
     return `${formattedHour}:${minute} ${suffix}`;
   };
+  
+const roles = ["Door Staff", "Security", "Event Coordinator"];
+const onSubmit = async (data) => {
+  try {
+    const formData = {
+      organizer_id: oragnizerId,
+      name: data.fullName,
+      email: data.email,
+      phone_number: "+1" + data.phoneNumber,
+      password: "123",
+      role: data.role,
+      events: data.events
+    };
+ const response = await fetch(`${url}/member/add-member`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        const responseData = await response.json();
+        const savedMember = responseData.newMember;
+        if (!savedMember || !savedMember.name) {
+          console.error("Invalid member data:", savedMember);
+          return;
+        }
+        setMembers((prevMembers) => [...prevMembers, savedMember]);
+        setNewMemberDialogOpen(false);
+        setShowAddNotification(true);
+        setTimeout(() => {
+          setShowAddNotification(false)
+        }, [3000])
+      } else {
+        console.error("Failed to add member");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+  const liveEvents = events.filter(event => {
+    const eventDate = new Date(event.start_date);
+    eventDate.setHours(0, 0, 0, 0);
+    return eventDate >= currentDate && event.explore === "YES";
+  });
+  const fetchAssignEvents = async (member) => {
+    setAssignLoading(true)
+    setSelectedMember(member);
+    setAssignEventsDialogOpen(true);
+    try {
+      const response = await axios.get(`${url}/member/get-member-events/${member._id}`);
+      setAssignEvents(response?.data?.data?.events)
+    } catch (error) {
+      console.error('Error fetching events:', error);
+    } finally {
+      setAssignLoading(false)
+    }
+  }
+
+  const handleRemoveEvent = async (eventId, data) => {
+    try {
+      const updatedEvents = assignEvents.filter(event => event._id !== eventId);
+      setAssignEvents(updatedEvents);
+      const formData = {
+        organizer_id: oragnizerId,
+        name: data.name,
+        email: data.email,
+        phone_number: data.phone_number,
+        password: "123",
+        role: data.role,
+        events: updatedEvents.map(event => event._id),
+        status: "active"
+      };
+
+      console.log("Updating member with data:", formData);
+      const response = await fetch(`${url}/member/update-member/${data._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        console.log("Member updated successfully!");
+      } else {
+        console.error("Error updating member:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  const handleAddEvent = async (event, data) => {
+    try {
+      const updatedEvents = [...assignEvents, event];
+      setAssignEvents(updatedEvents);
+
+      const formData = {
+        organizer_id: oragnizerId,
+        name: data.name,
+        email: data.email,
+        phone_number: data.phone_number,
+        password: "123",
+        role: data.role,
+        events: updatedEvents.map(event => event._id),
+        status: "active"
+      };
+
+      console.log("Adding event and updating member:", formData);
+      const response = await fetch(`${url}/member/update-member/${data._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        console.log("Event added successfully!");
+      } else {
+        console.error("Error adding event:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid },
+    setValue,
+    watch,
+  } = useForm({
+    resolver: zodResolver(newMemberSchema),
+    defaultValues: {
+      id: "",
+      fullName: "",
+      email: "",
+      phoneNumber: "",
+      role: roles[0],
+      events: [],
+    },
+  });
 
   const fetchEvent = async () => {
     setLoading(true);
@@ -591,7 +749,7 @@ export default function EventDetails() {
                     </button>
                     <Dropdown>
                       <DropdownTrigger>
-                        <button className="bg-white flex items-center font-semibold gap-1 justify-center border border-white/10 text-black text-sm md:text-base h-8 md:h-10 px-4 rounded-full transition">
+                        <button className="bg-white flex items-center font-semibold gap-1 justify-center text-black text-sm md:text-base h-8 md:h-10 px-4 rounded-full transition">
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 32 32"
@@ -614,9 +772,7 @@ export default function EventDetails() {
                       </DropdownTrigger>
                       <DropdownContent className="w-48 bg-[#151515] border border-white/10 rounded-lg shadow-lg overflow-hidden">
                         <DropdownItem
-                          onClick={() => {
-                            // Handle the "Sale" option click here
-                          }}
+                          onClick={() => setNewMemberDialogOpen(true)}
                           className="px-4 py-2 hover:bg-white/5 text-white"
                         >
                           <div className="flex items-center gap-2">
@@ -639,9 +795,7 @@ export default function EventDetails() {
                           </div>
                         </DropdownItem>
                         <DropdownItem
-                          onClick={() => {
-                            // Handle the "Refund" option click here
-                          }}
+                          onClick={() => setNewMemberDialogOpen(true)}
                           className="px-4 py-2 hover:bg-white/5 text-white"
                         >
                           <div className="flex items-center gap-2">
@@ -672,6 +826,103 @@ export default function EventDetails() {
               </div>
             </div>
           </div>
+
+          <Dialog
+            open={newMemberDialogOpen}
+            onOpenChange={setNewMemberDialogOpen}
+            className="!max-w-[400px] border border-white/10 rounded-xl !p-0"
+          >
+            <DialogContent className="max-h-[90vh] !gap-0">
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <div className="flex flex-col gap-y-3 bg-white/[0.03] border-b rounded-t-xl border-white/10 p-6">
+                  <DialogTitle>Send a complimentary ticket</DialogTitle>
+                  <DialogDescription>
+                  Send a free ticket for your event, without requiring payment.
+                  </DialogDescription>
+                </div>
+                <div className="flex flex-col gap-4 p-6">
+                  <div className="flex flex-col items-start justify-between gap-4">
+                    <div className="flex flex-col gap-3 w-full">
+                      <span className="text-sm font-medium text-white">
+                        Full Name
+                      </span>
+                      <input
+                        {...register("fullName")}
+                        placeholder="John Doe"
+                        className="border bg-primary text-white text-sm border-white/10 h-10 rounded-lg px-5 py-2.5 focus:outline-none w-full"
+                      />
+                      {errors.fullName && (
+                        <span className="text-xs text-red-500">
+                          {errors.fullName.message}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col items-start justify-between gap-4">
+                    <div className="flex flex-col gap-3 w-full">
+                      <span className="text-sm font-medium text-white">
+                        Email
+                      </span>
+                      <input
+                        {...register("email")}
+                        placeholder="johndoe@gmail.com"
+                        className="border bg-primary text-white text-sm border-white/10 h-10 rounded-lg px-5 py-2.5 focus:outline-none w-full"
+                      />
+                      {errors.email && (
+                        <span className="text-xs text-red-500">
+                          {errors.email.message}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col items-start justify-between gap-4">
+                    <div className="flex flex-col gap-3 w-full">
+                      <span className="text-sm font-medium text-white">
+                        Phone Number
+                      </span>
+                      <div className="relative w-full">
+                        <div className="flex items-center bg-primary border border-white/10 h-10 rounded-lg px-2 py-2.5 w-full">
+                          <div className="flex items-center h-10 gap-1 px-1 pr-3 border-r border-white/10">
+                            <img
+                              src="https://flagcdn.com/w40/us.png"
+                              alt="US Flag"
+                              className="w-4 h-4 rounded-full"
+                            />
+                            <span className="text-white text-sm">+1</span>
+                          </div>
+                          <input
+                            {...register("phoneNumber")}
+                            type="tel"
+                            placeholder="Enter phone number"
+                            className="bg-transparent text-sm flex-1 focus:outline-none px-2 text-white mx-3"
+                          />
+                        </div>
+                      </div>
+                      {errors.phoneNumber && (
+                        <span className="text-xs text-red-500">
+                          {errors.phoneNumber.message}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  
+                </div>
+                <div className="flex flex-col gap-3 p-6 pt-0">
+                  <button
+                    type="submit"
+                    disabled={!isValid}
+                    className="w-full bg-white hover:bg-white/90 disabled:opacity-50 disabled:cursor-not-allowed text-black border-white/10 border text-center rounded-full h-9 px-4 focus:outline-none flex items-center justify-center gap-2 font-semibold transition-colors text-sm"
+                  >
+                    Select ticket
+                  </button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
+
           <div>
             <Tabs>
               <TabsList className="rounded-none relative w-full">

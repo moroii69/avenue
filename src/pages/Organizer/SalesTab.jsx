@@ -8,8 +8,8 @@ import {
 } from "../../components/ui/Dropdown";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import url from "../../constants/url"
-import { Spin } from 'antd';
+import url from "../../constants/url";
+import { Spin } from "antd";
 import {
   DirectionAwareMenu,
   MenuItem,
@@ -22,7 +22,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "../../components/ui/Dailog";
-import { motion } from "framer-motion"
+import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -269,10 +269,10 @@ export default function SalesTab({ eventId, event }) {
   const [searchQuery, setSearchQuery] = useState("");
 
   const [book, setBook] = useState([]);
-  const [loading, setLoading] = useState(false)
-  const [sendTicketOpen, setSendTicketOpen] = useState(false)
-  const [selectedPay, setSelectedPay] = useState(null)
-  const [resendNotificationModal, setResendNotificationModal] = useState(false)
+  const [loading, setLoading] = useState(false);
+  const [sendTicketOpen, setSendTicketOpen] = useState(false);
+  const [selectedPay, setSelectedPay] = useState(null);
+  const [resendNotificationModal, setResendNotificationModal] = useState(false);
   const [isRefundOpen, setIsRefundOpen] = useState(false);
   const [includeFee, setIncludeFee] = useState(false);
   const [maxAmount, setMaxAmount] = useState(0);
@@ -294,7 +294,6 @@ export default function SalesTab({ eventId, event }) {
     ) {
       return false;
     }
-
 
     const saleDate = new Date(
       sale.date
@@ -328,18 +327,33 @@ export default function SalesTab({ eventId, event }) {
 
     // Filter by search query
     const searchLower = searchQuery.toLowerCase();
-    return (
-      searchQuery === "" ||
-      (sale.firstName?.toLowerCase() || "").includes(searchLower) ||
-      (sale.email?.toLowerCase() || "").includes(searchLower) ||
-      (((sale?.amount / 100) - 0.89) / 1.09).toString().includes(searchLower) ||
-      (sale.tickets?.ticket_name?.toLowerCase() || "").includes(searchLower) ||
-      formattedDate.includes(searchLower)
-    );
+const ticketName = sale?.tickets?.ticket_name || "Complimentary Ticket";
+
+// Derive the type and status based on the refund flag
+// const isRefund = sale?.payout?.refund === "true" || sale?.refund === "true";
+const typeText = isRefund ? "refund" : "sale";
+
+return (
+  searchQuery === "" ||
+  ticketName.toLowerCase().includes(searchLower) ||
+  (sale.firstName?.toLowerCase() || "").includes(searchLower) ||
+  (sale.email?.toLowerCase() || "").includes(searchLower) ||
+  // For the amount: if a transaction exists, calculate the refund amount; if not, use "comp"
+  (sale.transaction_id
+    ? (((sale.amount / 100 - 0.89) / 1.09).toString())
+    : "comp"
+  ).includes(searchLower) ||
+  (sale.tickets?.ticket_name?.toLowerCase() || "").includes(searchLower) ||
+  formattedDate.includes(searchLower) ||
+  // Use the derived type and status
+  typeText.includes(searchLower)
+);
+
+    
   });
 
   const totalAmount = filteredSalesHistory
-    .filter(payment => payment.refund !== "true")
+    .filter((payment) => payment.refund !== "true")
     .reduce((sum, sale) => {
       if (!sale.amount) return sum;
       const amountAfterFee = (Number(sale.amount / 100) - 0.89) / 1.09;
@@ -355,16 +369,17 @@ export default function SalesTab({ eventId, event }) {
   }, 0);
 
   const totalSalesAmount = totalAmount + totalRefundAmount;
-  const successRate = totalSalesAmount > 0
-    ? ((totalAmount / totalSalesAmount) * 100).toFixed(2)
-    : 0;
+  const successRate =
+    totalSalesAmount > 0
+      ? ((totalAmount / totalSalesAmount) * 100).toFixed(2)
+      : 0;
 
   const {
     register,
     handleSubmit,
     formState: { errors, isValid },
     setValue,
-    watch
+    watch,
   } = useForm({
     mode: "onChange",
     defaultValues: {
@@ -372,11 +387,13 @@ export default function SalesTab({ eventId, event }) {
     },
   });
 
-
   const statsData = [
     {
       title: "Total Transactions",
-      amount: `$${totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      amount: `$${totalAmount.toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}`,
       change: "+6%",
       isPositive: true,
       redirection: "/organizer/wallet",
@@ -405,7 +422,10 @@ export default function SalesTab({ eventId, event }) {
     },
     {
       title: "Refunded amount",
-      amount: `$${totalRefundAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      amount: `$${totalRefundAmount.toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}`,
       change: "-4%",
       isPositive: false,
       redirection: "",
@@ -454,30 +474,32 @@ export default function SalesTab({ eventId, event }) {
   ];
 
   const fetchBook = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const response = await axios.get(`${url}/get-event-payment-list/${eventId}`);
+      const response = await axios.get(
+        `${url}/get-event-payment-list/${eventId}`
+      );
       setBook(response.data);
     } catch (error) {
-      console.error('Error fetching events:', error);
+      console.error("Error fetching events:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    fetchBook()
-  }, [eventId])
+    fetchBook();
+  }, [eventId]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    const dayOfWeek = date.toLocaleString('en-US', { weekday: 'short' });
+    const dayOfWeek = date.toLocaleString("en-US", { weekday: "short" });
     const day = date.getDate();
-    const month = date.toLocaleString('en-US', { month: 'short' });
+    const month = date.toLocaleString("en-US", { month: "short" });
     const year = "20" + date.getFullYear().toString().slice(-2);
     let hours = date.getHours();
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+    const ampm = hours >= 12 ? "PM" : "AM";
     hours = hours % 12;
     hours = hours ? hours : 12;
 
@@ -506,10 +528,10 @@ export default function SalesTab({ eventId, event }) {
 
       if (response.ok) {
         setSendTicketOpen(false);
-        setResendNotificationModal(true)
+        setResendNotificationModal(true);
         setTimeout(() => {
           setResendNotificationModal(false);
-        }, [3000])
+        }, [3000]);
       } else {
         console.log(data.message || "Failed to resend ticket.");
       }
@@ -520,20 +542,26 @@ export default function SalesTab({ eventId, event }) {
     }
   };
 
-  const ticketPrice = selectedPay?.amount ?
-    ((selectedPay.amount / 100 - 0.89) / 1.09).toFixed(2) : 0;
+  const ticketPrice = selectedPay?.amount
+    ? ((selectedPay.amount / 100 - 0.89) / 1.09).toFixed(2)
+    : 0;
 
-  const feeAmount = selectedPay?.amount ?
-    (selectedPay.amount / 100 - parseFloat(ticketPrice)).toFixed(2) : 0;
+  const feeAmount = selectedPay?.amount
+    ? (selectedPay.amount / 100 - parseFloat(ticketPrice)).toFixed(2)
+    : 0;
 
-  const maxTotal = selectedPay?.amount ? (selectedPay.amount / 100).toFixed(2) : 0;
+  const maxTotal = selectedPay?.amount
+    ? (selectedPay.amount / 100).toFixed(2)
+    : 0;
 
   const amountValue = watch("amount", "");
 
   useEffect(() => {
     if (amountValue) {
       const parsedAmount = parseFloat(amountValue) || 0;
-      const maxAllowed = includeFee ? parseFloat(maxTotal) : parseFloat(ticketPrice);
+      const maxAllowed = includeFee
+        ? parseFloat(maxTotal)
+        : parseFloat(ticketPrice);
 
       if (parsedAmount > maxAllowed) {
         setValue("amount", maxAllowed, { shouldValidate: true });
@@ -548,7 +576,6 @@ export default function SalesTab({ eventId, event }) {
       setValue("amount", maxAllowed, { shouldValidate: true });
     }
   };
-
 
   const handleFeeToggle = (checked) => {
     setIncludeFee(checked);
@@ -567,14 +594,13 @@ export default function SalesTab({ eventId, event }) {
     }
   };
 
-
   const onSubmitRefund = async () => {
     //console.log("Refund", amountValue)
     try {
       const refundRequest = axios.post(`${url}/refund`, {
         paymentIntentId: selectedPay.transaction_id.split("_secret_")[0],
         amount: amountValue,
-        organizerId: oragnizerId
+        organizerId: oragnizerId,
       });
 
       const updateStatusRequest = axios.post(`${url}/updateRefundStatus`, {
@@ -582,11 +608,13 @@ export default function SalesTab({ eventId, event }) {
         refund: true,
       });
 
-      const [refundResponse, statusResponse] = await Promise.all([refundRequest, updateStatusRequest]);
+      const [refundResponse, statusResponse] = await Promise.all([
+        refundRequest,
+        updateStatusRequest,
+      ]);
 
       alert("Refund initiated successfully");
-      window.location.reload()
-
+      window.location.reload();
     } catch (error) {
       console.error("Error processing refund or updating status:", error);
       alert("Refund or status update failed. Please try again.");
@@ -607,29 +635,28 @@ export default function SalesTab({ eventId, event }) {
                   <div className="flex flex-col items-start gap-3">
                     <p className="text-gray-400 flex items-center">
                       <span>{stat.title}</span>
-                      {
-                        stat.title === "Revenue" || stat.title === "Currently Live" ? (
-                          <span className="ml-1">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="16"
-                              height="16"
-                              viewBox="0 0 16 16"
-                              fill="none"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                clipRule="evenodd"
-                                d="M4.22007 11.78C4.07962 11.6394 4.00073 11.4488 4.00073 11.25C4.00073 11.0512 4.07962 10.8606 4.22007 10.72L9.44007 5.5H5.75007C5.55116 5.5 5.36039 5.42098 5.21974 5.28033C5.07909 5.13968 5.00007 4.94891 5.00007 4.75C5.00007 4.55109 5.07909 4.36032 5.21974 4.21967C5.36039 4.07902 5.55116 4 5.75007 4H11.2501C11.449 4 11.6398 4.07902 11.7804 4.21967C11.9211 4.36032 12.0001 4.55109 12.0001 4.75V10.25C12.0001 10.4489 11.9211 10.6397 11.7804 10.7803C11.6398 10.921 11.449 11 11.2501 11C11.0512 11 10.8604 10.921 10.7197 10.7803C10.5791 10.6397 10.5001 10.4489 10.5001 10.25V6.56L5.28007 11.78C5.13945 11.9205 4.94882 11.9993 4.75007 11.9993C4.55132 11.9993 4.3607 11.9205 4.22007 11.78Z"
-                                fill="white"
-                                fillOpacity="0.5"
-                              />
-                            </svg>
-                          </span>
-                        ) : (
-                          ""
-                        )
-                      }
+                      {stat.title === "Revenue" ||
+                      stat.title === "Currently Live" ? (
+                        <span className="ml-1">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              clipRule="evenodd"
+                              d="M4.22007 11.78C4.07962 11.6394 4.00073 11.4488 4.00073 11.25C4.00073 11.0512 4.07962 10.8606 4.22007 10.72L9.44007 5.5H5.75007C5.55116 5.5 5.36039 5.42098 5.21974 5.28033C5.07909 5.13968 5.00007 4.94891 5.00007 4.75C5.00007 4.55109 5.07909 4.36032 5.21974 4.21967C5.36039 4.07902 5.55116 4 5.75007 4H11.2501C11.449 4 11.6398 4.07902 11.7804 4.21967C11.9211 4.36032 12.0001 4.55109 12.0001 4.75V10.25C12.0001 10.4489 11.9211 10.6397 11.7804 10.7803C11.6398 10.921 11.449 11 11.2501 11C11.0512 11 10.8604 10.921 10.7197 10.7803C10.5791 10.6397 10.5001 10.4489 10.5001 10.25V6.56L5.28007 11.78C5.13945 11.9205 4.94882 11.9993 4.75007 11.9993C4.55132 11.9993 4.3607 11.9205 4.22007 11.78Z"
+                              fill="white"
+                              fillOpacity="0.5"
+                            />
+                          </svg>
+                        </span>
+                      ) : (
+                        ""
+                      )}
                     </p>
                     <div className="flex items-center gap-2">
                       <p className="text-2xl font-bold">{stat.amount}</p>
@@ -890,39 +917,46 @@ export default function SalesTab({ eventId, event }) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
-                {
-                  loading ? (
-                    <tr>
-                      <td
-                        colSpan={8}
-                        className="text-center p-4 text-white/50"
-                      >
-                        <Spin size="small" />
-                      </td>
-                    </tr>
-                  ) : (
-                    <>
-                      {filteredSalesHistory.slice().reverse().map((payout, index) => (
+                {loading ? (
+                  <tr>
+                    <td colSpan={8} className="text-center p-4 text-white/50">
+                      <Spin size="small" />
+                    </td>
+                  </tr>
+                ) : (
+                  <>
+                    {filteredSalesHistory
+                      .slice()
+                      .reverse()
+                      .map((payout, index) => (
                         <tr key={index} className="hover:bg-white/[0.01]">
                           <td className="p-4">
                             {(() => {
                               const dateObj = new Date(payout.date);
-                              const formattedDate = dateObj.toLocaleString("en-US", {
-                                month: "short",
-                                day: "numeric",
-                              });
-                              const formattedTime = dateObj.toLocaleString("en-US", {
-                                hour: "numeric",
-                                minute: "2-digit",
-                                hour12: true,
-                              });
+                              const formattedDate = dateObj.toLocaleString(
+                                "en-US",
+                                {
+                                  month: "short",
+                                  day: "numeric",
+                                }
+                              );
+                              const formattedTime = dateObj.toLocaleString(
+                                "en-US",
+                                {
+                                  hour: "numeric",
+                                  minute: "2-digit",
+                                  hour12: true,
+                                }
+                              );
                               return `${formattedDate} at ${formattedTime}`;
                             })()}
                           </td>
                           <td className="p-4">
                             <div className="flex items-center gap-2 capitalize">
-                              {payout.refund === 'true' ? saleTypesIcons['refund'] : saleTypesIcons['sale']}
-                              {payout.refund === 'true' ? "Refund" : "Sale"}
+                              {payout.refund === "true"
+                                ? saleTypesIcons["refund"]
+                                : saleTypesIcons["sale"]}
+                              {payout.refund === "true" ? "Refund" : "Sale"}
                             </div>
                           </td>
                           <td className="p-4">
@@ -939,7 +973,7 @@ export default function SalesTab({ eventId, event }) {
                               </span>
                             </div>
                           </td>
-                          <td
+                          {/* <td
                             className={`p-4 ${payout.amount < 0 ? "text-white/50" : ""
                               }`}
                           >
@@ -952,11 +986,38 @@ export default function SalesTab({ eventId, event }) {
                                 minimumFractionDigits: 2,
                                 maximumFractionDigits: 2,
                               })}`}
+                          </td> */}
+                          <td className="p-4">
+                            <span
+                              className={
+                                payout.amount < 0
+                                  ? "text-white/50"
+                                  : "text-white"
+                              }
+                            >
+                              {payout.transaction_id ? (
+                                <>
+                                  {payout.amount < 0 ? "-" : ""}$
+                                  {(
+                                    Math.abs(payout.amount / 100 - 0.89) / 1.09
+                                  ).toLocaleString("en-US", {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2,
+                                  })}
+                                </>
+                              ) : (
+                                "Comp"
+                              )}
+                            </span>
                           </td>
                           <td className="p-4">
                             <span className="flex items-center gap-2 capitalize">
-                              {payout.refund === 'true' ? statusIcons['refunded'] : statusIcons['completed']}
-                              {payout.refund === 'true' ? "Refunded" : "Completed"}
+                              {payout.refund === "true"
+                                ? statusIcons["refunded"]
+                                : statusIcons["completed"]}
+                              {payout.refund === "true"
+                                ? "Refunded"
+                                : "Completed"}
                             </span>
                           </td>
                           <td className="py-4 pl-4">
@@ -964,9 +1025,7 @@ export default function SalesTab({ eventId, event }) {
                               <MenuTrigger>
                                 <Ellipsis />
                               </MenuTrigger>
-                              <MenuItem
-
-                              >
+                              <MenuItem>
                                 <div className="flex items-center gap-2 hover:bg-white/5 transition-colors w-full h-full p-2 rounded-md">
                                   <svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -991,6 +1050,8 @@ export default function SalesTab({ eventId, event }) {
                                   <span>View details</span>
                                 </div>
                               </MenuItem>
+                              {payout.refund !== "true" && (
+      <>
                               <MenuItem
                                 onClick={() => {
                                   setSelectedPay(payout);
@@ -1040,13 +1101,14 @@ export default function SalesTab({ eventId, event }) {
                                   <span>Refund</span>
                                 </div>
                               </MenuItem>
+                              </>
+                              )}
                             </DirectionAwareMenu>
                           </td>
                         </tr>
                       ))}
-                    </>
-                  )
-                }
+                  </>
+                )}
               </tbody>
             </table>
           </div>
@@ -1077,7 +1139,10 @@ export default function SalesTab({ eventId, event }) {
                     type="email"
                     value={selectedPay?.email || ""}
                     onChange={(e) =>
-                      setSelectedPay((prev) => ({ ...prev, email: e.target.value }))
+                      setSelectedPay((prev) => ({
+                        ...prev,
+                        email: e.target.value,
+                      }))
                     }
                     placeholder="johndoe@gmail.com"
                     className="border bg-primary text-white text-sm border-white/10 h-10 rounded-lg px-5 py-2.5 focus:outline-none w-full"
@@ -1088,7 +1153,7 @@ export default function SalesTab({ eventId, event }) {
             <div className="flex flex-col gap-3 p-6 pt-0">
               <button
                 type="submit"
-                disabled={() => { }}
+                disabled={() => {}}
                 className="w-full bg-white hover:bg-white/90 disabled:opacity-50 disabled:cursor-not-allowed text-black border-white/10 border text-center rounded-full h-9 px-4 focus:outline-none flex items-center justify-center gap-2 font-semibold transition-colors text-sm"
               >
                 Resend Ticket
@@ -1109,8 +1174,9 @@ export default function SalesTab({ eventId, event }) {
             <div className="flex flex-col gap-y-3 bg-white/[0.03] rounded-t-xl border-b border-white/10 p-6">
               <DialogTitle>Refund Payment</DialogTitle>
               <DialogDescription>
-                Refund may take 5-10 days to appear on your statement. Payment transaction and platform fees won’t be
-                returned by avenue, but there are no additional fee for the refund. Learn more
+                Refund may take 5-10 days to appear on your statement. Payment
+                transaction and platform fees won’t be returned by avenue, but
+                there are no additional fee for the refund. Learn more
               </DialogDescription>
             </div>
             <div className="flex flex-col gap-4 p-6">
@@ -1134,10 +1200,15 @@ export default function SalesTab({ eventId, event }) {
                           if (!selectedPay?.amount) return true;
 
                           // Correctly determine the max refund amount based on fee inclusion
-                          const maxRefundableAmount = includeFee ? parseFloat(maxTotal) : parseFloat(ticketPrice);
+                          const maxRefundableAmount = includeFee
+                            ? parseFloat(maxTotal)
+                            : parseFloat(ticketPrice);
 
-                          return value <= maxRefundableAmount || `Amount cannot exceed $${maxRefundableAmount}`;
-                        }
+                          return (
+                            value <= maxRefundableAmount ||
+                            `Amount cannot exceed $${maxRefundableAmount}`
+                          );
+                        },
                       })}
                       className="border bg-primary text-white text-sm border-white/10 h-10 rounded-lg pl-8 pr-20 py-2.5 focus:outline-none w-full"
                     />
@@ -1164,7 +1235,9 @@ export default function SalesTab({ eventId, event }) {
                       className="w-4 h-4 accent-gray-600 cursor-pointer"
                       disabled={!isValid}
                     />
-                    <span className="text-sm text-white/60">Refund fee (9% + $0.89):</span>
+                    <span className="text-sm text-white/60">
+                      Refund fee (9% + $0.89):
+                    </span>
                     <span className="text-sm font-medium text-white">
                       ${feeAmount}
                     </span>
@@ -1190,56 +1263,54 @@ export default function SalesTab({ eventId, event }) {
           </form>
         </DialogContent>
       </Dialog>
-      {
-        resendNotificationModal && (
-          <motion.div
-            initial={{ y: -50, opacity: 0, scale: 0.9 }}
-            animate={{ y: 0, opacity: 1, scale: 1 }}
-            exit={{ y: -50, opacity: 0, scale: 0.9 }}
-            transition={{
-              type: "spring",
-              stiffness: 150,
-              damping: 15,
-            }}
-            className="fixed top-20 sm:top-10 inset-x-0 mx-auto w-fit backdrop-blur-md text-white p-3 pl-4 rounded-lg flex items-center gap-2 border border-white/10 shadow-lg max-w-[400px] justify-between"
-          >
-            <div className="flex items-center gap-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-              >
-                <path
-                  fillRule="evenodd"
-                  clipRule="evenodd"
-                  d="M8 15C9.85652 15 11.637 14.2625 12.9497 12.9497C14.2625 11.637 15 9.85652 15 8C15 6.14348 14.2625 4.36301 12.9497 3.05025C11.637 1.7375 9.85652 1 8 1C6.14348 1 4.36301 1.7375 3.05025 3.05025C1.7375 4.36301 1 6.14348 1 8C1 9.85652 1.7375 11.637 3.05025 12.9497C4.36301 14.2625 6.14348 15 8 15ZM11.844 6.209C11.9657 6.05146 12.0199 5.85202 11.9946 5.65454C11.9693 5.45706 11.8665 5.27773 11.709 5.156C11.5515 5.03427 11.352 4.9801 11.1545 5.00542C10.9571 5.03073 10.7777 5.13346 10.656 5.291L6.956 10.081L5.307 8.248C5.24174 8.17247 5.16207 8.11073 5.07264 8.06639C4.98322 8.02205 4.88584 7.99601 4.78622 7.98978C4.6866 7.98356 4.58674 7.99729 4.4925 8.03016C4.39825 8.06303 4.31151 8.11438 4.23737 8.1812C4.16322 8.24803 4.10316 8.32898 4.06071 8.41931C4.01825 8.50965 3.99425 8.60755 3.99012 8.70728C3.98599 8.807 4.00181 8.90656 4.03664 9.00009C4.07148 9.09363 4.12464 9.17927 4.193 9.252L6.443 11.752C6.51649 11.8335 6.60697 11.8979 6.70806 11.9406C6.80915 11.9833 6.91838 12.0034 7.02805 11.9993C7.13772 11.9952 7.24515 11.967 7.34277 11.9169C7.44038 11.8667 7.5258 11.7958 7.593 11.709L11.844 6.209Z"
-                  fill="#10B981"
-                />
-              </svg>
-              <p className="text-sm">Email sent successfully</p>
-            </div>
-            <button
-              onClick={() => setResendNotificationModal(false)}
-              className="ml-2 text-white/60 hover:text-white flex items-center justify-center border border-white/10 rounded-full p-1 flex-shrink-0 transition-colors"
+      {resendNotificationModal && (
+        <motion.div
+          initial={{ y: -50, opacity: 0, scale: 0.9 }}
+          animate={{ y: 0, opacity: 1, scale: 1 }}
+          exit={{ y: -50, opacity: 0, scale: 0.9 }}
+          transition={{
+            type: "spring",
+            stiffness: 150,
+            damping: 15,
+          }}
+          className="fixed top-20 sm:top-10 inset-x-0 mx-auto w-fit backdrop-blur-md text-white p-3 pl-4 rounded-lg flex items-center gap-2 border border-white/10 shadow-lg max-w-[400px] justify-between"
+        >
+          <div className="flex items-center gap-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-              >
-                <path
-                  d="M5.28033 4.21967C4.98744 3.92678 4.51256 3.92678 4.21967 4.21967C3.92678 4.51256 3.92678 4.98744 4.21967 5.28033L6.93934 8L4.21967 10.7197C3.92678 11.0126 3.92678 11.4874 4.21967 11.7803C4.51256 12.0732 4.98744 12.0732 5.28033 11.7803L8 9.06066L10.7197 11.7803C11.0126 12.0732 11.4874 12.0732 11.7803 11.7803C12.0732 11.4874 12.0732 11.0126 11.7803 10.7197L9.06066 8L11.7803 5.28033C12.0732 4.98744 12.0732 4.51256 11.7803 4.21967C11.4874 3.92678 11.0126 3.92678 10.7197 4.21967L8 6.93934L5.28033 4.21967Z"
-                  fill="white"
-                />
-              </svg>
-            </button>
-          </motion.div>
-        )
-      }
+              <path
+                fillRule="evenodd"
+                clipRule="evenodd"
+                d="M8 15C9.85652 15 11.637 14.2625 12.9497 12.9497C14.2625 11.637 15 9.85652 15 8C15 6.14348 14.2625 4.36301 12.9497 3.05025C11.637 1.7375 9.85652 1 8 1C6.14348 1 4.36301 1.7375 3.05025 3.05025C1.7375 4.36301 1 6.14348 1 8C1 9.85652 1.7375 11.637 3.05025 12.9497C4.36301 14.2625 6.14348 15 8 15ZM11.844 6.209C11.9657 6.05146 12.0199 5.85202 11.9946 5.65454C11.9693 5.45706 11.8665 5.27773 11.709 5.156C11.5515 5.03427 11.352 4.9801 11.1545 5.00542C10.9571 5.03073 10.7777 5.13346 10.656 5.291L6.956 10.081L5.307 8.248C5.24174 8.17247 5.16207 8.11073 5.07264 8.06639C4.98322 8.02205 4.88584 7.99601 4.78622 7.98978C4.6866 7.98356 4.58674 7.99729 4.4925 8.03016C4.39825 8.06303 4.31151 8.11438 4.23737 8.1812C4.16322 8.24803 4.10316 8.32898 4.06071 8.41931C4.01825 8.50965 3.99425 8.60755 3.99012 8.70728C3.98599 8.807 4.00181 8.90656 4.03664 9.00009C4.07148 9.09363 4.12464 9.17927 4.193 9.252L6.443 11.752C6.51649 11.8335 6.60697 11.8979 6.70806 11.9406C6.80915 11.9833 6.91838 12.0034 7.02805 11.9993C7.13772 11.9952 7.24515 11.967 7.34277 11.9169C7.44038 11.8667 7.5258 11.7958 7.593 11.709L11.844 6.209Z"
+                fill="#10B981"
+              />
+            </svg>
+            <p className="text-sm">Email sent successfully</p>
+          </div>
+          <button
+            onClick={() => setResendNotificationModal(false)}
+            className="ml-2 text-white/60 hover:text-white flex items-center justify-center border border-white/10 rounded-full p-1 flex-shrink-0 transition-colors"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+            >
+              <path
+                d="M5.28033 4.21967C4.98744 3.92678 4.51256 3.92678 4.21967 4.21967C3.92678 4.51256 3.92678 4.98744 4.21967 5.28033L6.93934 8L4.21967 10.7197C3.92678 11.0126 3.92678 11.4874 4.21967 11.7803C4.51256 12.0732 4.98744 12.0732 5.28033 11.7803L8 9.06066L10.7197 11.7803C11.0126 12.0732 11.4874 12.0732 11.7803 11.7803C12.0732 11.4874 12.0732 11.0126 11.7803 10.7197L9.06066 8L11.7803 5.28033C12.0732 4.98744 12.0732 4.51256 11.7803 4.21967C11.4874 3.92678 11.0126 3.92678 10.7197 4.21967L8 6.93934L5.28033 4.21967Z"
+                fill="white"
+              />
+            </svg>
+          </button>
+        </motion.div>
+      )}
     </>
   );
 }
