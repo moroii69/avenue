@@ -201,6 +201,8 @@ export default function TicketEvent() {
     const [eventId, setEventId] = useState("")
     const [isAdding, setIsAdding] = useState(false)
     const [addStatus, setAddStatus] = useState(null)
+    const [showExtraFields, setShowExtraFields] = useState(false);
+    const [extraFields, setExtraFields] = useState([{ name: "", instagramUrl: "" }]);
 
     const categories = [
         {
@@ -506,6 +508,17 @@ export default function TicketEvent() {
     };
 
     const minPrice = tickets.length > 0 ? Math.min(...tickets.map(ticket => ticket.price)) : 0;
+
+    const handleAddExtraField = () => {
+        setExtraFields([...extraFields, { name: "", instagramUrl: "" }]);
+    };
+
+    const handleExtraFieldChange = (index, field, value) => {
+        const updatedFields = [...extraFields];
+        updatedFields[index][field] = value;
+        setExtraFields(updatedFields);
+    };
+
 
     // Form steps content
     const formSteps = [
@@ -998,6 +1011,49 @@ export default function TicketEvent() {
                     <p className="text-white/30 text-xs">
                         Let people see who&apos;s attending your event
                     </p>
+
+                    <div className="flex items-center gap-2 mt-4">
+                        <input
+                            type="checkbox"
+                            id="showExtraFields"
+                            checked={showExtraFields}
+                            onChange={(e) => setShowExtraFields(e.target.checked)}
+                            className="size-4 rounded bg-transparent border-white/10"
+                        />
+                        <label htmlFor="showExtraFields" className="text-sm text-white">
+                            Add Artists Details
+                        </label>
+                    </div>
+                    {showExtraFields && (
+                        <div className="space-y-4">
+                            {extraFields.map((field, index) => (
+                                <div key={index} className="w-full space-y-2">
+                                    <input
+                                        type="text"
+                                        value={field.name}
+                                        onChange={(e) => handleExtraFieldChange(index, "name", e.target.value)}
+                                        placeholder="Enter Name"
+                                        className="w-full h-10 bg-transparent border border-white/5 rounded-lg px-4 py-2 text-white placeholder:text-white/30 placeholder:text-sm"
+                                    />
+                                    <input
+                                        type="text"
+                                        value={field.instagramUrl}
+                                        onChange={(e) => handleExtraFieldChange(index, "instagramUrl", e.target.value)}
+                                        placeholder="Enter Instagram URL"
+                                        className="w-full h-10 bg-transparent border border-white/5 rounded-lg px-4 py-2 text-white placeholder:text-white/30 placeholder:text-sm"
+                                    />
+                                </div>
+                            ))}
+
+                            {/* Add More Fields Button */}
+                            <button
+                                onClick={handleAddExtraField}
+                                className="px-4 py-2 bg-blue-500 text-white rounded-lg"
+                            >
+                                Add More
+                            </button>
+                        </div>
+                    )}
                 </div>
             ),
         },
@@ -1562,16 +1618,15 @@ export default function TicketEvent() {
                                             setStep((prevStep) => prevStep + 1);
                                         }
                                     }}
-                                    className={`px-4 py-2 w-full rounded-full h-10 font-semibold flex items-center justify-center gap-2 
-                                                ${step === 5 ? "bg-gray-500 cursor-not-allowed text-gray-300" : "bg-white text-black"}
-                                                ${step === 1 && !eventName.trim() ? "bg-gray-500 cursor-not-allowed text-gray-300" : ""}
-                                                ${step === 2 && (!ticketStartDate || !ticketEndDate) ? "bg-gray-500 cursor-not-allowed text-gray-300" : ""}`
-                                    }
-                                    disabled={step === 2 && (!ticketStartDate || !ticketEndDate)}
+                                    className={`px-4 py-2 w-full rounded-full h-10 font-semibold flex items-center justify-center gap-2
+                                            ${step === 5 || (step === 1 && !eventName.trim()) || (step === 2 && (!ticketStartDate || !ticketEndDate))
+                                            ? "bg-gray-500 cursor-not-allowed text-black"
+                                            : "bg-white text-black"
+                                        }`}
+                                    disabled={step === 5 || step === 1 && !eventName.trim() || step === 2 && (!ticketStartDate || !ticketEndDate)}
                                 >
                                     {step === 6 ? "Complete creating Event" : "Continue"}
                                 </button>
-
                             )}
                         </div>
                     </div>

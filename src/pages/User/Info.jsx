@@ -223,7 +223,7 @@ const Info = () => {
     const handleDetail = (id, creater) => {
         localStorage.setItem('user_organizer_id', id);
         localStorage.setItem('user_organizer_name', creater);
-        navigate(`/creater/${creater}`);
+        navigate(`/creator/${creater}`);
     };
 
     const fetchEvents = async () => {
