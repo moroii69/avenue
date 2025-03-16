@@ -23,6 +23,7 @@ const Header = () => {
   const [isModalLogout, setIsModalLogout] = useState(false);
 
   const userId = localStorage.getItem('userID') || "";
+  const [oragnizerId, setOragnizerId] = useState(null);
 
   useEffect(() => {
     const EventName = localStorage.getItem('user_event_name') || "";
@@ -32,9 +33,25 @@ const Header = () => {
   })
 
   useEffect(() => {
+    const loadFromLocalStorage = () => {
+      const storedUserOrganizerId = localStorage.getItem('organizerId');
+      setOragnizerId(storedUserOrganizerId);
+    };
+    loadFromLocalStorage();
+    const handleStorageChange = () => {
+      loadFromLocalStorage();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
+  useEffect(() => {
     if (location.pathname === '/') {
       setActiveButton('Explore');
-    } else if (location.pathname === '/type') {
+    } else if (location.pathname === '/organizer/create-event') {
       setActiveButton('Create');
     }
   }, [location.pathname]);
@@ -46,7 +63,7 @@ const Header = () => {
 
   const handleCreate = () => {
     setActiveButton('Create');
-    navigate("/type");
+    navigate("/organizer/create-event");
   };
 
   return (

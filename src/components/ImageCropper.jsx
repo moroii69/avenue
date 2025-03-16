@@ -30,7 +30,6 @@ export default function ImageCropper({
         const cropper = cropperRef.current?.cropper;
         if (!cropper) return;
 
-        // Get cropped canvas
         const canvas = cropper.getCroppedCanvas({
             maxWidth: 4096,
             maxHeight: 4096,
@@ -39,16 +38,7 @@ export default function ImageCropper({
 
         if (!canvas) return;
 
-        // Get crop dimensions
-        const data = cropper.getData();
-        const dimensions = {
-            width: Math.round(data.width),
-            height: Math.round(data.height),
-            x: Math.round(data.x),
-            y: Math.round(data.y),
-        };
-
-        // Convert canvas to blob
+        // Convert canvas to Blob
         canvas.toBlob(
             (blob) => {
                 if (!blob) {
@@ -56,27 +46,40 @@ export default function ImageCropper({
                     return;
                 }
 
+                // Check if the cropped image is within 10MB
+                const maxSizeMB = 20;
+                const maxSizeBytes = maxSizeMB * 1024 * 1024;
+
+                if (blob.size > maxSizeBytes) {
+                    alert("Cropped image exceeds 10MB. Try selecting a smaller area.");
+                    return;
+                }
+
                 // Create URL for preview
                 const previewUrl = URL.createObjectURL(blob);
 
-                // Return data in the format expected by handleCropComplete
                 onCropComplete({
                     croppedImage: blob,
-                    fullImage: imageFile, // Pass the original image file
+                    fullImage: imageFile, // Pass original file
                     previewUrl: previewUrl,
-                    dimensions: dimensions,
+                    dimensions: {
+                        width: Math.round(cropper.getData().width),
+                        height: Math.round(cropper.getData().height),
+                        x: Math.round(cropper.getData().x),
+                        y: Math.round(cropper.getData().y),
+                    },
                 });
 
                 onOpenChange(false);
             },
             "image/jpeg",
-            1
+            1 // Max quality
         );
     };
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[800px] bg-[#1A1A1A] border-[#333] text-white">
+            <DialogContent className="sm:max-w-[800px]  border-[#333] text-white">
                 <div className="flex flex-col h-full">
                     <div className="p-4 border-b border-[#333]">
                         <h2 className="text-xl font-semibold">Crop Image</h2>
