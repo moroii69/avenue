@@ -36,7 +36,7 @@ import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-
+import { MinusIcon, PlusIcon } from "lucide-react";
 // Mock data structure (you should replace this with actual data fetching)
 const eventData = {
   1: {
@@ -132,10 +132,23 @@ export default function EventDetails() {
   const [showCopied, setShowCopied] = useState(false);
   const [newMemberDialogOpen, setNewMemberDialogOpen] = useState(false);
   const [events, setEvents] = useState([]);
-  const [showTicketCards, setShowTicketCards] = useState(false);
+  const [showTicketCards, setShowTicketCards] = useState(true);
   const [soldTickets, setSoldTickets] = useState(0);
   const [remainCount, setRemainCount] = useState(0);
+  const [ticketData, setTicketData] = useState(null);
+  const [ticketCount, setTicketCount] = useState([]);
+  const handleIncrement = () => {
+    setTicketCount((prev) => (prev === null ? 1 : prev + 1));
+  };
 
+  // Decrease the ticket count. If it goes to 0 or below, set it back to null.
+  const handleDecrement = () => {
+    setTicketCount((prev) => {
+      if (prev === null) return null;
+      if (prev <= 1) return null;
+      return prev - 1;
+    });
+  };
   // New onSubmit handler that toggles the view
   const handleSelectTicket = (data) => {
     // Optionally, do something with the submitted data
@@ -175,7 +188,87 @@ export default function EventDetails() {
     const formattedHour = hourNum % 12 || 12;
     return `${formattedHour}:${minute} ${suffix}`;
   };
+  const onSubmitEditTicket = async (data) => {
+    if (!ticketData?.ticket_id || !event._id) {
+      console.error("Missing ticket_id or event_id");
+      return;
+    }
 
+    try {
+      const response = await fetch(
+        `${url}/event/update-ticket-status/${ticketData.ticket_id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            event_id: event._id,
+            updatedTicket: {
+              ticket_name: data.ticket_name,
+              ticket_description: data.ticket_description,
+              price: data.price,
+              qty: data.qty,
+              min_count: data.min_count,
+              max_count: data.max_count,
+              ticket_type: data.type,
+            },
+          }),
+        }
+      );
+
+      const updatedData = await response.json();
+
+      if (response.ok) {
+        console.log("Ticket updated successfully:", updatedData);
+        setTickets((prev) =>
+          prev.map((ticket) =>
+            ticket.ticket_id === selectedTicket.ticket_id
+              ? { ...ticket, ...data }
+              : ticket
+          )
+        );
+
+        alert(`Ticket "${selectedTicket.ticket_name}" updated successfully.`);
+        window.location.reload();
+        setEditTicketDialogOpen(false);
+        resetEditTicket();
+        setSelectedTicket(null);
+      } else {
+        console.error("Failed to update ticket:", updatedData.message);
+      }
+    } catch (error) {
+      console.error("Error updating ticket:", error);
+    }
+  };
+
+  useEffect(() => {
+    const fetchEarnings = async () => {
+      await fetchRemainEvent(event._id);
+    };
+
+    fetchEarnings();
+  }, [event]);
+
+  const fetchRemainEvent = async (id) => {
+    try {
+      const response = await axios.get(`${url}/remain-tickets/${id}`);
+      console.log(response.data);
+
+      if (response.data) {
+        const soldData = {};
+        const remainingData = {};
+
+        response.data.forEach((ticket) => {
+          soldData[ticket.ticket_name] = ticket.tickets_sold;
+          remainingData[ticket.ticket_name] = ticket.remaining_tickets;
+        });
+
+        setSoldTickets(soldData);
+        setRemainCount(remainingData);
+      }
+    } catch (error) {
+      console.error(`Error fetching remain events for id: ${id}`, error);
+    }
+  };
   const roles = ["Door Staff", "Security", "Event Coordinator"];
   const onSubmit = async (data) => {
     try {
@@ -1163,12 +1256,19 @@ export default function EventDetails() {
             className="!max-w-[400px] border border-white/10 rounded-xl !p-0"
           >
             <DialogContent className="max-h-[90vh] !gap-0">
-              {/* Conditional header area */}
+              {/* Header area changes based on view */}
               <div className="flex flex-col gap-y-3 bg-white/[0.03] border-b rounded-t-xl border-white/10 p-6">
-                {!showTicketCards ? (
+                {showTicketCards ? (
                   <>
-                  <button
-                      onClick={() => setShowTicketCards(false)}
+                    <DialogTitle>Select a ticket</DialogTitle>
+                    <DialogDescription>
+                      Choose a complimentary ticket from below to proceed.
+                    </DialogDescription>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => setShowTicketCards(true)}
                       className="flex items-center gap-2 text-sm h-8 w-fit rounded-md border border-white/10 border-dashed px-2 text-white/70 hover:text-white transition-colors"
                     >
                       <svg
@@ -1188,118 +1288,20 @@ export default function EventDetails() {
                     </button>
                     <DialogTitle>Send a complimentary ticket</DialogTitle>
                     <DialogDescription>
-                      Send a free ticket for your event, without requiring
-                      payment.
-                    </DialogDescription>
-                  </>
-                ) : (
-                  <>
-                    <DialogTitle>Select a ticket</DialogTitle>
-                    <DialogDescription>
-                      Choose a ticket from below to proceed.
+                      Provide your details to send a free ticket for your event.
                     </DialogDescription>
                   </>
                 )}
               </div>
 
-              {/* Content area that changes; scrollable if needed */}
+              {/* Content area changes based on view */}
               <div
                 className="p-6 overflow-y-auto hide-scrollbar"
                 style={{ maxHeight: "calc(90vh - 150px)" }}
               >
-                {!showTicketCards ? (
-                  <form onSubmit={handleSubmit(handleSelectTicket)}>
-                    {/* Form fields */}
-                    <div className="flex flex-col gap-4">
-                      {/* Full Name */}
-                      <div className="flex flex-col gap-3 w-full">
-                        <span className="text-sm font-medium text-white">
-                          Full Name
-                        </span>
-                        <input
-                          {...register("fullName", {
-                            required: "Full Name is required",
-                          })}
-                          placeholder="John Doe"
-                          className="border bg-primary text-white text-sm border-white/10 h-10 rounded-lg px-5 py-2.5 focus:outline-none w-full"
-                        />
-                        {errors.fullName && (
-                          <span className="text-xs text-red-500">
-                            {errors.fullName.message}
-                          </span>
-                        )}
-                      </div>
-                      {/* Email */}
-                      <div className="flex flex-col gap-3 w-full">
-                        <span className="text-sm font-medium text-white">
-                          Email
-                        </span>
-                        <input
-                          {...register("email", {
-                            required: "Email is required",
-                            pattern: {
-                              value: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/,
-                              message: "Invalid email address",
-                            },
-                          })}
-                          placeholder="johndoe@gmail.com"
-                          className="border bg-primary text-white text-sm border-white/10 h-10 rounded-lg px-5 py-2.5 focus:outline-none w-full"
-                        />
-                        {errors.email && (
-                          <span className="text-xs text-red-500">
-                            {errors.email.message}
-                          </span>
-                        )}
-                      </div>
-                      {/* Phone Number */}
-                      <div className="flex flex-col gap-3 w-full">
-                        <span className="text-sm font-medium text-white">
-                          Phone Number
-                        </span>
-                        <div className="relative w-full">
-                          <div className="flex items-center bg-primary border border-white/10 h-10 rounded-lg px-2 py-2.5 w-full">
-                            <div className="flex items-center h-10 gap-1 px-1 pr-3 border-r border-white/10">
-                              <img
-                                src="https://flagcdn.com/w40/us.png"
-                                alt="US Flag"
-                                className="w-4 h-4 rounded-full"
-                              />
-                              <span className="text-white text-sm">+1</span>
-                            </div>
-                            <input
-                              {...register("phoneNumber", {
-                                required: "Phone number is required",
-                                pattern: {
-                                  value: /^[0-9]{10}$/,
-                                  message: "Phone number must be 10 digits",
-                                },
-                              })}
-                              type="tel"
-                              placeholder="Enter phone number"
-                              className="bg-transparent text-sm flex-1 focus:outline-none px-2 text-white mx-3"
-                            />
-                          </div>
-                        </div>
-                        {errors.phoneNumber && (
-                          <span className="text-xs text-red-500">
-                            {errors.phoneNumber.message}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex flex-col gap-3 pt-6">
-                      <button
-                        type="submit"
-                        disabled={!isValid}
-                        className="w-full bg-white hover:bg-white/90 disabled:opacity-50 disabled:cursor-not-allowed text-black border-white/10 border text-center rounded-full h-9 px-4 focus:outline-none flex items-center justify-center gap-2 font-semibold transition-colors text-sm"
-                      >
-                        Select ticket
-                      </button>
-                    </div>
-                  </form>
-                ) : (
-                  // Grid of ticket cards (scrollable)
-                  <div className="grid grid-cols-1 md:grid-cols-1 gap-4 pt-4">
+                {showTicketCards ? (
+                  // First page: Grid of ticket cards
+                  <div className="grid grid-cols-1 gap-4 pt-4">
                     {event?.tickets?.map((ticket) => {
                       const totalTickets =
                         (soldTickets[ticket.ticket_name] || 0) +
@@ -1409,25 +1411,208 @@ export default function EventDetails() {
                                 </svg>
                                 <span>Renew sales</span>
                               </button>
+                            ) : soldPercentage === 100 ? (
+                              <button
+                                disabled
+                                className="bg-[#2A2A2A] text-[#AAAAAA] border border-[#333333] rounded-full px-4 py-2 h-10 flex items-center gap-2 cursor-not-allowed"
+                              >
+                                <span>Sold Out</span>
+                              </button>
                             ) : (
-                              <>
-                                <button
-                                  onClick={() => {
-                                    setTicketData(ticket);
-                                    handleEditTicket(ticket);
-                                  }}
-                                  className="bg-[#0F0F0F] rounded-full px-4 py-2 h-10 flex items-center gap-2"
-                                >
-                                  <span>Select ticket</span>
-                                </button>
-                                
-                              </>
+                              <button
+                                onClick={() => {
+                                  // Save selected ticket and switch to the form view.
+                                  setTicketData(ticket);
+                                  setShowTicketCards(false);
+                                }}
+                                className="bg-[#0F0F0F] rounded-full px-4 py-2 h-10 flex items-center gap-2"
+                              >
+                                <span>Select ticket</span>
+                              </button>
                             )}
                           </div>
                         </div>
                       );
                     })}
                   </div>
+                ) : (
+                  // Second page: Form for entering user details
+                  <form onSubmit={handleSubmit(handleSelectTicket)}>
+                    <div className="flex flex-col gap-4">
+                    <div className="mt-4">
+  <span className="text-sm font-medium text-white block mb-2">
+    Quantity
+  </span>
+  <div className="flex items-center justify-between">
+    {/* Left: Quantity Selector */}
+    <div className="flex items-center bg-primary px-1 py-1 rounded-full w-max">
+      <button
+        onClick={handleDecrement}
+        className={`p-3 font-inter bg-[#141414] text-white rounded-full ${
+          ticketCount === null
+            ? "cursor-not-allowed opacity-50"
+            : "hover:bg-gray-500 hover:bg-opacity-30"
+        }`}
+        disabled={ticketCount === null}
+      >
+        <MinusIcon width={16} height={16} />
+      </button>
+      <span className="mx-4 font-inter">
+        {ticketCount === null
+          ? "Choose tickets"
+          : `${ticketCount} ticket${ticketCount > 1 ? "s" : ""}`}
+      </span>
+      <button
+        onClick={handleIncrement}
+        className="p-3 bg-[#141414] text-white rounded-full hover:bg-gray-500 hover:bg-opacity-30"
+      >
+        <PlusIcon width={16} height={16} />
+      </button>
+    </div>
+
+    {/* Right: Progress Bars & Count (only if a ticket is selected) */}
+    {ticketData && (() => {
+      const totalTickets =
+        (soldTickets[ticketData.ticket_name] || 0) +
+        (remainCount[ticketData.ticket_name] || 0);
+      const soldPercentage =
+        totalTickets > 0
+          ? ((soldTickets[ticketData.ticket_name] || 0) / totalTickets) * 100
+          : 0;
+      return (
+        <div className="text-white/70 text-right">
+          <div className="flex items-center gap-3 justify-end">
+            <div className="flex gap-0.5">
+              {[...Array(4)].map((_, i) => {
+                const barFillPercentage = Math.min(
+                  Math.max(soldPercentage - i * 25, 0),
+                  25
+                );
+                let barColor;
+                if (soldPercentage <= 25) {
+                  barColor = "#10B981";
+                } else if (soldPercentage <= 50) {
+                  barColor = "#A3E635";
+                } else {
+                  barColor = "#F97316";
+                }
+                return (
+                  <div
+                    key={i}
+                    className="h-4 w-1.5 rounded-full bg-white/10 overflow-hidden"
+                  >
+                    <div
+                      className="h-full transition-all duration-300 ease-out"
+                      style={{
+                        transform: `scaleY(${barFillPercentage / 25})`,
+                        transformOrigin: "bottom",
+                        backgroundColor: barColor,
+                      }}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+            <span className="text-sm">
+              {soldTickets[ticketData.ticket_name] || 0}/{totalTickets || 0}
+            </span>
+          </div>
+          <span className="block mt-1 text-sm">
+            {totalTickets - (soldTickets[ticketData.ticket_name] || 0)} Available
+          </span>
+        </div>
+      );
+    })()}
+  </div>
+</div>
+
+                      <div className="h-[1px] mt-2 mb-2 bg-white/5" />
+                      {/* )} */}
+                      <div className="flex flex-col gap-3 w-full">
+                        <span className="text-sm font-medium text-white">
+                          Full Name
+                        </span>
+                        <input
+                          {...register("fullName", {
+                            required: "Full Name is required",
+                          })}
+                          placeholder="John Doe"
+                          className="border bg-primary text-white text-sm border-white/10 h-10 rounded-lg px-5 py-2.5 focus:outline-none w-full"
+                        />
+                        {errors.fullName && (
+                          <span className="text-xs text-red-500">
+                            {errors.fullName.message}
+                          </span>
+                        )}
+                      </div>
+                      {/* Email */}
+                      <div className="flex flex-col gap-3 w-full">
+                        <span className="text-sm font-medium text-white">
+                          Email
+                        </span>
+                        <input
+                          {...register("email", {
+                            required: "Email is required",
+                            pattern: {
+                              value: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/,
+                              message: "Invalid email address",
+                            },
+                          })}
+                          placeholder="johndoe@gmail.com"
+                          className="border bg-primary text-white text-sm border-white/10 h-10 rounded-lg px-5 py-2.5 focus:outline-none w-full"
+                        />
+                        {errors.email && (
+                          <span className="text-xs text-red-500">
+                            {errors.email.message}
+                          </span>
+                        )}
+                      </div>
+                      {/* Phone Number */}
+                      <div className="flex flex-col gap-3 w-full">
+                        <span className="text-sm font-medium text-white">
+                          Phone Number
+                        </span>
+                        <div className="relative w-full">
+                          <div className="flex items-center bg-primary border border-white/10 h-10 rounded-lg px-2 py-2.5 w-full">
+                            <div className="flex items-center h-10 gap-1 px-1 pr-3 border-r border-white/10">
+                              <img
+                                src="https://flagcdn.com/w40/us.png"
+                                alt="US Flag"
+                                className="w-4 h-4 rounded-full"
+                              />
+                              <span className="text-white text-sm">+1</span>
+                            </div>
+                            <input
+                              {...register("phoneNumber", {
+                                required: "Phone number is required",
+                                pattern: {
+                                  value: /^[0-9]{10}$/,
+                                  message: "Phone number must be 10 digits",
+                                },
+                              })}
+                              type="tel"
+                              placeholder="Enter phone number"
+                              className="bg-transparent text-sm flex-1 focus:outline-none px-2 text-white mx-3"
+                            />
+                          </div>
+                        </div>
+                        {errors.phoneNumber && (
+                          <span className="text-xs text-red-500">
+                            {errors.phoneNumber.message}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-3 pt-6">
+                      <button
+                        type="submit"
+                        disabled={!isValid}
+                        className="w-full bg-white hover:bg-white/90 disabled:opacity-50 disabled:cursor-not-allowed text-black border-white/10 border text-center rounded-full h-9 px-4 focus:outline-none flex items-center justify-center gap-2 font-semibold transition-colors text-sm"
+                      >
+                        Confirm and send ticket
+                      </button>
+                    </div>
+                  </form>
                 )}
               </div>
             </DialogContent>
