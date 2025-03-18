@@ -28,6 +28,15 @@ const Info = () => {
     const id = localStorage.getItem('user_event_id') || {};
     const userId = localStorage.getItem('userID') || "";
 
+    const avatars = [
+        { name: "CV", image: "", bgColor: "bg-gray-800" },
+        { name: "", image: "https://randomuser.me/api/portraits/women/1.jpg", bgColor: "" },
+        { name: "", image: "https://randomuser.me/api/portraits/men/1.jpg", bgColor: "" },
+        { name: "SC", image: "", bgColor: "bg-purple-900" },
+        { name: "AL", image: "", bgColor: "bg-gray-700" },
+        { name: "", image: "https://randomuser.me/api/portraits/women/2.jpg", bgColor: "" }
+    ];
+
     const scrollToTickets = (e) => {
         e.preventDefault();
         const ticketsSection = document.getElementById('tickets');
@@ -205,6 +214,7 @@ const Info = () => {
 
         try {
             const response = await axios.get(`${url}/event/get-event-by-name/${encodedName}`);
+            console.log(response.data)
             localStorage.setItem('user_event_id', response.data?._id);
             localStorage.setItem('user_event_name', response.data?.event_name);
             setEvent(response.data);
@@ -328,9 +338,9 @@ const Info = () => {
                 : (
                     <>
                         <div className="min-h-screen bg-primary text-white mt-5">
-                            {/* <div className="max-w-5xl mx-auto px-7">
+                            <div className="max-w-5xl mx-auto px-7">
                                 <p className='font-inter text-sm'><span className='text-[#898989] text-sm font-inter'>Home /</span> {eventName}</p>
-                            </div> */}
+                            </div>
                             <div className="max-w-5xl mx-auto p-6 flex flex-col lg:flex-row gap-8">
                                 <div className="flex-1 border border-gray-300 border-opacity-10 px-4 py-4 rounded-2xl overflow-y-auto">
                                     <div className="bg-neutral-900 rounded-lg overflow-hidden">
@@ -399,14 +409,77 @@ const Info = () => {
                                             </svg>
                                         </div>
                                     </button>
+                                    {
+                                        event.show === 'YES' ? (
+                                            <>
+                                                <div className="flex space-x-[-10px] mt-6">
+                                                    {avatars.map((avatar, index) => (
+                                                        <div
+                                                            key={index}
+                                                            className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-semibold border border-black ${avatar.bgColor ? avatar.bgColor : ""
+                                                                }`}
+                                                            style={{
+                                                                backgroundImage: avatar.image ? `url(${avatar.image})` : "none",
+                                                                backgroundSize: "cover",
+                                                                backgroundPosition: "center"
+                                                            }}
+                                                        >
+                                                            {!avatar.image && avatar.name}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <div>
+                                                    <p className='mt-1 text-gray-300 w-6/7 text-sm leading-relaxed font-inter'>5 others</p>
+                                                </div>
+                                            </>
+                                        ) : ("")
+                                    }
 
                                     <div>
                                         <p className='mt-10 text-gray-400 text-xs font-inter font-semibold'>ABOUT</p>
                                     </div>
+                                    {event.social_profiles?.length > 0 ? (
+                                        <div className="flex space-x-[-10px] mt-6">
+                                            {event.social_profiles.map((avatar, index) => {
+                                                const initials = avatar.name
+                                                    ? avatar.name.replace(/\s+/g, "").substring(0, 2).toUpperCase()
+                                                    : "";
+
+                                                return (
+                                                    <div
+                                                        key={index}
+                                                        className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-semibold border border-black bg-gray-800"
+                                                        style={{
+                                                            backgroundImage: avatar.profile_photo && avatar.profile_photo !== "undefined"
+                                                                ? `url(${avatar.profile_photo})`
+                                                                : "none",
+                                                            backgroundSize: "cover",
+                                                            backgroundPosition: "center"
+                                                        }}
+                                                    >
+                                                        {(!avatar.profile_photo || avatar.profile_photo === "undefined") && initials}
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    ) : null}
                                     <div>
                                         <p className='mt-4 text-gray-300 w-6/7 text-sm leading-relaxed font-inter' dangerouslySetInnerHTML={{ __html: event.event_description }}></p>
                                     </div>
-
+                                    {
+                                        event.refund_policy ? (
+                                            <>
+                                                <div>
+                                                    <p className='mt-6 text-gray-400 text-xs font-inter font-semibold'>REFUND POLICY</p>
+                                                </div>
+                                                <div>
+                                                    <p className='mt-4 text-gray-300 w-6/7 text-sm leading-relaxed font-inter' dangerouslySetInnerHTML={{ __html: event.refund_policy }}></p>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            ""
+                                        )
+                                    }
                                     <div className="flex flex-col items-center mt-5">
                                         <button
                                             onClick={toggleDropdown}
@@ -528,7 +601,7 @@ const Info = () => {
                                                 shouldShow = false;
                                             }
                                         }
-                                        if (!shouldShow) return null;
+                                        //if (!shouldShow) return null;
 
                                         const currentDate = new Date();
                                         currentDate.setHours(0, 0, 0, 0);
