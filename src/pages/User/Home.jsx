@@ -115,7 +115,7 @@ const Home = () => {
     hours = hours % 12;
     hours = hours ? hours : 12;
 
-    return `${month} ${day}, ${hours}:${minutes} ${ampm}`;
+    return `${month} ${day}`;
   };
 
   const fetchEvents = async () => {
@@ -412,7 +412,7 @@ const Home = () => {
 
               </div>
 
-              <div className="flex items-center justify-between w-full mb-2 gap-2">
+              {/* <div className="flex items-center justify-between w-full mb-2 gap-2">
                 <div className="flex items-center min-w-0">
                   <h2 className="text-white/50 text-xs uppercase font-inter truncate">
                     {card.category}
@@ -421,7 +421,7 @@ const Home = () => {
                 <p className="text-white/50 text-xs font-inter flex-shrink-0">
                   {formatDate(card.start_date)}
                 </p>
-              </div>
+              </div> */}
 
               <div className="flex items-center justify-between w-full mb-2 gap-2">
                 <div className="min-w-0 flex-1">
@@ -438,10 +438,12 @@ const Home = () => {
                 <div className="flex-shrink-0">
                   {
                     card.event_type === 'ticket' ? (
-                      <p className="text-white font-medium whitespace-nowrap">
-                        <span className="text-gray-500 text-2xl font-inter">$</span>
-                        <span className="text-2xl font-semibold font-inter">
-                          {card.ticket_start_price}+
+                      <p className="text-white font-medium whitespace-nowrap text-center">
+                        <span className="text-gray-500 text-sm font-inter block">
+                          {formatDate(card.start_date).split(" ")[0]} {/* Month */}
+                        </span>
+                        <span className="text-xl font-semibold font-inter block">
+                          {formatDate(card.start_date).split(" ")[1]} {/* Date */}
                         </span>
                       </p>
                     ) : (
