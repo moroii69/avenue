@@ -25,6 +25,7 @@ import OrganizerProfile from "./pages/Organizer/OrganizerProfile";
 import OrganizerDashboard from "./pages/Organizer/OrganizerDashboard";
 import OrganizerEvents from "./pages/Organizer/OrganizerEvents";
 import OrganizerWallet from "./pages/Organizer/OrganizerWallet";
+import OrganizerAnalytics from "./pages/Organizer/OrganizerAnalytics";
 import EventDetails from "./pages/Organizer/EventDetails";
 import OrganizeMembers from "./pages/Organizer/OrganizeMembers";
 import CreateEvent from "./pages/Organizer/CreateEvent";
@@ -46,6 +47,7 @@ function App() {
     "/organizer/events",
     "/organizer/wallet",
     "/organizer/members",
+    "/organizer/analytics",
     "/organizer/create-event",
     "/organizer/create-ticket/ticketedevent",
     "/organizer/edit-event",
@@ -67,12 +69,12 @@ function App() {
     "/organizer/events",
     "/organizer/wallet",
     "/organizer/members",
+    "/organizer/analytics",
     "/organizer/create-event",
     "/organizer/create-ticket/ticketedevent",
     "/organizer/edit-event",
     "/privacy-policy",
     "/terms-and-conditions"
-
   ];
 
   const shouldHideNavbarAndFooter = hideHeader.some((path) =>
@@ -127,6 +129,7 @@ function App() {
           <Route path="/organizer/dashboard" element={<OrganizerDashboard />} />
           <Route path="/organizer/events" element={<OrganizerEvents />} />
           <Route path="/organizer/wallet" element={<OrganizerWallet />} />
+          <Route path="/organizer/analytics" element={<OrganizerAnalytics />} />
           <Route path="/organizer/events/:id" element={<EventDetails />} />
           <Route path="/organizer/members" element={<OrganizeMembers />} />
           <Route path="/organizer/create-event" element={<CreateEvent />} />
