@@ -569,7 +569,13 @@ export default function TicketEvent() {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-            setEventId(response.data?.event?._id)
+
+            const eventId = response.data?.event?._id;
+            if (eventId) {
+                localStorage.setItem('organizer_eventId', eventId);
+                setEventId(eventId);
+            }
+
             if (redirect === 'redirect') {
                 setStep((prevStep) => prevStep + 1);
             }
@@ -1195,13 +1201,6 @@ export default function TicketEvent() {
                     </p>
 
                     <div className="flex items-center gap-2 mt-4">
-                        {/* <input
-                            type="checkbox"
-                            id="showExtraFields"
-                            checked={showExtraFields}
-                            onChange={(e) => setShowExtraFields(e.target.checked)}
-                            className="size-4 rounded bg-transparent border-white/10"
-                        /> */}
                         <Checkbox
                             checked={showExtraFields}
                             onCheckedChange={(checked) => setShowExtraFields(checked)}
@@ -2183,7 +2182,7 @@ export default function TicketEvent() {
                     onOpenChange={setCustomFeeModal}
                     className="!max-w-[400px] border border-white/10 rounded-xl !p-0"
                 >
-                    <DialogContent className="max-h-[90vh] !gap-0">
+                    <DialogContent className="max-h-[90vh] !gap-0 relative">
                         <div className="flex flex-col gap-y-2.5 bg-white/[0.03] border-b rounded-t-xl border-white/10 p-6">
                             <div className="h-12 w-12 bg-[#34B2DA1A] flex items-center justify-center border border-[#0F0F0F] rounded-lg">
                                 <svg
@@ -2332,7 +2331,7 @@ export default function TicketEvent() {
                             </div>
                         </div>
 
-                        <div className="flex flex-col md:flex-row border-t border-white/10 sticky bottom-0 bg-primary justify-between w-full gap-3 p-4">
+                        <div className="flex flex-col md:flex-row border-t border-white/10 bottom-0 bg-primary justify-between w-full gap-3 p-4">
                             <button
                                 onClick={() => setCustomFeeModal(false)}
                                 className="px-4 py-2 text-sm font-medium text-white hover:bg-white/10 rounded-full border border-white/10 w-full"
