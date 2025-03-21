@@ -1,8 +1,5 @@
-<<<<<<< HEAD
 import React, { useState, useMemo, useEffect } from "react";
-=======
 import React, { useState, useMemo } from "react";
->>>>>>> 1a19d74539d31c4550b01517f087476147849ce8
 import SidebarLayout from "../../components/layouts/SidebarLayout";
 import SidebarToggle from "../../components/layouts/SidebarToggle";
 import {
@@ -12,7 +9,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-<<<<<<< HEAD
   ResponsiveContainer,
 } from "recharts";
 import { PieChart, Pie, Cell, Label } from "recharts";
@@ -656,7 +652,6 @@ const OrganizerAnalytics = () => {
     // Convert to array format
     return Object.entries(days).map(([day, visitors]) => ({ day, visitors }));
   }, [allPayments, paymentsLoading]);
-=======
   ResponsiveContainer
 } from "recharts";
 import {
@@ -718,7 +713,6 @@ const OrganizerAnalytics = () => {
     { day: "Sat", visitors: 420 },
     { day: "Sun", visitors: 370 },
   ];
->>>>>>> 1a19d74539d31c4550b01517f087476147849ce8
 
   const valueFormatter = (number) => {
     return new Intl.NumberFormat("en-US", {
@@ -866,10 +860,8 @@ const OrganizerAnalytics = () => {
               <h3 className="text-white/70 text-sm mb-1">Tickets sold</h3>
               <div className="flex items-center gap-2">
                 <p className="text-2xl font-bold">
-<<<<<<< HEAD
                   {paymentsLoading ? <Spin size="small" /> : analyticsData.ticketsSold}
                 </p>
-=======
                   {analyticsData.ticketsSold}
                 </p>
                 <span
@@ -881,7 +873,6 @@ const OrganizerAnalytics = () => {
                 >
                   {analyticsData.ticketsSoldChange}
                 </span>
->>>>>>> 1a19d74539d31c4550b01517f087476147849ce8
               </div>
             </div>
             <div className="p-2 rounded-full">
