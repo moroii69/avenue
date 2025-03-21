@@ -9,12 +9,6 @@ import {
   DialogDescription,
 } from "../../components/ui/Dailog";
 
-import {
-  Dropdown,
-  DropdownTrigger,
-  DropdownContent,
-  DropdownItem,
-} from "../../components/ui/Dropdown";
 import url from "../../constants/url";
 import axios from "axios";
 import { motion } from "framer-motion";

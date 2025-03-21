@@ -1,15 +1,34 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { trackPageView, trackEvent } from "../../utils/analytics";
 
 export default function EventTypeSelection() {
     const [eventType, setEventType] = useState(null); // 'ticketed' or 'rsvp'
     const navigate = useNavigate();
 
+    useEffect(() => {
+        // Track event creation page view
+        trackPageView('Event Type Selection', {
+            section: 'organizer',
+            page: 'create_event'
+        });
+    }, []);
+
     const handleEventTypeSelect = (type) => {
         setEventType(type);
+        
+        // Track event type selection
+        trackEvent('event_type_selected', {
+            event_type: type
+        });
     };
 
     const handleContinue = () => {
+        // Track continue button click
+        trackEvent('create_event_continue', {
+            event_type: eventType
+        });
+        
         if (eventType === "ticketed") {
             navigate(`/organizer/create-ticket/ticketedevent/${eventType}`);
         } else {

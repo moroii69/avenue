@@ -4,8 +4,8 @@ import {
   Routes,
   useLocation,
   useNavigate,
-  Navigate,
 } from "react-router-dom";
+import { useEffect } from "react";
 import Header from "../src/components/layouts/Header";
 import Footer from "../src/components/layouts/Footer";
 import Home from "./pages/User/Home";
@@ -33,10 +33,96 @@ import EditEvent from "./pages/Organizer/EditEvent";
 import Preview from "./pages/Organizer/Preview";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsCondition from "./pages/TermsCondition";
+import op, { identifyUser, trackPageView } from "./utils/analytics";
+import { posthog } from "./utils/posthog";
 
 function App() {
   const location = useLocation();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const getPageName = (pathname) => {
+      if (pathname === "/") return "Home";
+
+      const parts = pathname.split("/").filter(Boolean);
+
+      if (parts[0] === "organizer") {
+        return `Organizer - ${
+          parts[1]?.charAt(0).toUpperCase() + parts[1]?.slice(1) || "Dashboard"
+        }`;
+      }
+
+      if (parts[0] && !parts[0].includes("organizer")) {
+        if (parts.length === 1 && parts[0].includes("-")) {
+          return "Event Details";
+        }
+
+        return parts[0]?.charAt(0).toUpperCase() + parts[0]?.slice(1) || "Page";
+      }
+
+      return "Page";
+    };
+
+    const pageName = getPageName(location.pathname);
+    const isOrganizerPage = location.pathname.startsWith("/organizer/");
+
+    posthog.capture("$pageview", {
+      $current_url: window.location.href,
+      path: location.pathname,
+      page_name: pageName,
+      referrer: document.referrer,
+      page_type: isOrganizerPage ? "organizer" : "user",
+      is_user_facing: !isOrganizerPage,
+    });
+
+    trackPageView(pageName, {
+      path: location.pathname,
+      referrer: document.referrer,
+      is_user_facing: !isOrganizerPage,
+    });
+  }, [location]);
+
+  useEffect(() => {
+    try {
+      op.setGlobalProperties({
+        app_version: "1.0.0",
+        platform: "web",
+        url: window.location.href,
+      });
+
+      const userId = localStorage.getItem("userID");
+      if (userId) {
+        const userName = localStorage.getItem("userName");
+        const phoneNumber = localStorage.getItem("userPhoneNumber");
+        identifyUser(userId, {
+          firstName: userName || "",
+          phoneNumber: phoneNumber || "",
+          properties: {
+            lastSession: new Date().toISOString(),
+          },
+        });
+
+        posthog.identify(userId, {
+          name: userName || "",
+          phone: phoneNumber || "",
+          lastSession: new Date().toISOString(),
+        });
+      }
+    } catch (error) {
+      console.error("Error initializing analytics:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      op.track("page_view", {
+        path: location.pathname,
+        referrer: document.referrer,
+      });
+    } catch (error) {
+      console.error("Error tracking page view:", error);
+    }
+  }, [location.pathname]);
 
   const hideHeader = [
     "/login",

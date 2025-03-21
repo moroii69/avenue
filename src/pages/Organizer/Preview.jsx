@@ -8,6 +8,7 @@ import { use } from 'react';
 import { Spin } from 'antd';
 import LoginModal from '../../components/modals/LoginModal';
 import { FaEnvelope, FaPhone } from 'react-icons/fa';
+import { trackEventView } from "../../utils/analytics";
 
 const Preview = () => {
     const { name } = useParams()
@@ -65,6 +66,15 @@ const Preview = () => {
 
                 if (response.ok) {
                     console.log("Visit data stored:", data);
+                    // Track the event view in OpenPanel
+                    if (event && event._id) {
+                        try {
+                            trackEventView(event._id, event.event_name);
+                        } catch (error) {
+                            console.error("Error tracking event view:", error);
+                            // Continue execution even if tracking fails
+                        }
+                    }
                 } else {
                     console.error("Failed to store visit data:", data.message);
                 }
@@ -74,7 +84,7 @@ const Preview = () => {
         };
 
         storeVisitData();
-    }, [id]);
+    }, [id, event]);
 
     useEffect(() => {
         if (event?.tickets) {

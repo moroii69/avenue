@@ -7,6 +7,7 @@ import { Link, useParams } from 'react-router-dom';
 import { IoLockClosed, IoDocumentTextSharp } from "react-icons/io5";
 import { MdDone } from "react-icons/md";
 import { FaCheck } from 'react-icons/fa';
+import { trackPageView, trackEvent } from "../../utils/analytics";
 
 const Profile = () => {
     const { id } = useParams();
@@ -34,6 +35,13 @@ const Profile = () => {
     const org_id = localStorage.getItem('user_organizer_id') || {};
 
     useEffect(() => {
+        // Track profile page view
+        trackPageView('Profile Page', {
+            section: 'user',
+            user_id: id || localStorage.getItem('userID'),
+            is_own_profile: !id || id === localStorage.getItem('userID')
+        });
+
         const loadFromLocalStorage = () => {
             const storedUserId = localStorage.getItem('userID');
             setUserId(storedUserId);

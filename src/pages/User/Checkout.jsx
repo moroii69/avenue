@@ -7,6 +7,7 @@ import {
 } from "@stripe/react-stripe-js";
 import { stripePromise } from "../../constants/stripePromise";
 import url from "../../constants/url";
+import { posthog } from "../../utils/posthog";
 
 
 const appearance = {
@@ -46,6 +47,20 @@ const CheckoutForm = ({
   const [success, setSuccess] = useState(false);
   const [disabled, setDisabled] = useState(true);
 
+  useEffect(() => {
+    // Track checkout page view
+    try {
+      posthog.capture('checkout_started', {
+        event_id: eventId,
+        ticket_id: ticketId,
+        ticket_count: count,
+        amount: amount,
+        currency: 'USD'
+      });
+    } catch (error) {
+      console.error("Error tracking checkout:", error);
+    }
+  }, []);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -105,6 +120,20 @@ const CheckoutForm = ({
         const data = await response.json();
         localStorage.setItem("payId", data.paymentId);
         setStep(3);
+
+        // After payment is confirmed
+        try {
+          posthog.capture('payment_successful', {
+            event_id: eventId,
+            ticket_id: ticketId,
+            ticket_count: count,
+            amount: amount,
+            currency: 'USD',
+            payment_method: 'stripe'
+          });
+        } catch (error) {
+          console.error("Error tracking payment:", error);
+        }
       }
     } catch (err) {
       console.error("Unexpected error:", err);

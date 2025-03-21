@@ -9,6 +9,16 @@ export default defineConfig({
       'Permissions-Policy': 'partitioned-cookies=()',
       'Cross-Origin-Opener-Policy': 'same-origin',
       "Content-Security-Policy": "frame-ancestors 'self' https://pay.google.com/;",
+    },
+    proxy: {
+      // Proxy PostHog requests to avoid CORS issues
+      '/posthog-proxy': {
+        target: 'https://us.i.posthog.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/posthog-proxy/, ''),
+        secure: true,
+        ws: true
+      }
     }
   },
 })
