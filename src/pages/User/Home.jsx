@@ -116,7 +116,7 @@ const Home = () => {
     hours = hours % 12;
     hours = hours ? hours : 12;
 
-    return `${month} ${day}, ${hours}:${minutes} ${ampm}`;
+    return `${month} ${day}`;
   };
 
   const fetchEvents = async () => {
@@ -142,6 +142,7 @@ const Home = () => {
       .replace(/\s+/g, "-")
       .trim();
 
+<<<<<<< HEAD
     localStorage.setItem("user_event_id", id);
     localStorage.setItem("user_event_name", name);
     navigate(`/${encodeURIComponent(cleanName)}`);
@@ -156,6 +157,11 @@ const Home = () => {
     } catch (error) {
       console.error("Error tracking event click:", error);
     }
+=======
+    localStorage.setItem('user_event_id', id);
+    localStorage.setItem('user_event_name', name);
+    navigate(`/${name}`);
+>>>>>>> 6afc9ab521a0136de41f189ea58d51817d4ddf6a
   };
 
   const handleDateChange = (start, end) => {
@@ -196,9 +202,21 @@ const Home = () => {
 
     const isFutureEvent = eventDate >= currentDate;
 
+    // const isWithinPriceRange =
+    //   (minPrice === null || (event.ticket_start_price || 0) >= minPrice) &&
+    //   (maxPrice === null || (event.ticket_start_price || 0) <= maxPrice);
+
+    const getLowestTicketPrice = (tickets) => {
+      if (!tickets || tickets.length === 0) return 0;
+      return Math.min(...tickets.map((ticket) => Number(ticket.price) || 0));
+    };
+
+    const ticketPrice = getLowestTicketPrice(event.tickets);
+
     const isWithinPriceRange =
-      (minPrice === null || (event.ticket_start_price || 0) >= minPrice) &&
-      (maxPrice === null || (event.ticket_start_price || 0) <= maxPrice);
+      (minPrice === null || ticketPrice >= minPrice) &&
+      (maxPrice === null || ticketPrice <= maxPrice);
+
 
     const isWithinDateRange = (() => {
       if (startDateOnly && endDateOnly) {
@@ -423,9 +441,13 @@ const Home = () => {
 
           return (
             <button
+<<<<<<< HEAD
               onClick={() =>
                 handleDetail(card._id, card.event_name.replace(/\s+/g, "-"))
               }
+=======
+              onClick={() => handleDetail(card._id, card.event_slug)}
+>>>>>>> 6afc9ab521a0136de41f189ea58d51817d4ddf6a
               key={card.id}
               className="bg-neutral-800 bg-opacity-15 px-4 py-3 rounded-2xl shadow-lg text-left flex flex-col transition-transform duration-300 transform hover:scale-105"
             >
@@ -465,7 +487,7 @@ const Home = () => {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between w-full mb-2 gap-2">
+              {/* <div className="flex items-center justify-between w-full mb-2 gap-2">
                 <div className="flex items-center min-w-0">
                   <h2 className="text-white/50 text-xs uppercase font-inter truncate">
                     {card.category}
@@ -474,7 +496,7 @@ const Home = () => {
                 <p className="text-white/50 text-xs font-inter flex-shrink-0">
                   {formatDate(card.start_date)}
                 </p>
-              </div>
+              </div> */}
 
               <div className="flex items-center justify-between w-full mb-2 gap-2">
                 <div className="min-w-0 flex-1">
@@ -492,6 +514,7 @@ const Home = () => {
                   </div>
                 </div>
                 <div className="flex-shrink-0">
+<<<<<<< HEAD
                   {card.event_type === "ticket" ? (
                     <p className="text-white font-medium whitespace-nowrap">
                       <span className="text-gray-500 text-2xl font-inter">
@@ -508,6 +531,26 @@ const Home = () => {
                       </span>
                     </p>
                   )}
+=======
+                  {
+                    card.event_type === 'ticket' ? (
+                      <p className="text-white font-medium whitespace-nowrap text-center">
+                        <span className="text-gray-500 text-sm font-inter block">
+                          {formatDate(card.start_date).split(" ")[0]} {/* Month */}
+                        </span>
+                        <span className="text-xl font-semibold font-inter block">
+                          {formatDate(card.start_date).split(" ")[1]} {/* Date */}
+                        </span>
+                      </p>
+                    ) : (
+                      <p className="text-white font-medium whitespace-nowrap">
+                        <span className="text-2xl font-semibold font-inter">
+                          Free
+                        </span>
+                      </p>
+                    )
+                  }
+>>>>>>> 6afc9ab521a0136de41f189ea58d51817d4ddf6a
                 </div>
               </div>
             </button>

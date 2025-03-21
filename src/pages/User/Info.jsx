@@ -308,6 +308,7 @@ const Info = () => {
     }));
   };
 
+<<<<<<< HEAD
   const renderDescription = (description, ticketId) => {
     if (description.length <= 100) {
       return (
@@ -316,6 +317,111 @@ const Info = () => {
           dangerouslySetInnerHTML={{ __html: description }}
         />
       );
+=======
+                    if (hasValidMinCount) {
+                        const numericMinCount = Number(minCountRaw);
+                        if (count === numericMinCount) {
+                            updatedCount = null;
+                        } else {
+                            updatedCount = count - 1;
+                            if (updatedCount < numericMinCount) {
+                                updatedCount = null;
+                            }
+                        }
+                    } else {
+                        updatedCount = count === 1 ? null : count - 1;
+                    }
+
+                    if (updatedCount === null) {
+                        setSelectedTicket(null);
+                    } else {
+                        setSelectedTicket({
+                            ...event?.tickets[index],
+                            count: updatedCount,
+                        });
+                    }
+                    return updatedCount;
+                }
+                return null;
+            })
+        );
+    };
+
+    useEffect(() => {
+        console.log('Selected Ticket:', selectedTicket);
+    }, [selectedTicket]);
+
+    const handleCheckout = () => {
+        const selectedRemainingTickets = remain.find(r => r.ticket_name === selectedTicket.ticket_name)?.remaining_tickets || null;
+
+        localStorage.setItem('selectedTicketPrice', selectedTicket.price);
+        localStorage.setItem('count', selectedTicket.count);
+        localStorage.setItem('selectedTicketId', selectedTicket._id);
+        localStorage.setItem('selectedTicketName', selectedTicket.ticket_name);
+        localStorage.setItem('user_organizer_id', event?.organizer_id?._id)
+        localStorage.setItem('max_count', selectedTicket.max_count)
+        localStorage.setItem('min_count', selectedTicket.min_count)
+        localStorage.setItem('remaining_tickets', selectedRemainingTickets);
+        navigate("/ticket");
+    };
+
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const dayOfWeek = date.toLocaleString('en-US', { weekday: 'short' });
+        const day = date.getDate();
+        const month = date.toLocaleString('en-US', { month: 'short' });
+        const year = "20" + date.getFullYear().toString().slice(-2);
+        let hours = date.getHours();
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12;
+
+        return `${dayOfWeek}, ${day} ${month} ${year} ${hours}:${minutes} ${ampm}`;
+    };
+
+    const fetchEvent = async () => {
+        setLoading(true);
+
+        const encodedName = encodeURIComponent(name);
+
+        try {
+            const response = await axios.get(`${url}/event/get-event-by-name/${name}`);
+            console.log(response.data)
+            localStorage.setItem('user_event_id', response.data?._id);
+            localStorage.setItem('user_event_name', response.data?.event_name);
+            setEvent(response.data);
+            setOrganizer(response.data?.organizer_id?._id);
+        } catch (error) {
+            console.error('Error fetching events:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchEvent();
+    }, [name]);
+
+    const handleDetail = (id, creater) => {
+        localStorage.setItem('user_organizer_id', id);
+        localStorage.setItem('user_organizer_name', creater);
+        navigate(`/creator/${creater}`);
+    };
+
+    const fetchEvents = async () => {
+        if (id) {
+            try {
+                const response = await axios.get(`${url}/event/get-event-by-organizer-id/${organizer}`);
+                setEvents(response.data);
+                console.log(response.data)
+            } catch (error) {
+                console.error("Error fetching events:", error);
+            }
+        } else {
+            console.log("not found")
+        }
+>>>>>>> 6afc9ab521a0136de41f189ea58d51817d4ddf6a
     }
 
     const isExpanded = expandedDescriptions[ticketId];

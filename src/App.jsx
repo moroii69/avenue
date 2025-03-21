@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import {
   BrowserRouter,
   Route,
@@ -35,6 +36,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsCondition from "./pages/TermsCondition";
 import op, { identifyUser, trackPageView } from "./utils/analytics";
 import { posthog } from "./utils/posthog";
+import StripeSuccess from "./pages/StripeSuccess";
 
 function App() {
   const location = useLocation();
@@ -137,7 +139,8 @@ function App() {
     "/organizer/create-ticket/ticketedevent",
     "/organizer/edit-event",
     "/privacy-policy",
-    "/terms-and-conditions",
+    "/terms-and-conditions",,
+    "/stripe-success"
   ];
   const hideFooter = [
     "/login",
@@ -160,6 +163,7 @@ function App() {
     "/organizer/edit-event",
     "/privacy-policy",
     "/terms-and-conditions",
+    "/stripe-success",
   ];
 
   const shouldHideNavbarAndFooter = hideHeader.some((path) =>
@@ -221,6 +225,7 @@ function App() {
           <Route path="/organizer/edit-event/:id" element={<EditEvent />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-and-conditions" element={<TermsCondition />} />
+          <Route path="/stripe-success" element={<StripeSuccess />} />
           <Route
             path="/organizer/create-ticket/ticketedevent/:id"
             element={<TicketEvent />}
