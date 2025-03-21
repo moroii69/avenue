@@ -305,19 +305,90 @@ export default function TicketEvent() {
         },
     ];
 
+    const convertToWebP = (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+
+                    canvas.toBlob(
+                        (blob) => {
+                            if (blob) {
+                                const webpFile = new File([blob], `${Date.now()}.webp`, {
+                                    type: 'image/webp',
+                                });
+                                resolve(webpFile);
+                            } else {
+                                reject('Failed to convert image to webp');
+                            }
+                        },
+                        'image/webp',
+                        0.8 // Quality: 0.8 is usually good enough
+                    );
+                };
+                img.onerror = reject;
+                img.src = event.target.result;
+            };
+
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    };
+
+    const convertBlobToWebP = (blob) => {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            const url = URL.createObjectURL(blob);
+    
+            img.onload = () => {
+                const canvas = document.createElement("canvas");
+                canvas.width = img.width;
+                canvas.height = img.height;
+    
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0);
+    
+                canvas.toBlob((webpBlob) => {
+                    if (webpBlob) {
+                        const file = new File([webpBlob], `${Date.now()}.webp`, {
+                            type: "image/webp",
+                        });
+                        resolve(file);
+                    } else {
+                        reject("Failed to convert blob to webp.");
+                    }
+                    URL.revokeObjectURL(url);
+                }, "image/webp", 0.8);
+            };
+    
+            img.onerror = reject;
+            img.src = url;
+        });
+    };
+    
+
     const handleImageUpload = (event) => {
         if (event.target.files && event.target.files[0]) {
             const file = event.target.files[0];
-
-            // Reset previous image states to ensure clean state
+    
+            // Reset image states
             setImageFile(null);
             setImagePreview(null);
-
-            // Set the new temp file and open the cropper
+    
+            // Keep the raw file for cropping
             setTempImageFile(file);
-            setIsCropperOpen(true);
+            setIsCropperOpen(true); // Open cropper with original file
         }
     };
+    
 
     const handleLineImageUpload = (event, index) => {
         if (event.target.files && event.target.files[0]) {
@@ -348,28 +419,27 @@ export default function TicketEvent() {
         }
     };
 
-    const handleCropComplete = ({
+    const handleCropComplete = async ({
         croppedImage,
         fullImage,
         previewUrl,
         dimensions,
     }) => {
-        // Store the cropped image blob
-        setImageFile(croppedImage);
-
-        // Store the original image file
-        setOriginalImage(fullImage);
-
-        // Store the preview URL for display
-        setImagePreview(previewUrl);
-
-        // Store dimensions if needed
-        setImageDimensions(dimensions);
-
-        // Close the cropper
-        setIsCropperOpen(false);
+        try {
+            // Convert the cropped image (Blob) to .webp File
+            const webpFile = await convertBlobToWebP(croppedImage);
+            
+            setImageFile(webpFile); // Final .webp
+            setOriginalImage(fullImage); // Optional
+            setImagePreview(URL.createObjectURL(webpFile)); // For preview
+            setImageDimensions(dimensions);
+            setIsCropperOpen(false);
+        } catch (error) {
+            console.error("Failed to convert to webp:", error);
+            alert("Failed to process image.");
+        }
     };
-
+    
     const removeImage = () => {
         setImageFile(null);
         setImagePreview(null);
@@ -632,12 +702,12 @@ export default function TicketEvent() {
     const handleLoginComplete = () => {
         const freshUserId = localStorage.getItem('userID');
         const freshOrganizerId = localStorage.getItem('organizerId');
-    
+
         setUserId(freshUserId);
         setOragnizerId(freshOrganizerId);
 
     };
-    
+
     // Form steps content
     const formSteps = [
         {
@@ -2004,22 +2074,22 @@ export default function TicketEvent() {
                                                     setIsModalOpen(true);
                                                     return;
                                                 }
-                                            
+
                                                 if (userId && !oragnizerId) {
                                                     setIsModalDetailsOpen(true);
                                                     return;
                                                 }
-                                            
+
                                                 if (step === 5) {
                                                     setStatusNotify("draft"); // or "live"
                                                     handleAddEvent("NO", oragnizerId, "redirect"); // or "YES"
                                                     return;
                                                 }
-                                            
+
                                                 if (step < 6) {
                                                     setStep((prevStep) => prevStep + 1);
                                                 }
-                                            }}                                            
+                                            }}
                                             className={`px-4 py-2 w-full rounded-full h-10 border border-white/10 text-white font-semibold flex items-center justify-center gap-2
                                                 ${step !== 5 || isAdding || !tickets.length > 0
                                                     ? "disabled:opacity-50 cursor-not-allowed text-black"
@@ -2036,22 +2106,22 @@ export default function TicketEvent() {
                                                     setIsModalOpen(true);
                                                     return;
                                                 }
-                                            
+
                                                 if (userId && !oragnizerId) {
                                                     setIsModalDetailsOpen(true);
                                                     return;
                                                 }
-                                            
+
                                                 if (step === 5) {
                                                     setStatusNotify("live");
                                                     handleAddEvent("Yes", oragnizerId, "redirect");
                                                     return;
                                                 }
-                                            
+
                                                 if (step < 6) {
                                                     setStep((prevStep) => prevStep + 1);
                                                 }
-                                            }} 
+                                            }}
 
                                             className={`px-4 py-2 w-full bg-white rounded-full h-10 font-semibold flex items-center justify-center gap-2
                                                 ${step !== 5 || isAdding || !tickets.length > 0
