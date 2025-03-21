@@ -282,6 +282,11 @@ function TicketSales({ eventId }) {
       fetchRemainEvent();
     }
   }, [eventId]);
+  useEffect(() => {
+    if (eventId) {
+      fetchRemainEvent();
+    }
+  }, [eventId]);
 
   const totalSales = remain.reduce((acc, item) => acc + item.tickets_sold, 0);
 
@@ -808,7 +813,27 @@ function BalanceChart({ eventId }) {
   const [loading, setLoading] = useState(true);
   const [dailyData, setDailyData] = useState([]);
   const [weeklyData, setWeeklyData] = useState([]);
+  const [activeTab, setActiveTab] = useState("Daily");
+  const [book, setBook] = useState([]);
+  const [totalAmount, setTotalAmount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [dailyData, setDailyData] = useState([]);
+  const [weeklyData, setWeeklyData] = useState([]);
 
+  const fetchBook = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(
+        `${url}/get-event-payment-list/${eventId}`
+      );
+      setBook(response.data);
+      processData(response.data);
+    } catch (error) {
+      console.error("Error fetching events:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
   const fetchBook = async () => {
     setLoading(true);
     try {
@@ -827,6 +852,9 @@ function BalanceChart({ eventId }) {
   useEffect(() => {
     fetchBook();
   }, [eventId]);
+  useEffect(() => {
+    fetchBook();
+  }, [eventId]);
 
   const processData = (bookings) => {
     let dailyMap = {};
@@ -839,11 +867,19 @@ function BalanceChart({ eventId }) {
 
     bookings.forEach((payout) => {
       if (!payout.transaction_id) return;
+    bookings.forEach((payout) => {
+      if (!payout.transaction_id) return;
 
       const date = new Date(payout.date);
       const day = date.toLocaleDateString("en-US", { weekday: "short" });
       const week = `Week ${Math.ceil(date.getDate() / 7)}`;
+      const date = new Date(payout.date);
+      const day = date.toLocaleDateString("en-US", { weekday: "short" });
+      const week = `Week ${Math.ceil(date.getDate() / 7)}`;
 
+      const payoutAmount =
+        payout.tickets?.price * payout.count +
+        (payout.tax ? parseFloat(payout.tax || 0) / 100 : 0);
       const payoutAmount =
         payout.tickets?.price * payout.count +
         (payout.tax ? parseFloat(payout.tax || 0) / 100 : 0);
@@ -866,6 +902,8 @@ function BalanceChart({ eventId }) {
         .map((week) => ({ date: week, Revenue: weeklyMap[week] }))
     );
 
+    setTotalAmount(total);
+  };
     setTotalAmount(total);
   };
 
@@ -1036,3 +1074,4 @@ export default function AnalyticsTab({ eventId }) {
     </div>
   );
 }
+

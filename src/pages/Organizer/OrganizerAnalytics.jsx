@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import React, { useState, useMemo, useEffect } from "react";
+=======
+import React, { useState, useMemo } from "react";
+>>>>>>> 1a19d74539d31c4550b01517f087476147849ce8
 import SidebarLayout from "../../components/layouts/SidebarLayout";
 import SidebarToggle from "../../components/layouts/SidebarToggle";
 import {
@@ -8,6 +12,7 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
+<<<<<<< HEAD
   ResponsiveContainer,
 } from "recharts";
 import { PieChart, Pie, Cell, Label } from "recharts";
@@ -651,6 +656,69 @@ const OrganizerAnalytics = () => {
     // Convert to array format
     return Object.entries(days).map(([day, visitors]) => ({ day, visitors }));
   }, [allPayments, paymentsLoading]);
+=======
+  ResponsiveContainer
+} from "recharts";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Label,
+} from "recharts";
+
+const OrganizerAnalytics = () => {
+  const [analyticsData] = useState({
+    revenue: 5450,
+    ticketsSold: 36,
+    currentlyLive: 24,
+    ticketsViews: 24,
+    revenueChange: "+8%",
+    ticketsSoldChange: "-8%",
+    currentlyLiveChange: "+8%",
+    ticketsViewsChange: "-8%",
+  });
+
+  const [hoveredDay, setHoveredDay] = useState(null);
+
+  const revenueData = [
+    { date: "Mon", Revenue: 2000 },
+    { date: "Tue", Revenue: 3000 },
+    { date: "Wed", Revenue: 2000 },
+    { date: "Thu", Revenue: 4000 },
+    { date: "Fri", Revenue: 1800 },
+    { date: "Sat", Revenue: 4200 },
+    { date: "Sun", Revenue: 5000 },
+  ];
+
+  const categoriesData = [
+    { name: "Arts & Culture", value: 24, fill: "#b7f542" },
+    { name: "Music", value: 8, fill: "#f54242" },
+    { name: "Sports", value: 4, fill: "#f59942" },
+  ];
+
+  const trafficData = [
+    { name: "Direct", value: 3500, fill: "#42bdf5" },
+    { name: "Social Media", value: 1200, fill: "#9442f5" },
+    { name: "Search", value: 600, fill: "#f54242" },
+    { name: "Referrals", value: 258, fill: "#42f5a4" },
+  ];
+
+  const funnelData = [
+    { stage: "Page views", value: 2489, percentage: 100, color: "#34B2DA" },
+    { stage: "Added to cart", value: 1344, percentage: 54, color: "#E74C3C" },
+    { stage: "Purchased", value: 36, percentage: 4.2, color: "#9B59B6" },
+  ];
+
+  const popularDaysData = [
+    { day: "Mon", visitors: 100 },
+    { day: "Tue", visitors: 410 },
+    { day: "Wed", visitors: 470 },
+    { day: "Thu", visitors: 420 },
+    { day: "Fri", visitors: 350 },
+    { day: "Sat", visitors: 420 },
+    { day: "Sun", visitors: 370 },
+  ];
+>>>>>>> 1a19d74539d31c4550b01517f087476147849ce8
 
   const valueFormatter = (number) => {
     return new Intl.NumberFormat("en-US", {
@@ -727,14 +795,53 @@ const OrganizerAnalytics = () => {
       <div className="min-h-screen text-white p-6 max-w-7xl mx-auto @container">
         <h1 className="text-2xl md:text-3xl font-bold mb-9">Analytics</h1>
 
+<<<<<<< HEAD
+=======
+        <div className="mb-8">
+          <button className="px-4 py-2 rounded-full border border-white/10 bg-white/5 flex items-center gap-2">
+            This week
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              className="ml-2"
+            >
+              <path
+                d="M4 6L8 10L12 6"
+                stroke="white"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+        </div>
+
+>>>>>>> 1a19d74539d31c4550b01517f087476147849ce8
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <div className="bg-transparent border border-white/10 rounded-xl p-4 flex justify-between items-center">
             <div>
               <h3 className="text-white/70 text-sm mb-1">Revenue</h3>
               <div className="flex items-center gap-2">
                 <p className="text-2xl font-bold">
+<<<<<<< HEAD
                   {paymentsLoading ? <Spin size="small" /> : `$${totalRevenue.toLocaleString()}`}
                 </p>
+=======
+                  ${analyticsData.revenue.toLocaleString()}
+                </p>
+                <span
+                  className={`text-xs px-2 rounded ${
+                    analyticsData.revenueChange.startsWith("+")
+                      ? "text-green-500"
+                      : "text-red-500"
+                  }`}
+                >
+                  {analyticsData.revenueChange}
+                </span>
+>>>>>>> 1a19d74539d31c4550b01517f087476147849ce8
               </div>
             </div>
             <div className="p-2 rounded-full">
@@ -759,8 +866,22 @@ const OrganizerAnalytics = () => {
               <h3 className="text-white/70 text-sm mb-1">Tickets sold</h3>
               <div className="flex items-center gap-2">
                 <p className="text-2xl font-bold">
+<<<<<<< HEAD
                   {paymentsLoading ? <Spin size="small" /> : analyticsData.ticketsSold}
                 </p>
+=======
+                  {analyticsData.ticketsSold}
+                </p>
+                <span
+                  className={`text-xs px-2 rounded ${
+                    analyticsData.ticketsSoldChange.startsWith("+")
+                      ? "text-green-500"
+                      : "text-red-500"
+                  }`}
+                >
+                  {analyticsData.ticketsSoldChange}
+                </span>
+>>>>>>> 1a19d74539d31c4550b01517f087476147849ce8
               </div>
             </div>
             <div className="p-2 rounded-full">
@@ -785,8 +906,22 @@ const OrganizerAnalytics = () => {
               <h3 className="text-white/70 text-sm mb-1">Currently live</h3>
               <div className="flex items-center gap-2">
                 <p className="text-2xl font-bold">
+<<<<<<< HEAD
                   {eventsLoading ? <Spin size="small" /> : analyticsData.currentlyLive}
                 </p>
+=======
+                  {analyticsData.currentlyLive}
+                </p>
+                <span
+                  className={`text-xs px-2 rounded ${
+                    analyticsData.currentlyLiveChange.startsWith("+")
+                      ? "text-green-500"
+                      : "text-red-500"
+                  }`}
+                >
+                  {analyticsData.currentlyLiveChange}
+                </span>
+>>>>>>> 1a19d74539d31c4550b01517f087476147849ce8
               </div>
             </div>
             <div className="p-2 rounded-full">
@@ -811,8 +946,22 @@ const OrganizerAnalytics = () => {
               <h3 className="text-white/70 text-sm mb-1">Tickets views</h3>
               <div className="flex items-center gap-2">
                 <p className="text-2xl font-bold">
+<<<<<<< HEAD
                   {metricsLoading ? <Spin size="small" /> : analyticsData.ticketsViews}
                 </p>
+=======
+                  {analyticsData.ticketsViews}
+                </p>
+                <span
+                  className={`text-xs px-2 rounded ${
+                    analyticsData.ticketsViewsChange.startsWith("+")
+                      ? "text-green-500"
+                      : "text-red-500"
+                  }`}
+                >
+                  {analyticsData.ticketsViewsChange}
+                </span>
+>>>>>>> 1a19d74539d31c4550b01517f087476147849ce8
               </div>
             </div>
             <div className="p-2 rounded-full">
@@ -837,6 +986,7 @@ const OrganizerAnalytics = () => {
           <h3 className="text-white font-medium bg-white/[0.03] p-4 text-sm border-b border-white/10">
             Revenue overview
           </h3>
+<<<<<<< HEAD
           <div className="p-0">
             <div className="p-6 flex flex-col md:flex-row gap-3 items-center justify-between">
               <div className="flex flex-col items-start">
@@ -873,11 +1023,15 @@ const OrganizerAnalytics = () => {
                 <Spin size="large" />
               </div>
             ) : (
+=======
+          <div className="p-4">
+>>>>>>> 1a19d74539d31c4550b01517f087476147849ce8
             <ResponsiveContainer width="100%" height={300}>
               <LineChart
                 data={revenueData}
                 margin={{ top: 20, right: 30, left: 40, bottom: 20 }}
               >
+<<<<<<< HEAD
                 <CartesianGrid
                   strokeDasharray="3 3"
                   stroke="rgba(255,255,255,0.1)"
@@ -916,6 +1070,43 @@ const OrganizerAnalytics = () => {
               </LineChart>
             </ResponsiveContainer>
             )}
+=======
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                <XAxis 
+                  dataKey="date" 
+                  tick={{ fill: 'rgba(255,255,255,0.5)' }} 
+                  tickLine={{ stroke: 'rgba(255,255,255,0.1)' }}
+                  axisLine={{ stroke: 'rgba(255,255,255,0.1)' }}
+                  dy={10}
+                />
+                <YAxis 
+                  tick={{ fill: 'rgba(255,255,255,0.5)' }} 
+                  tickLine={{ stroke: 'rgba(255,255,255,0.1)' }}
+                  axisLine={{ stroke: 'rgba(255,255,255,0.1)' }}
+                  tickFormatter={(value) => `$${value/1000}K`}
+                  dx={-10}
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: '#111', 
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    borderRadius: '4px',
+                    color: 'white' 
+                  }}
+                  formatter={(value) => [`$${value}`, 'Revenue']}
+                  labelFormatter={(label) => `${label}`}
+                />
+                <Line 
+                  type="linear" 
+                  dataKey="Revenue" 
+                  stroke="#34B2DA" 
+                  strokeWidth={2}
+                  dot={{ r: 4, fill: '#34B2DA', strokeWidth: 0 }}
+                  activeDot={{ r: 6, fill: '#34B2DA', stroke: 'rgba(52, 178, 218, 0.3)', strokeWidth: 3 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+>>>>>>> 1a19d74539d31c4550b01517f087476147849ce8
           </div>
         </div>
 
@@ -942,12 +1133,15 @@ const OrganizerAnalytics = () => {
               Categories
             </h3>
             <div className="p-4">
+<<<<<<< HEAD
               {eventsLoading ? (
                 <div className="h-64 flex items-center justify-center">
                   <Spin size="large" />
                 </div>
               ) : (
                 <>
+=======
+>>>>>>> 1a19d74539d31c4550b01517f087476147849ce8
               <div className="flex flex-wrap gap-4 mb-6">
                 {categoriesData.map((item) => (
                   <div
@@ -984,7 +1178,10 @@ const OrganizerAnalytics = () => {
                       activeIndex={[]}
                       startAngle={90}
                       endAngle={-270}
+<<<<<<< HEAD
                       isAnimationActive={false}
+=======
+>>>>>>> 1a19d74539d31c4550b01517f087476147849ce8
                     >
                       {categoriesData.map((entry, index) => (
                         <Cell
@@ -1017,7 +1214,11 @@ const OrganizerAnalytics = () => {
                                   y={cy + 25}
                                   className="fill-gray-400 text-sm"
                                 >
+<<<<<<< HEAD
                                       Total events
+=======
+                                  Total sells
+>>>>>>> 1a19d74539d31c4550b01517f087476147849ce8
                                 </tspan>
                               </text>
                             </g>
@@ -1028,8 +1229,11 @@ const OrganizerAnalytics = () => {
                   </PieChart>
                 </ResponsiveContainer>
               </div>
+<<<<<<< HEAD
                 </>
               )}
+=======
+>>>>>>> 1a19d74539d31c4550b01517f087476147849ce8
             </div>
           </div>
 
@@ -1053,12 +1257,15 @@ const OrganizerAnalytics = () => {
               Traffic Sources
             </h3>
             <div className="p-4">
+<<<<<<< HEAD
               {metricsLoading ? (
                 <div className="h-64 flex items-center justify-center">
                   <Spin size="large" />
                 </div>
               ) : (
                 <>
+=======
+>>>>>>> 1a19d74539d31c4550b01517f087476147849ce8
               <div className="flex flex-wrap gap-4 mb-6">
                 {trafficData.map((item) => (
                   <div
@@ -1094,7 +1301,10 @@ const OrganizerAnalytics = () => {
                       activeIndex={[]}
                       startAngle={90}
                       endAngle={-270}
+<<<<<<< HEAD
                       isAnimationActive={false}
+=======
+>>>>>>> 1a19d74539d31c4550b01517f087476147849ce8
                     >
                       {trafficData.map((entry, index) => (
                         <Cell
@@ -1138,8 +1348,11 @@ const OrganizerAnalytics = () => {
                   </PieChart>
                 </ResponsiveContainer>
               </div>
+<<<<<<< HEAD
                 </>
               )}
+=======
+>>>>>>> 1a19d74539d31c4550b01517f087476147849ce8
             </div>
           </div>
         </div>
@@ -1167,12 +1380,16 @@ const OrganizerAnalytics = () => {
               Conversion Funnel
             </h3>
             <div className="p-4">
+<<<<<<< HEAD
               {paymentsLoading || metricsLoading ? (
                 <div className="h-[300px] flex items-center justify-center">
                   <Spin size="large" />
                 </div>
               ) : (
                 funnelData.map((item, index) => (
+=======
+              {funnelData.map((item, index) => (
+>>>>>>> 1a19d74539d31c4550b01517f087476147849ce8
                 <div key={index} className="mb-4 last:mb-0">
                   <div className="flex items-center mb-1">
                     {index === 0 && (
@@ -1232,6 +1449,7 @@ const OrganizerAnalytics = () => {
                     )}
                     <span className="text-sm text-white/70">{item.stage}</span>
                   </div>
+<<<<<<< HEAD
 
                     <div className="relative h-9 bg-white/5 rounded overflow-hidden w-full">
                       <div
@@ -1251,6 +1469,45 @@ const OrganizerAnalytics = () => {
                 </div>
                 ))
               )}
+=======
+                  <div className="relative h-10 w-full bg-[#151515] rounded-md overflow-hidden border border-[#252525]">
+                    {index === 2 ? (
+                      <div
+                        className="absolute h-full rounded-md flex items-center px-3"
+                        style={{
+                          width: "auto",
+                          minWidth: "120px",
+                          background: `repeating-linear-gradient(-45deg, rgba(155, 89, 182, 0.2), rgba(155, 89, 182, 0.2) 10px, rgba(142, 68, 173, 0.2) 10px, rgba(142, 68, 173, 0.2) 20px)`,
+                          borderRight: "1px solid rgba(155, 89, 182, 0.3)",
+                        }}
+                      >
+                        <span className="text-white text-sm whitespace-nowrap">
+                          {item.percentage}% - {item.value}
+                        </span>
+                      </div>
+                    ) : (
+                      <div
+                        className="absolute h-full rounded-md flex items-center px-3"
+                        style={{
+                          width: `${item.percentage}%`,
+                          background:
+                            index === 0
+                              ? `repeating-linear-gradient(-45deg, rgba(52, 178, 218, 0.2), rgba(52, 178, 218, 0.2) 10px, rgba(47, 155, 191, 0.2) 10px, rgba(47, 155, 191, 0.2) 20px)`
+                              : `repeating-linear-gradient(-45deg, rgba(231, 76, 60, 0.2), rgba(231, 76, 60, 0.2) 10px, rgba(192, 57, 43, 0.2) 10px, rgba(192, 57, 43, 0.2) 20px)`,
+                          borderRight: index === 0 
+                            ? "1px solid rgba(52, 178, 218, 0.3)" 
+                            : "1px solid rgba(231, 76, 60, 0.3)",
+                        }}
+                      >
+                        <span className="text-white text-sm whitespace-nowrap">
+                          {item.percentage}% - {item.value}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+>>>>>>> 1a19d74539d31c4550b01517f087476147849ce8
             </div>
           </div>
 
@@ -1275,11 +1532,14 @@ const OrganizerAnalytics = () => {
               Popular days
             </h3>
             <div className="p-4">
+<<<<<<< HEAD
               {paymentsLoading ? (
                 <div className="h-[300px] flex items-center justify-center">
                   <Spin size="large" />
                 </div>
               ) : (
+=======
+>>>>>>> 1a19d74539d31c4550b01517f087476147849ce8
               <div className="relative w-full h-[300px] flex flex-col">
                 <div className="absolute top-0 left-0 h-[calc(100%-28px)] w-12 flex flex-col justify-between text-white/70 text-sm">
                   <div>500</div>
@@ -1301,11 +1561,15 @@ const OrganizerAnalytics = () => {
 
                 <div
                   className="absolute left-12 right-0 bottom-0 top-0 flex"
+<<<<<<< HEAD
                   style={{
                     zIndex: 10,
                     height: "calc(100% - 28px)",
                     paddingTop: "25px",
                   }}
+=======
+                  style={{ zIndex: 10, height: "calc(100% - 28px)", paddingTop: "25px" }}
+>>>>>>> 1a19d74539d31c4550b01517f087476147849ce8
                 >
                   {popularDaysData.map((item, index) => {
                     const maxValue = 500;
@@ -1342,7 +1606,10 @@ const OrganizerAnalytics = () => {
                   })}
                 </div>
               </div>
+<<<<<<< HEAD
               )}
+=======
+>>>>>>> 1a19d74539d31c4550b01517f087476147849ce8
             </div>
           </div>
         </div>
@@ -1479,6 +1746,7 @@ const OrganizerAnalytics = () => {
                   </tr>
                 </thead>
                 <tbody>
+<<<<<<< HEAD
                   {eventsLoading ? (
                     <tr className="border-b border-white/5">
                       <td colSpan="5" className="py-16 text-center">
@@ -1589,6 +1857,14 @@ const OrganizerAnalytics = () => {
                       )}
                     </>
                   )}
+=======
+                  {/* Table data will be fetched from backend */}
+                  <tr className="border-b border-white/5 text-white/50">
+                    <td colSpan="5" className="py-8 text-center">
+                      No data available
+                    </td>
+                  </tr>
+>>>>>>> 1a19d74539d31c4550b01517f087476147849ce8
                 </tbody>
               </table>
             </div>
