@@ -248,7 +248,6 @@ export default function TicketTab({ event }) {
     svg {
       width: 3.25em;
       transform-origin: center;
-      animation: rotate4 2s linear infinite;
     }
 
     circle {
@@ -258,29 +257,6 @@ export default function TicketTab({ event }) {
       stroke-dasharray: 1, 200;
       stroke-dashoffset: 0;
       stroke-linecap: round;
-      animation: dash4 1.5s ease-in-out infinite;
-    }
-
-    @keyframes rotate4 {
-      100% {
-        transform: rotate(360deg);
-      }
-    }
-
-    @keyframes dash4 {
-      0% {
-        stroke-dasharray: 1, 200;
-        stroke-dashoffset: 0;
-      }
-
-      50% {
-        stroke-dasharray: 90, 200;
-        stroke-dashoffset: -35px;
-      }
-
-      100% {
-        stroke-dashoffset: -125px;
-      }
     }
   `;
   const handleRenewSales = (ticket) => {
@@ -529,8 +505,8 @@ export default function TicketTab({ event }) {
             <Loader />
           </div>
         ) : (
-        //   event?.tickets?.map((ticket) => {
-            tickets.map((ticket) => {
+          //   event?.tickets?.map((ticket) => {
+          tickets.map((ticket) => {
             const totalTickets =
               (soldTickets[ticket.ticket_name] || 0) +
               (remainCount[ticket.ticket_name] || 0);

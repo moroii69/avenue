@@ -13,7 +13,6 @@ import Info from "./pages/User/Info";
 import Creater from "./pages/User/Creater";
 import Checkout from "./pages/User/Checkout";
 import { stripePromise } from "./constants/stripePromise";
-import Element from "antd/es/skeleton/Element";
 import { Elements } from "@stripe/react-stripe-js";
 import QrTicket from "./pages/User/QrTicket";
 import Tickets from "./pages/User/Tickets";
@@ -24,11 +23,12 @@ import Saved from "./pages/User/Saved";
 import OrganizerProfile from "./pages/Organizer/OrganizerProfile";
 import OrganizerDashboard from "./pages/Organizer/OrganizerDashboard";
 import OrganizerEvents from "./pages/Organizer/OrganizerEvents";
+import OrganizerAnalytics from "./pages/Organizer/OrganizerAnalytics";
 import OrganizerWallet from "./pages/Organizer/OrganizerWallet";
 import EventDetails from "./pages/Organizer/EventDetails";
 import OrganizeMembers from "./pages/Organizer/OrganizeMembers";
 import CreateEvent from "./pages/Organizer/CreateEvent";
-import TicketEvent from "./pages/Organizer/TicketEvent"
+import TicketEvent from "./pages/Organizer/TicketEvent";
 import EditEvent from "./pages/Organizer/EditEvent";
 import Preview from "./pages/Organizer/Preview";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
@@ -44,13 +44,14 @@ function App() {
     "/organizer/profile",
     "/organizer/dashboard",
     "/organizer/events",
+    "/organizer/analytics",
     "/organizer/wallet",
     "/organizer/members",
     "/organizer/create-event",
     "/organizer/create-ticket/ticketedevent",
     "/organizer/edit-event",
     "/privacy-policy",
-    "/terms-and-conditions"
+    "/terms-and-conditions",
   ];
   const hideFooter = [
     "/login",
@@ -65,14 +66,14 @@ function App() {
     "/organizer/profile",
     "/organizer/dashboard",
     "/organizer/events",
+    "/organizer/analytics",
     "/organizer/wallet",
     "/organizer/members",
     "/organizer/create-event",
     "/organizer/create-ticket/ticketedevent",
     "/organizer/edit-event",
     "/privacy-policy",
-    "/terms-and-conditions"
-
+    "/terms-and-conditions",
   ];
 
   const shouldHideNavbarAndFooter = hideHeader.some((path) =>
@@ -126,6 +127,7 @@ function App() {
           <Route path="/organizer/profile" element={<OrganizerProfile />} />
           <Route path="/organizer/dashboard" element={<OrganizerDashboard />} />
           <Route path="/organizer/events" element={<OrganizerEvents />} />
+          <Route path="/organizer/analytics" element={<OrganizerAnalytics />} />
           <Route path="/organizer/wallet" element={<OrganizerWallet />} />
           <Route path="/organizer/events/:id" element={<EventDetails />} />
           <Route path="/organizer/members" element={<OrganizeMembers />} />
@@ -143,7 +145,7 @@ function App() {
           />
         </Routes>
         {!shouldHideFooter && <Footer />}
-      </div >
+      </div>
     </>
   );
 }
