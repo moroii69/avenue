@@ -159,6 +159,7 @@ export default function EditEvent() {
     const [step, setStep] = useState(1);
     const navigate = useNavigate();
     const [eventName, setEventName] = useState("");
+    const [eventSlug, setEventSlug] = useState("");
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
@@ -306,6 +307,7 @@ export default function EditEvent() {
             setEvent(response.data);
 
             setEventName(response.data?.event_name)
+            setEventSlug(response.data?.event_slug)
             if (response.data?.category && categories.length) {
                 const matchingCategory = categories.find(
                     (category) => category.name === response.data.category
@@ -537,6 +539,7 @@ export default function EditEvent() {
         const formData = new FormData();
         formData.append('organizer_id', oragnizerId);
         formData.append('event_name', eventName || event.event_name);
+        formData.append('event_slug', eventSlug || event.event_slug);
         formData.append('event_type', event.event_type);
         formData.append('category', "");
         formData.append('flyer', getImagesForUpload());
@@ -689,6 +692,30 @@ export default function EditEvent() {
         setShowExtraFields(checked);
     };
 
+    const generateSlug = (text) => {
+        return text
+            .normalize("NFD")                     // Decompose accented letters
+            .replace(/[\u0300-\u036f]/g, "")      // Remove diacritics
+            .toLowerCase()
+            .replace(/[^a-z0-9\s-]/g, "")         // Remove all non-alphanumeric except space and dash
+            .replace(/[\s_-]+/g, "-")             // Replace spaces/underscores/double dashes with a single dash
+            .replace(/^-+|-+$/g, "");             // Trim leading/trailing dashes
+    };
+
+    const handleEventNameChange = (e) => {
+        const name = e.target.value;
+        setEventName(name);
+        setEventSlug(generateSlug(name));
+    };
+
+    const handleSlugChange = (e) => {
+        const value = e.target.value
+            .replace(/\s+/g, "-")           // replace spaces with dash
+            .replace(/[^a-z0-9\-]/gi, "");  // remove non-alphanumeric or dashes
+
+        setEventSlug(value.toLowerCase());
+    };
+
     const minPrice = tickets.length > 0 ? Math.min(...tickets.map(ticket => ticket.price)) : 0;
 
     // Form steps content
@@ -699,15 +726,27 @@ export default function EditEvent() {
             description: "Let's start with the basic information about your event",
             fields: (
                 <div className="w-full">
-                    <div className="w-full">
+                    <div className="w-full mt-2">
                         <label className="block text-sm font-medium text-white mb-3">
                             Event name
                         </label>
                         <input
                             type="text"
                             value={eventName}
-                            onChange={(e) => setEventName(e.target.value)}
+                            onChange={handleEventNameChange}
                             placeholder="After Hours, Electric Dreams, etc."
+                            className="w-full bg-transparent border border-white/5 rounded-lg px-4 py-2.5 h-10 text-white placeholder:text-white/30 placeholder:text-sm"
+                        />
+                    </div>
+                    <div className="w-full mt-2">
+                        <label className="block text-sm font-medium text-white mb-3">
+                            Event slug
+                        </label>
+                        <input
+                            type="text"
+                            value={eventSlug}
+                            onChange={handleSlugChange}
+                            placeholder="after-hours, electric-dreams, etc."
                             className="w-full bg-transparent border border-white/5 rounded-lg px-4 py-2.5 h-10 text-white placeholder:text-white/30 placeholder:text-sm"
                         />
                     </div>

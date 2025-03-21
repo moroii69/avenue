@@ -160,6 +160,7 @@ export default function TicketEvent() {
     const [step, setStep] = useState(1);
     const navigate = useNavigate();
     const [eventName, setEventName] = useState("");
+    const [eventSlug, setEventSlug] = useState("");
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
@@ -347,15 +348,15 @@ export default function TicketEvent() {
         return new Promise((resolve, reject) => {
             const img = new Image();
             const url = URL.createObjectURL(blob);
-    
+
             img.onload = () => {
                 const canvas = document.createElement("canvas");
                 canvas.width = img.width;
                 canvas.height = img.height;
-    
+
                 const ctx = canvas.getContext("2d");
                 ctx.drawImage(img, 0, 0);
-    
+
                 canvas.toBlob((webpBlob) => {
                     if (webpBlob) {
                         const file = new File([webpBlob], `${Date.now()}.webp`, {
@@ -368,27 +369,27 @@ export default function TicketEvent() {
                     URL.revokeObjectURL(url);
                 }, "image/webp", 0.8);
             };
-    
+
             img.onerror = reject;
             img.src = url;
         });
     };
-    
+
 
     const handleImageUpload = (event) => {
         if (event.target.files && event.target.files[0]) {
             const file = event.target.files[0];
-    
+
             // Reset image states
             setImageFile(null);
             setImagePreview(null);
-    
+
             // Keep the raw file for cropping
             setTempImageFile(file);
             setIsCropperOpen(true); // Open cropper with original file
         }
     };
-    
+
 
     const handleLineImageUpload = (event, index) => {
         if (event.target.files && event.target.files[0]) {
@@ -428,7 +429,7 @@ export default function TicketEvent() {
         try {
             // Convert the cropped image (Blob) to .webp File
             const webpFile = await convertBlobToWebP(croppedImage);
-            
+
             setImageFile(webpFile); // Final .webp
             setOriginalImage(fullImage); // Optional
             setImagePreview(URL.createObjectURL(webpFile)); // For preview
@@ -439,7 +440,7 @@ export default function TicketEvent() {
             alert("Failed to process image.");
         }
     };
-    
+
     const removeImage = () => {
         setImageFile(null);
         setImagePreview(null);
@@ -583,6 +584,7 @@ export default function TicketEvent() {
         const formData = new FormData();
         formData.append('organizer_id', orgId);
         formData.append('event_name', eventName);
+        formData.append('event_slug', eventSlug);
         formData.append('event_type', id === "ticketed" ? "ticket" : "rsvp");
         formData.append('category', "");
         formData.append('flyer', getImagesForUpload());
@@ -708,6 +710,30 @@ export default function TicketEvent() {
 
     };
 
+    const generateSlug = (text) => {
+        return text
+            .normalize("NFD")                     // Decompose accented letters
+            .replace(/[\u0300-\u036f]/g, "")      // Remove diacritics
+            .toLowerCase()
+            .replace(/[^a-z0-9\s-]/g, "")         // Remove all non-alphanumeric except space and dash
+            .replace(/[\s_-]+/g, "-")             // Replace spaces/underscores/double dashes with a single dash
+            .replace(/^-+|-+$/g, "");             // Trim leading/trailing dashes
+    };
+
+    const handleEventNameChange = (e) => {
+        const name = e.target.value;
+        setEventName(name);
+        setEventSlug(generateSlug(name));
+    };
+
+    const handleSlugChange = (e) => {
+        const value = e.target.value
+            .replace(/\s+/g, "-")           // replace spaces with dash
+            .replace(/[^a-z0-9\-]/gi, "");  // remove non-alphanumeric or dashes
+
+        setEventSlug(value.toLowerCase());
+    };
+
     // Form steps content
     const formSteps = [
         {
@@ -716,15 +742,27 @@ export default function TicketEvent() {
             description: "Let's start with the basic information about your event",
             fields: (
                 <div className="w-full">
-                    <div className="w-full">
+                    <div className="w-full mt-2">
                         <label className="block text-sm font-medium text-white mb-3">
                             Event name
                         </label>
                         <input
                             type="text"
                             value={eventName}
-                            onChange={(e) => setEventName(e.target.value)}
+                            onChange={handleEventNameChange}
                             placeholder="After Hours, Electric Dreams, etc."
+                            className="w-full bg-transparent border border-white/5 rounded-lg px-4 py-2.5 h-10 text-white placeholder:text-white/30 placeholder:text-sm"
+                        />
+                    </div>
+                    <div className="w-full mt-2">
+                        <label className="block text-sm font-medium text-white mb-3">
+                            Event slug
+                        </label>
+                        <input
+                            type="text"
+                            value={eventSlug}
+                            onChange={handleSlugChange}
+                            placeholder="after-hours, electric-dreams, etc."
                             className="w-full bg-transparent border border-white/5 rounded-lg px-4 py-2.5 h-10 text-white placeholder:text-white/30 placeholder:text-sm"
                         />
                     </div>
@@ -2114,7 +2152,7 @@ export default function TicketEvent() {
 
                                                 if (step === 5) {
                                                     setStatusNotify("live");
-                                                    handleAddEvent("Yes", oragnizerId, "redirect");
+                                                    handleAddEvent("YES", oragnizerId, "redirect");
                                                     return;
                                                 }
 

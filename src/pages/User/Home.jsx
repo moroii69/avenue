@@ -139,7 +139,7 @@ const Home = () => {
 
     localStorage.setItem('user_event_id', id);
     localStorage.setItem('user_event_name', name);
-    navigate(`/${encodeURIComponent(cleanName)}`);
+    navigate(`/${name}`);
   };
 
   const handleDateChange = (start, end) => {
@@ -180,9 +180,21 @@ const Home = () => {
 
     const isFutureEvent = eventDate >= currentDate;
 
+    // const isWithinPriceRange =
+    //   (minPrice === null || (event.ticket_start_price || 0) >= minPrice) &&
+    //   (maxPrice === null || (event.ticket_start_price || 0) <= maxPrice);
+
+    const getLowestTicketPrice = (tickets) => {
+      if (!tickets || tickets.length === 0) return 0;
+      return Math.min(...tickets.map((ticket) => Number(ticket.price) || 0));
+    };
+
+    const ticketPrice = getLowestTicketPrice(event.tickets);
+
     const isWithinPriceRange =
-      (minPrice === null || (event.ticket_start_price || 0) >= minPrice) &&
-      (maxPrice === null || (event.ticket_start_price || 0) <= maxPrice);
+      (minPrice === null || ticketPrice >= minPrice) &&
+      (maxPrice === null || ticketPrice <= maxPrice);
+
 
     const isWithinDateRange = (() => {
       if (startDateOnly && endDateOnly) {
@@ -371,7 +383,7 @@ const Home = () => {
 
           return (
             <button
-              onClick={() => handleDetail(card._id, card.event_name.replace(/\s+/g, "-"))}
+              onClick={() => handleDetail(card._id, card.event_slug)}
               key={card.id}
               className="bg-neutral-800 bg-opacity-15 px-4 py-3 rounded-2xl shadow-lg text-left flex flex-col transition-transform duration-300 transform hover:scale-105"
             >
