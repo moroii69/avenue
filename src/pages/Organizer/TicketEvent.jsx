@@ -211,8 +211,8 @@ export default function TicketEvent() {
     const [isTicketStartTimeModalOpen, setIsTicketStartTimeModalOpen] = useState(false);
     const [isTicketEndTimeModalOpen, setIsTicketEndTimeModalOpen] = useState(false);
 
-    const [oragnizerId, setOragnizerId] = useState(null);
-    const [userId, setUserId] = useState(null);
+    const [userId, setUserId] = useState(localStorage.getItem('userID'));
+    const [oragnizerId, setOragnizerId] = useState(localStorage.getItem('organizerId'));
     const [tickets, setTickets] = useState([]);
     const [editingIndex, setEditingIndex] = useState(null);
     const [showAddForm, setShowAddForm] = useState(false)
@@ -629,6 +629,15 @@ export default function TicketEvent() {
         }
     };
 
+    const handleLoginComplete = () => {
+        const freshUserId = localStorage.getItem('userID');
+        const freshOrganizerId = localStorage.getItem('organizerId');
+    
+        setUserId(freshUserId);
+        setOragnizerId(freshOrganizerId);
+
+    };
+    
     // Form steps content
     const formSteps = [
         {
@@ -1963,15 +1972,17 @@ export default function TicketEvent() {
                     {/* Scrollable left side */}
                     <div className="w-full order-2 md:order-1 md:w-1/2 min-h-[calc(100vh-64px)] overflow-y-auto flex flex-col items-center justify-center">
                         <div className="p-8 max-w-xl mx-auto flex flex-col w-full">
-                            <div className="mb-6">
-                                <h2 className="text-2xl font-semibold text-white">
-                                    {formSteps[step - 1].title}
-                                </h2>
-                                <p className="text-white/60 text-sm mt-1">
-                                    {formSteps[step - 1].description}
-                                </p>
-                            </div>
-                            {formSteps[step - 1].fields}
+                            {formSteps[step - 1] && (
+                                <div className="mb-6">
+                                    <h2 className="text-2xl font-semibold text-white">
+                                        {formSteps[step - 1].title}
+                                    </h2>
+                                    <p className="text-white/60 text-sm mt-1">
+                                        {formSteps[step - 1].description}
+                                    </p>
+                                    {formSteps[step - 1].fields}
+                                </div>
+                            )}
                             <div className="flex justify-between gap-5 mt-8 w-full">
                                 {
                                     step === 6 ? (
@@ -1989,28 +2000,26 @@ export default function TicketEvent() {
                                     <>
                                         <button
                                             onClick={() => {
-
                                                 if (!userId && !oragnizerId) {
-                                                    setIsModalOpen(true)
-                                                    return
+                                                    setIsModalOpen(true);
+                                                    return;
                                                 }
-
+                                            
                                                 if (userId && !oragnizerId) {
-                                                    setIsModalDetailsOpen(true)
-                                                    return
+                                                    setIsModalDetailsOpen(true);
+                                                    return;
                                                 }
-
-                                                if (step === 1) {
-                                                    console.log("Images ready for upload", getImagesForUpload());
-                                                }
-
+                                            
                                                 if (step === 5) {
-                                                    setStatusNotify("draft")
-                                                    handleAddEvent("NO", oragnizerId, "redirect");
-                                                } else {
+                                                    setStatusNotify("draft"); // or "live"
+                                                    handleAddEvent("NO", oragnizerId, "redirect"); // or "YES"
+                                                    return;
+                                                }
+                                            
+                                                if (step < 6) {
                                                     setStep((prevStep) => prevStep + 1);
                                                 }
-                                            }}
+                                            }}                                            
                                             className={`px-4 py-2 w-full rounded-full h-10 border border-white/10 text-white font-semibold flex items-center justify-center gap-2
                                                 ${step !== 5 || isAdding || !tickets.length > 0
                                                     ? "disabled:opacity-50 cursor-not-allowed text-black"
@@ -2024,26 +2033,25 @@ export default function TicketEvent() {
                                         <button
                                             onClick={() => {
                                                 if (!userId && !oragnizerId) {
-                                                    setIsModalOpen(true)
-                                                    return
+                                                    setIsModalOpen(true);
+                                                    return;
                                                 }
-
+                                            
                                                 if (userId && !oragnizerId) {
-                                                    setIsModalDetailsOpen(true)
-                                                    return
+                                                    setIsModalDetailsOpen(true);
+                                                    return;
                                                 }
-
-                                                if (step === 1) {
-                                                    console.log("Images ready for upload", getImagesForUpload());
-                                                }
-
+                                            
                                                 if (step === 5) {
-                                                    setStatusNotify("live")
-                                                    handleAddEvent("YES", oragnizerId, "redirect");
-                                                } else {
+                                                    setStatusNotify("live");
+                                                    handleAddEvent("Yes", oragnizerId, "redirect");
+                                                    return;
+                                                }
+                                            
+                                                if (step < 6) {
                                                     setStep((prevStep) => prevStep + 1);
                                                 }
-                                            }}
+                                            }} 
 
                                             className={`px-4 py-2 w-full bg-white rounded-full h-10 font-semibold flex items-center justify-center gap-2
                                                 ${step !== 5 || isAdding || !tickets.length > 0
@@ -2054,7 +2062,13 @@ export default function TicketEvent() {
                                         >
                                             {isAdding && addStatus === "live" ? "Loading..." : "Publish"}
                                         </button>
-                                        <OnboardLogin isAdding={isAdding} isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onTrigger={handleAddEvent} />
+                                        <OnboardLogin
+                                            isOpen={isModalOpen}
+                                            isAdding={isAdding}
+                                            onClose={() => setIsModalOpen(false)}
+                                            loginClosed={handleLoginComplete}
+                                            onTrigger={handleAddEvent}
+                                        />
                                         <OnboardDetails isAdding={isAdding} isOpen={isModalDetailsOpen} onClose={() => setIsModalDetailsOpen(false)} onTrigger={handleAddEvent} userId={userId} />
                                     </>
                                 ) : step === 6 ? (
@@ -2087,7 +2101,10 @@ export default function TicketEvent() {
 
                                             if (step === 5) {
                                                 handleAddEvent("YES", oragnizerId, "redirect");
-                                            } else {
+                                                return
+                                            }
+
+                                            if (step < 6) {
                                                 setStep((prevStep) => prevStep + 1);
                                             }
                                         }}
